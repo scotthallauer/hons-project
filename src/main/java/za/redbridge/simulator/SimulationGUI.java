@@ -56,18 +56,6 @@ public class SimulationGUI extends GUIState {
     }
 
     @Override
-    public boolean step() {
-        final Simulation simulation = (Simulation) state;
-        if (simulation.allResourcesCollected()) {
-            simulation.finish();
-            simulation.start();
-            start();
-        }
-
-        return super.step();
-    }
-
-    @Override
     public void quit() {
         super.quit();
 

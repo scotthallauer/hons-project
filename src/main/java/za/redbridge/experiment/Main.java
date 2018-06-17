@@ -65,7 +65,7 @@ public class Main
                 morphology = new KheperaIIIMorphology();
             }
         }
-
+        System.out.println(morphology);
         ScoreCalculator calculateScore =
                 new ScoreCalculator(simConfig, options.simulationRuns, morphology);
 

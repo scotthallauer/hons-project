@@ -60,67 +60,67 @@ public class KheperaIIIMorphology extends SensorMorphology
         if (config.enableProximitySensors10Degrees)
         {
             sensorModels[sensorIndex++] = new SensorModel(PROXIMITY, (float) Math.toRadians(10), 0,
-                    ProximitySensor.PROXIMITY_SENSOR_RANGE, ProximitySensor.PROXIMITY_SENSOR_FOV);
+                    ProximitySensor.RANGE, ProximitySensor.FIELD_OF_VIEW);
 
             sensorModels[sensorIndex++] = new SensorModel(PROXIMITY, (float) Math.toRadians(-10), 0,
-                    ProximitySensor.PROXIMITY_SENSOR_RANGE, ProximitySensor.PROXIMITY_SENSOR_FOV);
+                    ProximitySensor.RANGE, ProximitySensor.FIELD_OF_VIEW);
         }
 
         if (config.enableProximitySensors40Degrees)
         {
             sensorModels[sensorIndex++] = new SensorModel(PROXIMITY, (float) Math.toRadians(40), 0,
-                    ProximitySensor.PROXIMITY_SENSOR_RANGE, ProximitySensor.PROXIMITY_SENSOR_FOV);
+                    ProximitySensor.RANGE, ProximitySensor.FIELD_OF_VIEW);
 
             sensorModels[sensorIndex++] = new SensorModel(PROXIMITY, (float) Math.toRadians(-40), 0,
-                    ProximitySensor.PROXIMITY_SENSOR_RANGE, ProximitySensor.PROXIMITY_SENSOR_FOV);
+                    ProximitySensor.RANGE, ProximitySensor.FIELD_OF_VIEW);
         }
 
         if (config.enableProximitySensors75Degrees)
         {
             sensorModels[sensorIndex++] = new SensorModel(PROXIMITY, (float) Math.toRadians(75), 0,
-                    ProximitySensor.PROXIMITY_SENSOR_RANGE, ProximitySensor.PROXIMITY_SENSOR_FOV);
+                    ProximitySensor.RANGE, ProximitySensor.FIELD_OF_VIEW);
 
             sensorModels[sensorIndex++] = new SensorModel(PROXIMITY, (float) Math.toRadians(-75), 0,
-                    ProximitySensor.PROXIMITY_SENSOR_RANGE, ProximitySensor.PROXIMITY_SENSOR_FOV);
+                    ProximitySensor.RANGE, ProximitySensor.FIELD_OF_VIEW);
         }
 
         if (config.enableProximitySensors140Degrees)
         {
             sensorModels[sensorIndex++] = new SensorModel(PROXIMITY, (float) Math.toRadians(140), 0,
-                    ProximitySensor.PROXIMITY_SENSOR_RANGE, ProximitySensor.PROXIMITY_SENSOR_FOV);
+                    ProximitySensor.RANGE, ProximitySensor.FIELD_OF_VIEW);
 
             sensorModels[sensorIndex++] = new SensorModel(PROXIMITY, (float) Math.toRadians(-140),
-                    0, ProximitySensor.PROXIMITY_SENSOR_RANGE, ProximitySensor.PROXIMITY_SENSOR_FOV);
+                    0, ProximitySensor.RANGE, ProximitySensor.FIELD_OF_VIEW);
         }
 
         if (config.enableProximitySensor180Degrees)
         {
             sensorModels[sensorIndex++] = new SensorModel(PROXIMITY, (float) Math.toRadians(180), 0,
-                    ProximitySensor.PROXIMITY_SENSOR_RANGE, ProximitySensor.PROXIMITY_SENSOR_FOV);
+                    ProximitySensor.RANGE, ProximitySensor.FIELD_OF_VIEW);
         }
 
         if (config.enableUltrasonicSensor0Degrees)
         {
             sensorModels[sensorIndex++] = new SensorModel(ULTRASONIC, 0, 0,
-                    UltrasonicSensor.ULTRASONIC_SENSOR_MAX_RANGE, UltrasonicSensor.ULTRASONIC_SENSOR_FOV);
+                    UltrasonicSensor.RANGE, UltrasonicSensor.FIELD_OF_VIEW);
         }
 
         if (config.enableUltrasonicSensors40Degrees)
         {
             sensorModels[sensorIndex++] = new SensorModel(ULTRASONIC, (float) Math.toRadians(40), 0,
-                    UltrasonicSensor.ULTRASONIC_SENSOR_MAX_RANGE, UltrasonicSensor.ULTRASONIC_SENSOR_FOV);
+                    UltrasonicSensor.RANGE, UltrasonicSensor.FIELD_OF_VIEW);
 
             sensorModels[sensorIndex++] = new SensorModel(ULTRASONIC, (float) Math.toRadians(-40),
-                    0, UltrasonicSensor.ULTRASONIC_SENSOR_MAX_RANGE, UltrasonicSensor.ULTRASONIC_SENSOR_FOV);
+                    0, UltrasonicSensor.RANGE, UltrasonicSensor.FIELD_OF_VIEW);
         }
 
         if (config.enableUltrasonicSensors90Degrees)
         {
             sensorModels[sensorIndex++] = new SensorModel(ULTRASONIC, (float) Math.toRadians(90), 0,
-                    UltrasonicSensor.ULTRASONIC_SENSOR_MAX_RANGE, UltrasonicSensor.ULTRASONIC_SENSOR_FOV);
+                    UltrasonicSensor.RANGE, UltrasonicSensor.FIELD_OF_VIEW);
 
             sensorModels[sensorIndex] = new SensorModel(ULTRASONIC, (float) Math.toRadians(-90), 0,
-                    UltrasonicSensor.ULTRASONIC_SENSOR_MAX_RANGE, UltrasonicSensor.ULTRASONIC_SENSOR_FOV);
+                    UltrasonicSensor.RANGE, UltrasonicSensor.FIELD_OF_VIEW);
         }
 
         return sensorModels;

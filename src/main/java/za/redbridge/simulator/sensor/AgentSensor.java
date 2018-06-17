@@ -35,8 +35,7 @@ import static za.redbridge.simulator.Utils.isNearlyZero;
 /**
  * Describes a sensor implementation. The actual sensor is implemented in the simulator.
  */
-public abstract class AgentSensor extends Sensor<List<Double>>
-{
+public abstract class AgentSensor extends Sensor<List<Double>> {
 
     protected final float bearing;
     protected final float orientation;
@@ -51,8 +50,7 @@ public abstract class AgentSensor extends Sensor<List<Double>>
     private final List<Double> readings = new ArrayList<>();
     private final List<Double> unmodifiableReadings = Collections.unmodifiableList(readings);
 
-    public AgentSensor()
-    {
+    public AgentSensor() {
         bearing = 0.0f;
         orientation = 0.0f;
         range = 10.0f;
@@ -60,15 +58,12 @@ public abstract class AgentSensor extends Sensor<List<Double>>
         fovGradient = (float) Math.tan(fieldOfView / 2);
     }
 
-    public AgentSensor(float bearing, float orientation, float range, float fieldOfView)
-    {
-        if (fieldOfView <= 0 || fieldOfView >= Math.PI)
-        {
+    public AgentSensor(float bearing, float orientation, float range, float fieldOfView) {
+        if (fieldOfView <= 0 || fieldOfView > MathUtils.PI) {
             throw new IllegalArgumentException("Invalid field of view value: " + fieldOfView);
         }
 
-        if (range <= 0)
-        {
+        if (range <= 0) {
             throw new IllegalArgumentException("Invalid range value: " + range);
         }
 
@@ -81,8 +76,7 @@ public abstract class AgentSensor extends Sensor<List<Double>>
     }
 
     @Override
-    protected Transform createTransform(RobotObject robot)
-    {
+    protected Transform createTransform(RobotObject robot) {
         float robotRadius = robot.getRadius();
 
         float x = (float) (Math.cos(bearing) * robotRadius);
@@ -93,57 +87,36 @@ public abstract class AgentSensor extends Sensor<List<Double>>
     }
 
     @Override
-    protected Shape createShape(Transform transform)
-    {
-        Vec2[] vertices = new Vec2[3];
-        vertices[0] = new Vec2();
-        float xDiff = (float) (range * Math.cos(fieldOfView / 2));
-        float yDiff = (float) (range * Math.sin(fieldOfView / 2));
-        vertices[1] = new Vec2(xDiff, yDiff);
-        vertices[2] = new Vec2(xDiff, -yDiff);
-
-        for (int i = 0; i < 3; i++)
-        {
-            Transform.mulToOut(transform, vertices[i], vertices[i]);
-        }
-
-        PolygonShape shape = new PolygonShape();
-        shape.set(vertices, 3);
-        return shape;
+    protected Shape createShape(Transform transform) {
+        return new ConeShape(range, fieldOfView, transform);
     }
 
     @Override
-    protected int getFilterCategoryBits()
-    {
+    protected int getFilterCategoryBits() {
         return FilterConstants.CategoryBits.AGENT_SENSOR;
     }
 
     @Override
-    protected int getFilterMaskBits()
-    {
+    protected int getFilterMaskBits() {
         return FilterConstants.CategoryBits.RESOURCE
                 | FilterConstants.CategoryBits.ROBOT
                 | FilterConstants.CategoryBits.WALL;
     }
 
     @Override
-    protected Portrayal createPortrayal()
-    {
+    protected Portrayal createPortrayal() {
         return new ConePortrayal(range, fieldOfView, DEFAULT_PAINT);
     }
 
     @Override
-    protected List<Double> provideReading(List<Fixture> fixtures)
-    {
+    protected List<Double> provideReading(List<Fixture> fixtures) {
         final List<SensedObject> sensedObjects = this.sensedObjects;
         sensedObjects.clear();
 
         // Sense each fixture and filter out those that can't be sensed
-        for (Fixture fixture : fixtures)
-        {
+        for (Fixture fixture : fixtures) {
             SensedObject object = senseFixture(fixture);
-            if (object != null)
-            {
+            if (object != null) {
                 sensedObjects.add(object);
             }
         }
@@ -164,27 +137,22 @@ public abstract class AgentSensor extends Sensor<List<Double>>
 
     /**
      * Get the previous readings recorded by this sensor.
-     *
      * @return An unmodifiable list of the previous readings of this sensor
      */
-    public List<Double> getPreviousReadings()
-    {
+    public List<Double> getPreviousReadings() {
         return unmodifiableReadings;
     }
 
     /**
      * Determines whether an object lies within the field of the sensor and if so where in the field
      * the object exists.
-     *
      * @param fixture the fixture to check
      * @return a {@link SensedObject} reading if the object is in the field, else null
      */
-    private SensedObject senseFixture(Fixture fixture)
-    {
+    private SensedObject senseFixture(Fixture fixture) {
         Transform objectRelativeTransform = getFixtureRelativeTransform(fixture);
 
-        switch (fixture.getShape().getType())
-        {
+        switch (fixture.getShape().getType()) {
             case CIRCLE:
                 return senseCircleFixture(fixture, objectRelativeTransform);
             case POLYGON:
@@ -197,8 +165,7 @@ public abstract class AgentSensor extends Sensor<List<Double>>
     }
 
     protected SensedObject senseCircleFixture(Fixture circleFixture,
-                                              Transform objectRelativeTransform)
-    {
+            Transform objectRelativeTransform) {
         CircleShape circleShape = (CircleShape) circleFixture.getShape();
 
         final float x = objectRelativeTransform.p.x;
@@ -214,32 +181,26 @@ public abstract class AgentSensor extends Sensor<List<Double>>
         float yMin = -yMax;
 
         // Ensure circle actually within FoV
-        if (yMax < y0 || yMin > y1)
-        {
+        if (yMax < y0 || yMin > y1) {
             return null;
         }
 
         // Clamp circle width to FoV
-        if (y0 < yMin)
-        {
+        if (y0 < yMin) {
             x0 = lineCircleIntersection(-fovGradient, 0, x, y, radius);
             y0 = -fovGradient * x0;
         }
-        if (y1 > yMax)
-        {
+        if (y1 > yMax) {
             x1 = lineCircleIntersection(fovGradient, 0, x, y, radius);
             y1 = fovGradient * x1;
         }
 
         final float distance;
-        if (y < yMin)
-        {
+        if (y < yMin) {
             distance = (float) Math.hypot(x0, y0);
-        } else if (y > yMax)
-        {
+        } else if (y > yMax) {
             distance = (float) Math.hypot(x1, y1);
-        } else
-        {
+        } else {
             distance = objectRelativeTransform.p.length() - radius;
         }
 
@@ -247,8 +208,7 @@ public abstract class AgentSensor extends Sensor<List<Double>>
                 y0, x1, y1);
     }
 
-    private float lineCircleIntersection(float m, float c, float p, float q, float r)
-    {
+    private float lineCircleIntersection(float m, float c, float p, float q, float r) {
         float A = m * m + 1;
         float B = 2 * (m * c - m * q - p);
         float C = q * q - r * r + p * p - 2 * c * q + c * c;
@@ -257,8 +217,7 @@ public abstract class AgentSensor extends Sensor<List<Double>>
     }
 
     protected SensedObject sensePolygonFixture(Fixture polygonFixture,
-                                               Transform objectRelativeTransform)
-    {
+            Transform objectRelativeTransform) {
         PolygonShape polygonShape = (PolygonShape) polygonFixture.getShape();
 
         RayCastInput rin = new RayCastInput();
@@ -268,24 +227,20 @@ public abstract class AgentSensor extends Sensor<List<Double>>
         polygonShape.raycast(rout, rin, objectRelativeTransform, 0);
 
         // If raycast down the middle unsuccessful, try the edges of the field of view
-        if (rout.fraction == 0f)
-        {
+        if (rout.fraction == 0f) {
             rin.p2.y = fovGradient * range;
             polygonShape.raycast(rout, rin, objectRelativeTransform, 0);
         }
 
-        if (rout.fraction == 0f)
-        {
+        if (rout.fraction == 0f) {
             rin.p2.y = -rin.p2.y;
             polygonShape.raycast(rout, rin, objectRelativeTransform, 0);
         }
 
-        if (rout.fraction == 0f)
-        {
+        if (rout.fraction == 0f) {
             // Check if sensor is inside or in contact with other object
             // If not, raycasting hit nothing
-            if (!polygonFixture.testPoint(getSensorTransform().p))
-            {
+            if (!polygonFixture.testPoint(getSensorTransform().p)) {
                 return null;
             }
         }
@@ -297,28 +252,24 @@ public abstract class AgentSensor extends Sensor<List<Double>>
         float x0 = aabb.lowerBound.x;
         float y0 = aabb.lowerBound.y;
 
-        if (x0 < 0)
-        {
+        if (x0 < 0) {
             x0 = 0;
         }
 
         float yMin = -fovGradient * x0;
-        if (y0 < yMin)
-        {
+        if (y0 < yMin) {
             y0 = yMin;
         }
 
         float x1 = aabb.upperBound.x;
         float y1 = aabb.upperBound.y;
 
-        if (x1 > range)
-        {
+        if (x1 > range) {
             x1 = range;
         }
 
         float yMax = fovGradient * x1;
-        if (y1 > yMax)
-        {
+        if (y1 > yMax) {
             y1 = yMax;
         }
 
@@ -327,8 +278,7 @@ public abstract class AgentSensor extends Sensor<List<Double>>
     }
 
     protected SensedObject senseEdgeFixture(Fixture edgeFixture,
-                                            Transform objectRelativeTransform)
-    {
+            Transform objectRelativeTransform) {
         EdgeShape edgeShape = (EdgeShape) edgeFixture.getShape();
 
         // Transform ends of edge to space relative to sensor
@@ -340,10 +290,8 @@ public abstract class AgentSensor extends Sensor<List<Double>>
         float dx = v2.x - v1.x;
         float x1, y1, x2, y2;
         final float distance;
-        if (isNearlyZero(dy))
-        { // Horizontal line (shouldn't happen generally)
-            if (v2.x < v1.x)
-            {
+        if (isNearlyZero(dy)) { // Horizontal line (shouldn't happen generally)
+            if (v2.x < v1.x) {
                 Vec2 temp = v2;
                 v2 = v1;
                 v1 = temp;
@@ -355,10 +303,8 @@ public abstract class AgentSensor extends Sensor<List<Double>>
             x2 = Math.min(MathUtils.sqrt(range * range - y2 * y2), v2.x);
 
             distance = (float) Math.hypot(x1, y1);
-        } else if (isNearlyZero(dx))
-        { // Vertical line
-            if (v2.y < v1.y)
-            {
+        } else if (isNearlyZero(dx)) { // Vertical line
+            if (v2.y < v1.y) {
                 Vec2 temp = v2;
                 v2 = v1;
                 v1 = temp;
@@ -369,20 +315,15 @@ public abstract class AgentSensor extends Sensor<List<Double>>
             y1 = Math.max(x1 * -fovGradient, v1.y);
             y2 = Math.min(x2 * fovGradient, v2.y);
 
-            if (y1 > 0)
-            {
+            if (y1 > 0) {
                 distance = (float) Math.hypot(x1, y1); // Distance to bottom point
-            } else if (y2 < 0)
-            {
+            } else if (y2 < 0) {
                 distance = (float) Math.hypot(x2, y2); // Distance to top point
-            } else
-            {
+            } else {
                 distance = x1; // Distance straight to line
             }
-        } else
-        { // Other line - use line equations
-            if (v2.y < v1.y)
-            {
+        } else { // Other line - use line equations
+            if (v2.y < v1.y) {
                 Vec2 temp = v2;
                 v2 = v1;
                 v1 = temp;
@@ -398,14 +339,12 @@ public abstract class AgentSensor extends Sensor<List<Double>>
             x2 = (fovGradient - c) / m;
             y2 = m * x2 + c;
 
-            if (v1.y > y1)
-            {
+            if (v1.y > y1) {
                 y1 = v1.y;
                 x1 = v1.x;
             }
 
-            if (v2.y < y2)
-            {
+            if (v2.y < y2) {
                 y2 = v2.y;
                 x2 = v2.x;
             }
@@ -418,14 +357,11 @@ public abstract class AgentSensor extends Sensor<List<Double>>
             // Closest point on infinite edge is at point perpendicular line intersect with edge
             // line... but edge is not infinite
             float x = (m - m_) / (c_ - c);
-            if (x > x2)
-            {
+            if (x > x2) {
                 distance = (float) Math.hypot(x2, y2);
-            } else if (x < x1)
-            {
+            } else if (x < x1) {
                 distance = (float) Math.hypot(x1, y1);
-            } else
-            {
+            } else {
                 float y = m * x + c;
                 distance = (float) Math.hypot(x, y);
             }
@@ -437,31 +373,26 @@ public abstract class AgentSensor extends Sensor<List<Double>>
     /**
      * Decide whether to filter out a given PhysicalObject instance due to some state changing in
      * the object being observed.
-     *
      * @param object an object in the fixture list
      * @return true if the object should be ignored
      */
-    protected boolean filterOutObject(PhysicalObject object)
-    {
+    protected boolean filterOutObject(PhysicalObject object) {
         return false;
     }
 
     /**
      * Converts a list of objects that have been determined to fall within the sensor's range into
      * a list of readings in the range [0.0, 1.0].
-     *
      * @param objects the objects in the sensor's field, *sorted by distance*
-     * @param output  the output vector for this sensor. Write the sensor output to this list (which
-     *                should be empty).
+     * @param output the output vector for this sensor. Write the sensor output to this list (which
+     *               should be empty).
      */
     protected abstract void provideObjectReading(List<SensedObject> objects, List<Double> output);
 
     public abstract void readAdditionalConfigs(Map<String, Object> map) throws ParseException;
 
-    protected static boolean checkFieldPresent(Object field, String name)
-    {
-        if (field != null)
-        {
+    protected static boolean checkFieldPresent(Object field, String name) {
+        if (field != null) {
             return true;
         }
         System.out.println("Field '" + name + "' not present, using default");
@@ -473,25 +404,21 @@ public abstract class AgentSensor extends Sensor<List<Double>>
 
     public abstract int getReadingSize();
 
-    public abstract Map<String, Object> getAdditionalConfigs();
+    public abstract Map<String,Object> getAdditionalConfigs();
 
-    public float getBearing()
-    {
+    public float getBearing() {
         return bearing;
     }
 
-    public float getOrientation()
-    {
+    public float getOrientation() {
         return orientation;
     }
 
-    public float getRange()
-    {
+    public float getRange() {
         return range;
     }
 
-    public float getFieldOfView()
-    {
+    public float getFieldOfView() {
         return fieldOfView;
     }
 }
