@@ -5,7 +5,8 @@ package za.redbridge.experiment.NEATM.sensor.parameter.spec;
  *
  * Created by jamie on 2014/11/26.
  */
-public enum ParameterType {
+public enum ParameterType
+{
     /**
      * The bearing of the sensor relative to the forward vector of the robot.
      */

@@ -26,35 +26,42 @@ import static za.redbridge.experiment.Utils.readObjectFromFile;
 
 /**
  * Entry point for the experiment platform.
- *
+ * <p>
  * Created by jamie on 2014/09/09.
  */
-public class Main {
+public class Main
+{
 
     private static final Logger log = LoggerFactory.getLogger(Main.class);
 
     private static final double CONVERGENCE_SCORE = 110;
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException
+    {
         Args options = new Args();
         new JCommander(options, args);
 
         log.info(options.toString());
 
         SimConfig simConfig;
-        if (!isBlank(options.configFile)) {
+        if (!isBlank(options.configFile))
+        {
             simConfig = new SimConfig(options.configFile);
-        } else {
+        } else
+        {
             simConfig = new SimConfig();
         }
 
         // Load the morphology
         SensorMorphology morphology = null;
-        if (options.control) {
-            if (!isBlank(options.morphologyPath)) {
+        if (options.control)
+        {
+            if (!isBlank(options.morphologyPath))
+            {
                 NEATMNetwork network = (NEATMNetwork) readObjectFromFile(options.morphologyPath);
                 morphology = network.getSensorMorphology();
-            } else {
+            } else
+            {
                 morphology = new KheperaIIIMorphology();
             }
         }
@@ -63,7 +70,8 @@ public class Main {
                 new ScoreCalculator(simConfig, options.simulationRuns, morphology);
 
 
-        if (!isBlank(options.genomePath)) {
+        if (!isBlank(options.genomePath))
+        {
             NEATNetwork network = (NEATNetwork) readObjectFromFile(options.genomePath);
             calculateScore.demo(network);
             return;
@@ -71,12 +79,16 @@ public class Main {
 
 
         final NEATPopulation population;
-        if (!isBlank(options.populationPath)) {
+        if (!isBlank(options.populationPath))
+        {
             population = (NEATPopulation) readObjectFromFile(options.populationPath);
-        } else {
-            if (!options.control) {
+        } else
+        {
+            if (!options.control)
+            {
                 population = new NEATMPopulation(2, options.populationSize);
-            } else {
+            } else
+            {
                 population = new NEATPopulation(morphology.getNumSensors(), 2, options.populationSize);
             }
             population.setInitialConnectionDensity(options.connectionDensity);
@@ -86,23 +98,28 @@ public class Main {
         }
 
         TrainEA train;
-        if (!options.control) {
+        if (!options.control)
+        {
             train = NEATMUtil.constructNEATTrainer(population, calculateScore);
-        } else {
+        } else
+        {
             train = NEATUtil.constructNEATTrainer(population, calculateScore);
         }
 
         log.info("Available processors detected: " + Runtime.getRuntime().availableProcessors());
-        if (options.threads > 0) {
+        if (options.threads > 0)
+        {
             train.setThreadCount(options.threads);
         }
 
         final StatsRecorder statsRecorder = new StatsRecorder(train, calculateScore);
-        for (int i = train.getIteration(); i < options.numIterations; i++) {
+        for (int i = train.getIteration(); i < options.numIterations; i++)
+        {
             train.iteration();
             statsRecorder.recordIterationStats();
 
-            if (train.getBestGenome().getScore() >= CONVERGENCE_SCORE) {
+            if (train.getBestGenome().getScore() >= CONVERGENCE_SCORE)
+            {
                 log.info("Convergence reached at epoch " + train.getIteration());
                 break;
             }
@@ -117,7 +134,8 @@ public class Main {
         calculateScore.demo(bestPerformingNetwork);
     }
 
-    private static class Args {
+    private static class Args
+    {
         @Parameter(names = "-c", description = "Simulation config file to load")
         private String configFile = "config/bossConfig.yml";
 
@@ -154,7 +172,8 @@ public class Main {
         private int threads = 0;
 
         @Override
-        public String toString() {
+        public String toString()
+        {
             return "Options: \n"
                     + "\tConfig file path: " + configFile + "\n"
                     + "\tNumber of simulation steps: " + numIterations + "\n"
