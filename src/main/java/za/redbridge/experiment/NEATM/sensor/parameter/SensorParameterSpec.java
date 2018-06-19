@@ -32,12 +32,10 @@ public class SensorParameterSpec implements Serializable {
     float applyLimit(float oldValue, float newValue) {
         float limitedValue = newValue;
         if (!range.isValueWithinRange(newValue)) {
-            System.out.println("limit value not in range"+limitedValue);
             limitedValue = limiter.limitValue(oldValue, newValue, range);
             if (!range.isValueWithinRange(limitedValue)) {
                 throw new RuntimeException("Limiter failed to limit parameter value, unlimited: " + newValue + ", limited: " + limitedValue);
             }
-            System.out.println("changed to "+limitedValue);
         }
 
         return limitedValue;

@@ -50,7 +50,8 @@ public class MutatePerturbSensorParameter implements MutateSensor {
                 sensorConfiguration.getSensorParameterSet().getParameter(parameterType);
 
         float newValue = (float) (sensorParameter.getValue() + delta);
-        sensorParameter.setValue(newValue);
+        sensorParameter.
+                setValue(newValue);
     }
 
     @Override

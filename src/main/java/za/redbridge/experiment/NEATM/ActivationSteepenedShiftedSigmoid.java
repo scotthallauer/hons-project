@@ -46,6 +46,7 @@ public class ActivationSteepenedShiftedSigmoid implements ActivationFunction {
     @Override
     public void setParam(int index, double value) {
         // NO-OP
+
     }
 
     @Override

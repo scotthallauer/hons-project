@@ -35,7 +35,7 @@ public final class NEATUtil {
     }
 
     /**
-     * Construct a NEAT (or HyperNEAT trainer.
+     * Construct a NEAT (or HyperNEAT trainer)
      * @param population The population.
      * @param calculateScore The score function.
      * @return The NEAT EA trainer.
