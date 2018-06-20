@@ -25,7 +25,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class HyperNEATMCODEC implements GeneticCODEC {
-    //what are these for? must investigate.
+
     private double minWeight = 0.2;
     private double maxWeight = 5.0;
 
@@ -40,14 +40,14 @@ public class HyperNEATMCODEC implements GeneticCODEC {
     }
 
     public MLMethod decode(final NEATPopulation pop, final Substrate substrate, final Genome genome) {
-        // obtain the CPPN
+        //obtain the CPPN
         final NEATCODEC neatCodec = new NEATCODEC();
         final NEATNetwork cppn = (NEATNetwork) neatCodec.decode(genome);
 
+        //setup for creating a new ANN from CPPN and substrate
         final List<NEATLink> linkList = new ArrayList<NEATLink>();
 
-        final ActivationFunction[] afs = new ActivationFunction[substrate
-                .getNodeCount()];
+        final ActivationFunction[] afs = new ActivationFunction[substrate.getNodeCount()];
 
         final ActivationFunction af = new ActivationSteepenedSigmoid();
         // all activation functions are the same
@@ -58,7 +58,14 @@ public class HyperNEATMCODEC implements GeneticCODEC {
         final double c = this.maxWeight / (1.0 - this.minWeight);
         final MLData input = new BasicMLData(cppn.getInputCount());
 
-        // First create all of the non-bias links.
+        //create sensor morphology for each input node
+        List<SubstrateNode> SubstrateInputNodes = substrate.getInputNodes();
+        int inputCount =0;
+
+
+
+        // First create all of the non-bias links and create a list sensor morphology
+        List<SensorModel> sensorModelsList = new ArrayList<SensorModel>();
         for (final SubstrateLink link : substrate.getLinks()) {
             final SubstrateNode source = link.getSource();
             final SubstrateNode target = link.getTarget();
@@ -73,19 +80,19 @@ public class HyperNEATMCODEC implements GeneticCODEC {
             final MLData output = cppn.compute(input);
 
             double weight = output.getData(0);
-            //index 0 =weight, index 1= fov, index
-            if (Math.abs(weight) > this.minWeight) {
-                weight = (Math.abs(weight) - this.minWeight) * c
-                        * Math.signum(weight);
-                linkList.add(new NEATLink(source.getId(), target.getId(),
-                        weight));
 
-                // if src ||traget ==input
-                // fov = output
+            if (Math.abs(weight) > this.minWeight) {
+                weight = (Math.abs(weight) - this.minWeight) * c * Math.signum(weight);
+                linkList.add(new NEATLink(source.getId(), target.getId(), weight));
+
+
+
+
             }
         }
 
         // now create biased links
+
         input.clear();
         final int d = substrate.getDimensions();
         final List<SubstrateNode> biasedNodes = substrate.getBiasedNodes();
@@ -110,20 +117,15 @@ public class HyperNEATMCODEC implements GeneticCODEC {
         }
 
         Collections.sort(linkList);
+        SensorModel[] sensorModels = sensorModelsList.toArray(new SensorModel[sensorModelsList.size()]);
 
-//        // Create the sensor morphology
-//        final int inputCount = neatGenome.getInputCount();
-//        final List<NEATMNeuronGene> inputNeurons = neatGenome.getInputNeuronsChromosome();
-//        SensorModel[] sensorModels = new SensorModel[inputCount];
-//        for (int i = 0; i < inputCount; i++) {
-//            NEATMNeuronGene inputNeuron = inputNeurons.get(i);
-//            sensorModels[i] = inputNeuron.getSensorConfiguration().toSensorModel();
-//        }
-//
-//        SensorMorphology morphology = new SensorMorphology(sensorModels);
+        SensorMorphology morphology = new SensorMorphology(sensorModels);
 
-        final NEATNetwork network = new NEATNetwork(substrate.getInputCount(),
-                substrate.getOutputCount(), linkList, afs);
+        //copySubstrate
+
+        final NEATMNetwork network = new NEATMNetwork(substrate.getInputCount(),
+                substrate.getOutputCount(), linkList, afs,morphology);
+
 
         network.setActivationCycles(substrate.getActivationCycles());
         return network;
