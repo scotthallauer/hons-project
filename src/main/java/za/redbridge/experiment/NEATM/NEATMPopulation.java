@@ -12,14 +12,16 @@ import za.redbridge.experiment.NEAT.NEATPopulation;
 /**
  * Created by jamie on 2014/09/08.
  */
-public class NEATMPopulation extends NEATPopulation {
+public class NEATMPopulation extends NEATPopulation
+{
 
     private static final long serialVersionUID = -6647644833955733411L;
 
     /**
      * An empty constructor for serialization.
      */
-    public NEATMPopulation() {
+    public NEATMPopulation()
+    {
 
     }
 
@@ -27,17 +29,17 @@ public class NEATMPopulation extends NEATPopulation {
      * Construct a starting NEAT population. This does not generate the initial
      * random population of genomes.
      *
-     * @param outputCount
-     *            The output neuron count.
-     * @param populationSize
-     *            The population size.
+     * @param outputCount    The output neuron count.
+     * @param populationSize The population size.
      */
-    public NEATMPopulation(int outputCount, int populationSize) {
-        super(SensorType.values().length, outputCount, populationSize);
-    }
+    public NEATMPopulation(int outputCount, int populationSize)
+    {
+        super(SensorType.values().length, outputCount, populationSize); // inputCount = SensorType.values().length
+    }                                                                   // This is because initial population begins with one of each sensor type.
 
     @Override
-    public void reset() {
+    public void reset()
+    {
         setCODEC(new NEATMCODEC());
         setGenomeFactory(new FactorNEATMGenome());
 
@@ -55,7 +57,8 @@ public class NEATMPopulation extends NEATPopulation {
         defaultSpecies.setPopulation(this);
 
         // create the initial population
-        for (int i = 0; i < getPopulationSize(); i++) {
+        for (int i = 0; i < getPopulationSize(); i++)
+        {
             final NEATGenome genome = getGenomeFactory().factor(rnd, this,
                     getInputCount(), getOutputCount(), getInitialConnectionDensity());
             defaultSpecies.add(genome);
