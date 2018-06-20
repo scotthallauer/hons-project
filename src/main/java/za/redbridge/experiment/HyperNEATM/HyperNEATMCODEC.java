@@ -22,6 +22,7 @@ import za.redbridge.experiment.NEATM.sensor.SensorMorphology;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 public class HyperNEATMCODEC implements GeneticCODEC {
@@ -58,14 +59,17 @@ public class HyperNEATMCODEC implements GeneticCODEC {
         final double c = this.maxWeight / (1.0 - this.minWeight);
         final MLData input = new BasicMLData(cppn.getInputCount());
 
-        //create sensor morphology for each input node
-        List<SubstrateNode> SubstrateInputNodes = substrate.getInputNodes();
-        int inputCount =0;
+        //create map for each input node and sensor
+        HashMap<Integer, HyperNEATMSensorBuilder> InputNodeSensorMap = new HashMap<Integer, HyperNEATMSensorBuilder>();
+
+        for(SubstrateNode Inputnode: substrate.getInputNodes() ){
+            InputNodeSensorMap.put(Inputnode.getId(), new HyperNEATMSensorBuilder(Inputnode.getId(),Inputnode.getLocation()));
+        }
 
 
 
         // First create all of the non-bias links and create a list sensor morphology
-        List<SensorModel> sensorModelsList = new ArrayList<SensorModel>();
+
         for (final SubstrateLink link : substrate.getLinks()) {
             final SubstrateNode source = link.getSource();
             final SubstrateNode target = link.getTarget();
@@ -84,7 +88,23 @@ public class HyperNEATMCODEC implements GeneticCODEC {
             if (Math.abs(weight) > this.minWeight) {
                 weight = (Math.abs(weight) - this.minWeight) * c * Math.signum(weight);
                 linkList.add(new NEATLink(source.getId(), target.getId(), weight));
-
+                //if is an input node
+                if (InputNodeSensorMap.containsKey(source.getId())||InputNodeSensorMap.containsKey(target.getId())){
+                    //input nodes never connected
+                    int IDUsing=source.getId();
+                    if (InputNodeSensorMap.containsKey(target.getId())){
+                        IDUsing =target.getId();
+                    }
+                    //update the sensors values
+                    HyperNEATMSensorBuilder sensorBuilder = InputNodeSensorMap.get(IDUsing);
+                    sensorBuilder.addWeights((float) (output.getData(0)));
+                    sensorBuilder.addFOVs((float) (output.getData(1)));
+                    sensorBuilder.addOrientations((float) (output.getData(2)));
+                    sensorBuilder.addRanges((float) (output.getData(3)));
+                    sensorBuilder.addSensorTypes((float) (output.getData(4)));
+                    //ensures no memmory issues (look into this)
+                    InputNodeSensorMap.put(IDUsing, sensorBuilder);
+                }
 
 
 
@@ -117,15 +137,26 @@ public class HyperNEATMCODEC implements GeneticCODEC {
         }
 
         Collections.sort(linkList);
-        SensorModel[] sensorModels = sensorModelsList.toArray(new SensorModel[sensorModelsList.size()]);
 
+        //create sensor Morphology
+        List<SensorModel> sensorModelsList = new ArrayList<SensorModel>();
+        //keeps track of how many input nodes are being used for constuctoe
+        int finalInputCount =0;
+
+        for(SubstrateNode Inputnode: substrate.getInputNodes() ){
+
+            HyperNEATMSensorBuilder build = InputNodeSensorMap.get(Inputnode.getId());
+            if (build.isValidSensor()){ //checks if the input node has connections
+                finalInputCount++;
+                sensorModelsList.add(build.createSensorModel());
+            }
+
+        }
+        //convert list to array for constructor
+        SensorModel[] sensorModels = sensorModelsList.toArray(new SensorModel[sensorModelsList.size()]);
         SensorMorphology morphology = new SensorMorphology(sensorModels);
 
-        //copySubstrate
-
-        final NEATMNetwork network = new NEATMNetwork(substrate.getInputCount(),
-                substrate.getOutputCount(), linkList, afs,morphology);
-
+        final NEATMNetwork network = new NEATMNetwork(finalInputCount, substrate.getOutputCount(), linkList, afs,morphology);
 
         network.setActivationCycles(substrate.getActivationCycles());
         return network;

@@ -2,6 +2,7 @@ package za.redbridge.experiment.HyperNEATM;
 
 import za.redbridge.experiment.NEATM.sensor.SensorModel;
 import za.redbridge.experiment.NEATM.sensor.SensorType;
+import za.redbridge.experiment.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +13,7 @@ import java.util.List;
  * Stores an arrayList for each sensor param
  * @TODO look into location translation to position
  */
-public class HyperNEATSensorBuilder {
+public class HyperNEATMSensorBuilder {
 
     /**
      * The ID of this input node.
@@ -41,35 +42,42 @@ public class HyperNEATSensorBuilder {
      */
     private List<Float> sensorTypes;
 
+    private double[] SensorLocation;
+
     /**
      * Construct the builder with id.
      * @param id
      */
 
 
-    public HyperNEATSensorBuilder(int id) {
+    public HyperNEATMSensorBuilder(int id, double[] location) {
         this.id =id;
         ranges = new ArrayList<>();
         weights = new ArrayList<>();
         FOVs= new ArrayList<>();
         orientations = new ArrayList<>();
         sensorTypes = new ArrayList<>();
+        SensorLocation = location;
+
     }
 
     public void addRanges(Float range) {
         ranges.add(range);
     }
 
-    public void setWeights(Float weight) {
+    public void addWeights(Float weight) {
         weights.add(weight);
     }
 
-    public void setFOVs(Float FOV) {
+    public void addFOVs(Float FOV) {
         FOVs.add(FOV);
     }
 
-    public void setOrientations(Float orientation) {
+    public void addOrientations(Float orientation) {
         orientations.add(orientation);
+    }
+
+    public void addSensorTypes(Float sensorType) {sensorTypes.add(sensorType);
     }
     /**
      * Checks if sensor should be created (ie: has valid connections
@@ -93,7 +101,7 @@ public class HyperNEATSensorBuilder {
             }
         }
         
-        return new SensorModel(getSensorType(sensorTypeValue), 0, calculateAverage(orientations),calculateAverage(ranges), calculateAverage(FOVs));
+        return new SensorModel(getSensorType(sensorTypeValue), convertCartesianToRadians(), calculateAverage(orientations),calculateAverage(ranges), calculateAverage(FOVs));
    }
     //maps a float to a sensorType
     //@TODO implement actual map (for now just return
@@ -107,5 +115,11 @@ public class HyperNEATSensorBuilder {
             sum+=arrayList.get(i);
         }
         return sum/arrayList.size();
+   }
+
+   public float convertCartesianToRadians(){
+       return (float) za.redbridge.simulator.Utils.wrapAngle( Math.atan( SensorLocation[1]/SensorLocation[0]));
+
+
    }
 }
