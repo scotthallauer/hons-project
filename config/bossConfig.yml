@@ -1,15 +1,15 @@
 ---
 simulation:
-  iterations: 10
+  iterations: 1000
 resources:
   small:
-    quantity: 3
+    quantity: 10
     width: 0.4
     height: 0.4
     mass: 1.0
     pushingBots: 1
   medium:
-    quantity: 0
+    quantity: 5
     width: 0.6
     height: 0.6
     mass: 3.0
@@ -26,7 +26,7 @@ factories:
   resourceFactory: za.redbridge.simulator.factories.ConfigurableResourceFactory
   robotFactory: za.redbridge.simulator.factories.HomogeneousRobotFactory
 robots:
-  numRobots: 5
+  numRobots: 20
   mass: 0.7
   radius: 0.15
   colour: 0, 0, 0

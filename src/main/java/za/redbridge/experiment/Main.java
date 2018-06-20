@@ -97,10 +97,10 @@ public class Main
         }
 
         TrainEA train;
-        if (!options.control)
+        if (!options.control)    // if using NEATM
         {
             train = NEATMUtil.constructNEATTrainer(population, calculateScore);
-        } else
+        } else                   // if using NEAT (control case)
         {
             train = NEATUtil.constructNEATTrainer(population, calculateScore);
         }
@@ -139,10 +139,10 @@ public class Main
         private String configFile = "config/bossConfig.yml";
 
         @Parameter(names = "-i", description = "Number of simulation iterations to train for")
-        private int numIterations = 10;
+        private int numIterations = 500;
 
         @Parameter(names = "-p", description = "Initial population size")
-        private int populationSize = 10;
+        private int populationSize = 75;
 
         @Parameter(names = "--sim-runs", description = "Number of simulation runs per iteration")
         private int simulationRuns = 3;
