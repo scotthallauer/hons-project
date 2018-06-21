@@ -5,6 +5,7 @@ import com.beust.jcommander.Parameter;
 
 import org.encog.Encog;
 import org.encog.ml.ea.train.basic.TrainEA;
+import org.encog.neural.hyperneat.substrate.Substrate;
 import org.encog.neural.neat.NEATNetwork;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +19,7 @@ import za.redbridge.experiment.NEATM.NEATMUtil;
 import za.redbridge.experiment.NEATM.sensor.SensorMorphology;
 import za.redbridge.experiment.NEAT.NEATPopulation;
 import za.redbridge.experiment.NEAT.NEATUtil;
+import za.redbridge.experiment.HyperNEATM.SubstrateFactory;
 import za.redbridge.simulator.config.SimConfig;
 
 
@@ -66,7 +68,7 @@ public class Main
             }
         }
         ScoreCalculator calculateScore =
-                new ScoreCalculator(simConfig, options.simulationRuns, morphology);
+                new ScoreCalculator(simConfig, options.simulationRuns, morphology, options.hyperNEATM);
 
 
         if (!isBlank(options.genomePath))
@@ -83,12 +85,20 @@ public class Main
             population = (NEATPopulation) readObjectFromFile(options.populationPath);
         } else
         {
-            if (!options.control)
+            if (options.hyperNEATM)
             {
-                population = new NEATMPopulation(2, options.populationSize);
-            } else
+                Substrate substrate = SubstrateFactory.createKheperaSubstrate(simConfig.getMinDistBetweenSensors(), simConfig.getRobotRadius());
+                population = new NEATMPopulation(substrate, options.populationSize);
+            }
+            else
             {
-                population = new NEATPopulation(morphology.getNumSensors(), 2, options.populationSize);
+                if (!options.control)
+                {
+                    population = new NEATMPopulation(2, options.populationSize);
+                } else
+                {
+                    population = new NEATPopulation(morphology.getNumSensors(), 2, options.populationSize);
+                }
             }
             population.setInitialConnectionDensity(options.connectionDensity);
             population.reset();
@@ -97,12 +107,19 @@ public class Main
         }
 
         TrainEA train;
-        if (!options.control)    // if using NEATM
-        {
-            train = NEATMUtil.constructNEATTrainer(population, calculateScore);
-        } else                   // if using NEAT (control case)
+        if(options.hyperNEATM)
         {
             train = NEATUtil.constructNEATTrainer(population, calculateScore);
+        }
+        else
+        {
+            if (!options.control)    // if using NEATM
+            {
+                train = NEATMUtil.constructNEATTrainer(population, calculateScore);
+            } else                   // if using NEAT (control case)
+            {
+                train = NEATUtil.constructNEATTrainer(population, calculateScore);
+            }
         }
 
         log.info("Available processors detected: " + Runtime.getRuntime().availableProcessors());
@@ -112,6 +129,7 @@ public class Main
         }
 
         final StatsRecorder statsRecorder = new StatsRecorder(train, calculateScore);
+
         for (int i = train.getIteration(); i < options.numIterations; i++)
         {
             train.iteration();
@@ -162,6 +180,9 @@ public class Main
                 + " control case")
         private String morphologyPath = null;
 
+        @Parameter(names = "--HyperNEATM", description = "Using HyperNEATM")
+        private boolean hyperNEATM = true;
+
         @Parameter(names = "--population", description = "To resume a previous experiment, provide"
                 + " the path to a serialized population")
         private String populationPath = null;
@@ -181,6 +202,7 @@ public class Main
                     + "\tInitial connection density: " + connectionDensity + "\n"
                     + "\tDemo network config path: " + genomePath + "\n"
                     + "\tRunning with the control case: " + control + "\n"
+                    + "\tHyperNEATM: " + hyperNEATM + "\n"
                     + "\tMorphology path: " + morphologyPath + "\n"
                     + "\tPopulation path: " + populationPath + "\n"
                     + "\tNumber of threads: " + threads;

@@ -165,7 +165,8 @@ public class StatsRecorder {
         saveStats(filepath, epoch, max, min, mean, sd);
     }
 
-    private NEATNetwork decodeGenome(Genome genome) {
+    private NEATNetwork decodeGenome(Genome genome)
+    {
         return (NEATNetwork) trainer.getCODEC().decode(genome);
     }
 

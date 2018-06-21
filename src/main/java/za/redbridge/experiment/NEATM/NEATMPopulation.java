@@ -65,6 +65,7 @@ public class NEATMPopulation extends NEATPopulation
     @Override
     public void reset()
     {
+
         // create the genome factory
         if (isHyperNEAT())                                  // Just checks if NEAT(M)Population has a valid substrate.
         {

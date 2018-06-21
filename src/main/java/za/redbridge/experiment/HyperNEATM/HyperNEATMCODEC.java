@@ -102,7 +102,7 @@ public class HyperNEATMCODEC implements GeneticCODEC {
                     sensorBuilder.addOrientations((float) (output.getData(2)));
                     sensorBuilder.addRanges((float) (output.getData(3)));
                     sensorBuilder.addSensorTypes((float) (output.getData(4)));
-                    //ensures no memmory issues (look into this)
+                    //ensures no memory issues (look into this)
                     InputNodeSensorMap.put(IDUsing, sensorBuilder);
                 }
 
@@ -159,6 +159,7 @@ public class HyperNEATMCODEC implements GeneticCODEC {
         final NEATMNetwork network = new NEATMNetwork(finalInputCount, substrate.getOutputCount(), linkList, afs,morphology);
 
         network.setActivationCycles(substrate.getActivationCycles());
+
         return network;
 
     }

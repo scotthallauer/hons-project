@@ -4,6 +4,7 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.commons.math3.stat.descriptive.SynchronizedDescriptiveStatistics;
 import org.encog.ml.CalculateScore;
 import org.encog.ml.MLMethod;
+import org.encog.ml.ea.genome.Genome;
 import org.encog.neural.neat.NEATNetwork;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.TimeUnit;
 
 import sim.display.Console;
+import za.redbridge.experiment.HyperNEATM.HyperNEATMCODEC;
 import za.redbridge.experiment.NEATM.NEATMNetwork;
 import za.redbridge.experiment.NEATM.sensor.SensorMorphology;
 import za.redbridge.simulator.Simulation;
@@ -22,10 +24,11 @@ import za.redbridge.simulator.phenotype.Phenotype;
 
 /**
  * Test runner for the simulation.
- * 
+ * <p>
  * Created by jamie on 2014/09/09.
  */
-public class ScoreCalculator implements CalculateScore {
+public class ScoreCalculator implements CalculateScore
+{
 
     private static final Logger log = LoggerFactory.getLogger(ScoreCalculator.class);
 
@@ -36,19 +39,23 @@ public class ScoreCalculator implements CalculateScore {
     private final DescriptiveStatistics performanceStats = new SynchronizedDescriptiveStatistics();
     private final DescriptiveStatistics scoreStats = new SynchronizedDescriptiveStatistics();
     private final DescriptiveStatistics sensorStats;
+    private boolean hyperNEAT;
 
     public ScoreCalculator(SimConfig simConfig, int simulationRuns,
-            SensorMorphology sensorMorphology) {
+                           SensorMorphology sensorMorphology, boolean hyperNEAT )
+    {
         this.simConfig = simConfig;
         this.simulationRuns = simulationRuns;
         this.sensorMorphology = sensorMorphology;
+        this.hyperNEAT = hyperNEAT;
 
         // If fixed morphology then don't record sensor stats
         this.sensorStats = isEvolvingMorphology() ? new SynchronizedDescriptiveStatistics() : null;
     }
 
     @Override
-    public double calculateScore(MLMethod method) {
+    public double calculateScore(MLMethod method)
+    {
         long start = System.nanoTime();
 
         NEATNetwork network = (NEATNetwork) method;
@@ -60,7 +67,8 @@ public class ScoreCalculator implements CalculateScore {
         Simulation simulation = new Simulation(simConfig, robotFactory);
         simulation.setStopOnceCollected(true);
         double fitness = 0;
-        for (int i = 0; i < simulationRuns; i++) {
+        for (int i = 0; i < simulationRuns; i++)
+        {
             simulation.run();
             fitness += simulation.getFitness().getTeamFitness();
             fitness += 20 * (1.0 - simulation.getProgressFraction()); // Time bonus
@@ -70,7 +78,8 @@ public class ScoreCalculator implements CalculateScore {
         double score = fitness / simulationRuns;
         scoreStats.addValue(score);
 
-        if (isEvolvingMorphology()) {
+        if (isEvolvingMorphology() || hyperNEAT)
+        {
             sensorStats.addValue(network.getInputCount());
         }
 
@@ -82,7 +91,8 @@ public class ScoreCalculator implements CalculateScore {
         return score;
     }
 
-    public void demo(MLMethod method) {
+    public void demo(MLMethod method)
+    {
         // Create the robot and resource factories
         NEATNetwork network = (NEATNetwork) method;
         RobotFactory robotFactory = new HomogeneousRobotFactory(getPhenotypeForNetwork(network),
@@ -99,37 +109,52 @@ public class ScoreCalculator implements CalculateScore {
         console.setVisible(true);
     }
 
-    private Phenotype getPhenotypeForNetwork(NEATNetwork network) {
-        if (isEvolvingMorphology()) {
+    private Phenotype getPhenotypeForNetwork(NEATNetwork network)
+    {
+        if (isEvolvingMorphology() )
+        {
+            if(hyperNEAT)
+            {
+                HyperNEATMCODEC codecC = new HyperNEATMCODEC();
+
+            }
             return new NEATMPhenotype((NEATMNetwork) network);
-        } else {
+        }
+        else
+        {
             return new NEATPhenotype(network, sensorMorphology);
         }
     }
 
-    public boolean isEvolvingMorphology() {
+    public boolean isEvolvingMorphology()
+    {
         return sensorMorphology == null;
     }
 
-    public DescriptiveStatistics getPerformanceStatistics() {
+    public DescriptiveStatistics getPerformanceStatistics()
+    {
         return performanceStats;
     }
 
-    public DescriptiveStatistics getScoreStatistics() {
+    public DescriptiveStatistics getScoreStatistics()
+    {
         return scoreStats;
     }
 
-    public DescriptiveStatistics getSensorStatistics() {
+    public DescriptiveStatistics getSensorStatistics()
+    {
         return sensorStats;
     }
 
     @Override
-    public boolean shouldMinimize() {
+    public boolean shouldMinimize()
+    {
         return false;
     }
 
     @Override
-    public boolean requireSingleThreaded() {
+    public boolean requireSingleThreaded()
+    {
         return false;
     }
 
