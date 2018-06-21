@@ -330,6 +330,8 @@ public class SimConfig extends Config
         return robotColour;
     }
 
+    public double getMinDistBetweenSensors() { return minDistBetweenSensors; }
+
     public float getRobotMass()
     {
         return robotMass;
