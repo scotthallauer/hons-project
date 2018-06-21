@@ -1,8 +1,17 @@
 package za.redbridge.experiment.HyperNEATM;
 
+import org.encog.util.arrayutil.NormalizationAction;
 import za.redbridge.experiment.NEATM.sensor.SensorModel;
 import za.redbridge.experiment.NEATM.sensor.SensorType;
+import za.redbridge.experiment.NEATM.sensor.parameter.spec.ParameterType;
+import za.redbridge.experiment.NEATM.sensor.parameter.spec.Range;
 import za.redbridge.experiment.Utils;
+import org.encog.util.arrayutil.NormalizedField;
+
+import static za.redbridge.experiment.NEATM.sensor.parameter.spec.ParameterType.BEARING;
+import static za.redbridge.experiment.NEATM.sensor.parameter.spec.ParameterType.FIELD_OF_VIEW;
+import static za.redbridge.experiment.NEATM.sensor.parameter.spec.ParameterType.ORIENTATION;
+import static za.redbridge.experiment.NEATM.sensor.parameter.spec.ParameterType.RANGE;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +22,8 @@ import java.util.List;
  * Stores an arrayList for each sensor param
  * @TODO look into location translation to position
  */
+
+
 public class HyperNEATMSensorBuilder {
 
     /**
@@ -100,8 +111,12 @@ public class HyperNEATMSensorBuilder {
                 sensorTypeValue = sensorTypes.get(i);
             }
         }
-        
-        return new SensorModel(getSensorType(sensorTypeValue), convertCartesianToRadians(), calculateAverage(orientations),calculateAverage(ranges), calculateAverage(FOVs));
+        SensorType sensorType =getSensorType(sensorTypeValue);
+        return new SensorModel(sensorType, convertCartesianToRadians(),
+                calculateAverage(orientations,sensorType,ParameterType.ORIENTATION),
+                calculateAverage(ranges,sensorType,ParameterType.RANGE),
+                calculateAverage(FOVs,sensorType,ParameterType.FIELD_OF_VIEW)
+        );
    }
     //maps a float to a sensorType
     //@TODO implement actual map (for now just return
@@ -109,17 +124,35 @@ public class HyperNEATMSensorBuilder {
         return SensorType.PROXIMITY;
    }
    
-   public float calculateAverage(List<Float> arrayList ){
+   public float calculateAverage(List<Float> arrayList, SensorType type, ParameterType param){
         float sum = 0;
         for(int i =0;i<arrayList.size();i++){
             sum+=arrayList.get(i);
         }
-        return sum/arrayList.size();
+        return normalise_range(sum/arrayList.size(),type, param);
    }
 
    public float convertCartesianToRadians(){
        return (float) za.redbridge.simulator.Utils.wrapAngle( Math.atan( SensorLocation[1]/SensorLocation[0]));
 
+   }
+   //CPPN gives range between [-1,1] so need to convert to appropriate sensor range
+   public float normalise_range(float num, SensorType sensorType, ParameterType paramType) {
+       Range range = sensorType.getDefaultSpecSet().getParameterSpec(paramType).getRange();
+       NormalizedField normlalizer = new NormalizedField(NormalizationAction.SingleField, "", range.max, range.min, 1, -1);
+       float value = (float) normlalizer.deNormalize(num);
+       if (!range.inclusiveMin) {
+           if (value <= range.min) {
+               return Math.nextAfter(range.min, Double.POSITIVE_INFINITY);
+           }
+       }
 
+       if (!range.inclusiveMax) {
+           if (value >= range.max) {
+               return Math.nextAfter(range.max, Double.NEGATIVE_INFINITY);
+           }
+       }
+
+       return value;
    }
 }

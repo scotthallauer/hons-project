@@ -57,8 +57,8 @@ public class NEATMPopulation extends NEATPopulation
     public NEATMPopulation(final Substrate theSubstrate, final int populationSize)
     {
         super(theSubstrate, populationSize);
-        setInputCount(getSubstrate().getInputCount());
-        setOutputCount(getSubstrate().getOutputCount());
+        setInputCount(4);
+        setOutputCount(5);
     }
 
 
