@@ -121,7 +121,12 @@ public class HyperNEATMSensorBuilder {
     //maps a float to a sensorType
     //@TODO implement actual map (for now just return
    public SensorType getSensorType(Float type){
-        return SensorType.PROXIMITY;
+        if (type <0){
+            return SensorType.PROXIMITY;
+        }
+        else{
+            return SensorType.ULTRASONIC;
+        }
    }
    
    public float calculateAverage(List<Float> arrayList, SensorType type, ParameterType param){

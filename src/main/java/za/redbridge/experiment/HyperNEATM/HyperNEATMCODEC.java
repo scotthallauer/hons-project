@@ -18,6 +18,7 @@ import za.redbridge.experiment.NEAT.NEATPopulation;
 import za.redbridge.experiment.NEATM.NEATMNetwork;
 import za.redbridge.experiment.NEATM.sensor.SensorModel;
 import za.redbridge.experiment.NEATM.sensor.SensorMorphology;
+import za.redbridge.experiment.NEATM.sensor.SensorType;
 
 
 import java.util.ArrayList;
@@ -152,6 +153,9 @@ public class HyperNEATMCODEC implements GeneticCODEC {
             }
 
         }
+        //adding bottom proximity sensor into morphology
+        SensorModel bottomProximity = new SensorModel(SensorType.BOTTOM_PROXIMITY);
+        sensorModelsList.add(bottomProximity);
         //convert list to array for constructor
         SensorModel[] sensorModels = sensorModelsList.toArray(new SensorModel[sensorModelsList.size()]);
         SensorMorphology morphology = new SensorMorphology(sensorModels);
