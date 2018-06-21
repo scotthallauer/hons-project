@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.Scanner;
 
+import za.redbridge.experiment.HyperNEATM.HyperNEATMCODEC;
 import za.redbridge.experiment.NEATM.NEATMNetwork;
 import za.redbridge.experiment.NEATM.NEATMPopulation;
 import za.redbridge.experiment.NEATM.NEATMUtil;
@@ -109,7 +110,8 @@ public class Main
         TrainEA train;
         if(options.hyperNEATM)
         {
-            train = NEATUtil.constructNEATTrainer(population, calculateScore);
+            train = org.encog.neural.neat.NEATUtil.constructNEATTrainer(population, calculateScore);
+            train.setCODEC(new HyperNEATMCODEC());
         }
         else
         {
