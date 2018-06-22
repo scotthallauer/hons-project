@@ -152,6 +152,7 @@ public class StatsRecorder {
         saveObjectToFile(network, directory.resolve("network.ser"));
 
         GraphvizEngine.saveGenome(genome, directory.resolve("graph.dot"));
+        GraphvizEngine.saveNetwork(network, directory.resolve("network.dot"));
     }
 
     private void recordStats(DescriptiveStatistics stats, int epoch, Path filepath) {

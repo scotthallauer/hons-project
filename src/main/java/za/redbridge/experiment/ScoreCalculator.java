@@ -113,11 +113,6 @@ public class ScoreCalculator implements CalculateScore
     {
         if (isEvolvingMorphology() )
         {
-            if(hyperNEAT)
-            {
-                HyperNEATMCODEC codecC = new HyperNEATMCODEC();
-
-            }
             return new NEATMPhenotype((NEATMNetwork) network);
         }
         else

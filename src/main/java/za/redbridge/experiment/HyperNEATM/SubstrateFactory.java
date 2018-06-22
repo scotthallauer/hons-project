@@ -2,7 +2,11 @@ package za.redbridge.experiment.HyperNEATM;
 
 import org.encog.neural.hyperneat.substrate.Substrate;
 import org.encog.neural.hyperneat.substrate.SubstrateNode;
-
+/**
+ * Substrate for Khepera
+ *
+ * Created by Danielle and Alexander on 2018/06/20.
+ */
 public class SubstrateFactory
 {
 
@@ -30,7 +34,7 @@ public class SubstrateFactory
         outputNodeRight.getLocation()[0] = -outputXcoord;               // location of right movement actuator output node on substrate
         outputNodeRight.getLocation()[1] = outputYcoord;
 
-        for (double theta = distBetweenEachSensor; theta < Math.PI*2; theta+=distBetweenEachSensor)     // loop around circle substrate and place a possible
+        for (double theta = 0; theta < Math.PI*2; theta+=distBetweenEachSensor)     // loop around circle substrate and place a possible
         {                                                                           // input sensor node, each separated by distBetweenEachSensor
            SubstrateNode inputNode = substrate.createInputNode();
            inputNode.getLocation()[0] = radius*Math.cos(theta);     // x = radius*Math.cos(theta)

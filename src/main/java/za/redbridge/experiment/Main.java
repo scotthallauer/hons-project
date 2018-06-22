@@ -159,10 +159,10 @@ public class Main
         private String configFile = "config/bossConfig.yml";
 
         @Parameter(names = "-i", description = "Number of simulation iterations to train for")
-        private int numIterations = 500;
+        private int numIterations = 50;
 
         @Parameter(names = "-p", description = "Initial population size")
-        private int populationSize = 75;
+        private int populationSize = 50;
 
         @Parameter(names = "--sim-runs", description = "Number of simulation runs per iteration")
         private int simulationRuns = 3;

@@ -1,5 +1,6 @@
 package za.redbridge.experiment.HyperNEATM;
 
+import jdk.internal.util.xml.impl.Input;
 import org.encog.engine.network.activation.ActivationFunction;
 import org.encog.engine.network.activation.ActivationSteepenedSigmoid;
 import org.encog.ml.MLMethod;
@@ -15,18 +16,26 @@ import org.encog.neural.neat.NEATCODEC;
 import org.encog.neural.neat.NEATLink;
 import org.encog.neural.neat.NEATNetwork;
 import za.redbridge.experiment.NEAT.NEATPopulation;
+import za.redbridge.experiment.NEATM.ActivationSteepenedShiftedSigmoid;
 import za.redbridge.experiment.NEATM.NEATMNetwork;
 import za.redbridge.experiment.NEATM.sensor.SensorModel;
 import za.redbridge.experiment.NEATM.sensor.SensorMorphology;
 import za.redbridge.experiment.NEATM.sensor.SensorType;
 
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-public class HyperNEATMCODEC implements GeneticCODEC {
+/**
+ * CODEC FOR HYPERNEATM
+ * Creates sensors from CPPN
+ *
+ * Created by Danielle and Alexander on 2018/06/20.
+ */
+public class HyperNEATMCODEC implements GeneticCODEC, Serializable {
 
     private double minWeight = 0.2;
     private double maxWeight = 5.0;
@@ -50,8 +59,8 @@ public class HyperNEATMCODEC implements GeneticCODEC {
         final List<NEATLink> linkList = new ArrayList<NEATLink>();
 
         final ActivationFunction[] afs = new ActivationFunction[substrate.getNodeCount()];
-
-        final ActivationFunction af = new ActivationSteepenedSigmoid();
+        //@TODO LOOK INTO THIS ACTIVATION FUNCTION--> ROBOTS ONLY MOVE THIS ONE
+        final ActivationFunction af = new ActivationSteepenedShiftedSigmoid();
         // all activation functions are the same
         for (int i = 0; i < afs.length; i++) {
             afs[i] = af;
@@ -142,26 +151,29 @@ public class HyperNEATMCODEC implements GeneticCODEC {
         //create sensor Morphology
         List<SensorModel> sensorModelsList = new ArrayList<SensorModel>();
         //keeps track of how many input nodes are being used for constuctoe
-        int finalInputCount =0;
 
+        boolean first =true;
         for(SubstrateNode Inputnode: substrate.getInputNodes() ){
-
+           // @todo look into bottom proximitu
+            if(first) {
+                first = false;
+                SensorModel bottomProximity = new SensorModel(SensorType.BOTTOM_PROXIMITY);
+                sensorModelsList.add(bottomProximity);
+                continue;
+            }
             HyperNEATMSensorBuilder build = InputNodeSensorMap.get(Inputnode.getId());
             if (build.isValidSensor()){ //checks if the input node has connections
-                finalInputCount++;
                 sensorModelsList.add(build.createSensorModel());
             }
 
         }
         //adding bottom proximity sensor into morphology
-        SensorModel bottomProximity = new SensorModel(SensorType.BOTTOM_PROXIMITY);
-        sensorModelsList.add(bottomProximity);
+
         //convert list to array for constructor
         SensorModel[] sensorModels = sensorModelsList.toArray(new SensorModel[sensorModelsList.size()]);
         SensorMorphology morphology = new SensorMorphology(sensorModels);
 
-        final NEATMNetwork network = new NEATMNetwork(finalInputCount, substrate.getOutputCount(), linkList, afs,morphology);
-
+        final NEATMNetwork network = new NEATMNetwork(sensorModels.length, substrate.getOutputCount(), linkList, afs,morphology);
         network.setActivationCycles(substrate.getActivationCycles());
 
         return network;

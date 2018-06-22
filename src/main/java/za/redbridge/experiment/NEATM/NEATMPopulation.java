@@ -70,7 +70,7 @@ public class NEATMPopulation extends NEATPopulation
         if (isHyperNEAT())                                  // Just checks if NEAT(M)Population has a valid substrate.
         {
             setCODEC(new HyperNEATMCODEC());
-            setGenomeFactory(new FactorHyperNEATGenome());
+            setGenomeFactory(new za.redbridge.experiment.HyperNEATM.FactorHyperNEATGenome());
         }
         else
         {
