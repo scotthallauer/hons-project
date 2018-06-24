@@ -45,6 +45,7 @@ public class NEATMPhenotype implements Phenotype {
     @Override
     public Double2D step(List<List<Double>> sensorReadings) {
         final MLData input = this.input;
+
         for (int i = 0, n = input.size(); i < n; i++) {
             input.setData(i, sensorReadings.get(i).get(0));
         }

@@ -15,6 +15,7 @@ import org.encog.neural.hyperneat.substrate.SubstrateNode;
 import org.encog.neural.neat.NEATCODEC;
 import org.encog.neural.neat.NEATLink;
 import org.encog.neural.neat.NEATNetwork;
+import org.encog.neural.neat.training.NEATNeuronGene;
 import za.redbridge.experiment.NEAT.NEATPopulation;
 import za.redbridge.experiment.NEATM.ActivationSteepenedShiftedSigmoid;
 import za.redbridge.experiment.NEATM.NEATMNetwork;
@@ -24,10 +25,7 @@ import za.redbridge.experiment.NEATM.sensor.SensorType;
 
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * CODEC FOR HYPERNEATM
@@ -55,16 +53,11 @@ public class HyperNEATMCODEC implements GeneticCODEC, Serializable {
         final NEATCODEC neatCodec = new NEATCODEC();
         final NEATNetwork cppn = (NEATNetwork) neatCodec.decode(genome);
 
+
         //setup for creating a new ANN from CPPN and substrate
         final List<NEATLink> linkList = new ArrayList<NEATLink>();
 
-        final ActivationFunction[] afs = new ActivationFunction[substrate.getNodeCount()];
-        //@TODO LOOK INTO THIS ACTIVATION FUNCTION--> ROBOTS ONLY MOVE THIS ONE
-        final ActivationFunction af = new ActivationSteepenedShiftedSigmoid();
-        // all activation functions are the same
-        for (int i = 0; i < afs.length; i++) {
-            afs[i] = af;
-        }
+
 
         final double c = this.maxWeight / (1.0 - this.minWeight);
         final MLData input = new BasicMLData(cppn.getInputCount());
@@ -76,7 +69,10 @@ public class HyperNEATMCODEC implements GeneticCODEC, Serializable {
             InputNodeSensorMap.put(Inputnode.getId(), new HyperNEATMSensorBuilder(Inputnode.getId(),Inputnode.getLocation()));
         }
 
-
+        //hashmap to convert values in seqeuntial order for the ANN compute.
+        final Map<Integer, Integer> lookup = new HashMap<>();
+        //keeps track conversion inputnode number to actual number for ANN
+        int countInputNodes =1;
 
         // First create all of the non-bias links and create a list sensor morphology
 
@@ -114,6 +110,12 @@ public class HyperNEATMCODEC implements GeneticCODEC, Serializable {
                     sensorBuilder.addSensorTypes((float) (output.getData(4)));
                     //ensures no memory issues (look into this)
                     InputNodeSensorMap.put(IDUsing, sensorBuilder);
+
+                    //now adding to lookup so has ID NUMBER
+                    if (lookup.get(IDUsing)==null){
+                        lookup.put(IDUsing, countInputNodes++);
+                    }
+
                 }
 
 
@@ -148,17 +150,19 @@ public class HyperNEATMCODEC implements GeneticCODEC, Serializable {
 
         Collections.sort(linkList);
 
-        //create sensor Morphology
+        //create sensor Morphology list
         List<SensorModel> sensorModelsList = new ArrayList<SensorModel>();
-        //keeps track of how many input nodes are being used for constuctoe
 
-        boolean first =true;
+
+
+        //get sensor morphology
+       boolean first = true;
         for(SubstrateNode Inputnode: substrate.getInputNodes() ){
-           // @todo look into bottom proximitu
+           // @todo look into bottom proximity
             if(first) {
-                first = false;
                 SensorModel bottomProximity = new SensorModel(SensorType.BOTTOM_PROXIMITY);
                 sensorModelsList.add(bottomProximity);
+                first =false;
                 continue;
             }
             HyperNEATMSensorBuilder build = InputNodeSensorMap.get(Inputnode.getId());
@@ -167,13 +171,34 @@ public class HyperNEATMCODEC implements GeneticCODEC, Serializable {
             }
 
         }
-        //adding bottom proximity sensor into morphology
+        for(SubstrateNode Outputnode: substrate.getOutputNodes() ){
+            lookup.put(Outputnode.getId(),countInputNodes++);
+        }
+        final List<NEATLink> linkListFinal = new ArrayList<NEATLink>();
+        for(NEATLink link: linkList ){
+            if(link.getFromNeuron()==0){
+                linkListFinal.add( new NEATLink(0, lookup.get(link.getToNeuron()), link.getWeight()));
+            }
+            else{
+                linkListFinal.add( new NEATLink(lookup.get(link.getFromNeuron()), lookup.get(link.getToNeuron()), link.getWeight()));
+            }
+        }
+
+
 
         //convert list to array for constructor
         SensorModel[] sensorModels = sensorModelsList.toArray(new SensorModel[sensorModelsList.size()]);
         SensorMorphology morphology = new SensorMorphology(sensorModels);
 
-        final NEATMNetwork network = new NEATMNetwork(sensorModels.length, substrate.getOutputCount(), linkList, afs,morphology);
+
+        final ActivationFunction[] afs = new ActivationFunction[sensorModelsList.size()+substrate.getOutputNodes().size()+1];
+        //@TODO LOOK INTO THIS ACTIVATION FUNCTION--> ROBOTS ONLY MOVE THIS ONE
+        final ActivationFunction af = new ActivationSteepenedShiftedSigmoid();
+        // all activation functions are the same
+        for (int i = 0; i < afs.length; i++) {
+            afs[i] = af;
+        }
+        final NEATMNetwork network = new NEATMNetwork(sensorModels.length, substrate.getOutputCount(), linkListFinal, afs,morphology);
         network.setActivationCycles(substrate.getActivationCycles());
 
         return network;
