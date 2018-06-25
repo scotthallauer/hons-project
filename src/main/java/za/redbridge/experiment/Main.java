@@ -162,7 +162,7 @@ public class Main
         private int numIterations = 50;
 
         @Parameter(names = "-p", description = "Initial population size")
-        private int populationSize = 50;
+        private int populationSize = 75;
 
         @Parameter(names = "--sim-runs", description = "Number of simulation runs per iteration")
         private int simulationRuns = 3;

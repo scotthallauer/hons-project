@@ -18,6 +18,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
 import za.redbridge.experiment.NEAT.NEATPopulation;
+import za.redbridge.experiment.NEATM.NEATMNetwork;
 
 
 import static za.redbridge.experiment.Utils.getLoggingDirectory;
@@ -35,6 +36,7 @@ public class StatsRecorder {
     private final EvolutionaryAlgorithm trainer;
     private final ScoreCalculator calculator;
     private final boolean evolvingMorphology;
+    private final boolean HyperNEATM;
 
     private Genome currentBestGenome;
 
@@ -45,11 +47,14 @@ public class StatsRecorder {
     private Path performanceStatsFile;
     private Path scoreStatsFile;
     private Path sensorStatsFile;
+    private String txt;
+    private NEATMNetwork nw;
 
     public StatsRecorder(EvolutionaryAlgorithm trainer, ScoreCalculator calculator) {
         this.trainer = trainer;
         this.calculator = calculator;
         this.evolvingMorphology = calculator.isEvolvingMorphology();
+        this.HyperNEATM = calculator.isHyperNEATM();
 
         initFiles();
     }
@@ -131,12 +136,24 @@ public class StatsRecorder {
         Path directory = bestNetworkDirectory.resolve("epoch-" + epoch);
         initDirectory(directory);
 
-        String txt;
+
         if (evolvingMorphology) {
-            log.info("New best genome! Epoch: " + epoch + ", score: " + genome.getScore()
-                    + ", num sensors: " + genome.getInputCount());
-            txt = String.format("epoch: %d, fitness: %f, sensors: %d", epoch, genome.getScore(),
-                    genome.getInputCount());
+            if(HyperNEATM){
+                NEATPopulation pop = (NEATPopulation) genome.getPopulation();
+                NEATMNetwork nw = (NEATMNetwork) pop.getCODEC().decode(genome);
+
+                log.info("New best genome! Epoch: " + epoch + ", score: " + genome.getScore()
+                        + ", num sensors: " + nw.getSensorMorphology().getNumSensors());
+                txt = String.format("epoch: %d, fitness: %f, sensors: %d", epoch, genome.getScore(),
+                        nw.getSensorMorphology().getNumSensors());
+            }
+            else{
+                log.info("New best genome! Epoch: " + epoch + ", score: " + genome.getScore()
+                        + ", num sensors: " + genome.getInputCount());
+                txt = String.format("epoch: %d, fitness: %f, sensors: %d", epoch, genome.getScore(),
+                        genome.getInputCount());
+            }
+
         } else {
             log.info("New best genome! Epoch: " + epoch + ", score: "  + genome.getScore());
             txt = String.format("epoch: %d, fitness: %f", epoch, genome.getScore());

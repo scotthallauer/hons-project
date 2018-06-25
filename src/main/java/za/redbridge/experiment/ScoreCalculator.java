@@ -39,15 +39,15 @@ public class ScoreCalculator implements CalculateScore
     private final DescriptiveStatistics performanceStats = new SynchronizedDescriptiveStatistics();
     private final DescriptiveStatistics scoreStats = new SynchronizedDescriptiveStatistics();
     private final DescriptiveStatistics sensorStats;
-    private boolean hyperNEAT;
+    private boolean hyperNEATM;
 
     public ScoreCalculator(SimConfig simConfig, int simulationRuns,
-                           SensorMorphology sensorMorphology, boolean hyperNEAT )
+                           SensorMorphology sensorMorphology, boolean hyperNEATM )
     {
         this.simConfig = simConfig;
         this.simulationRuns = simulationRuns;
         this.sensorMorphology = sensorMorphology;
-        this.hyperNEAT = hyperNEAT;
+        this.hyperNEATM = hyperNEATM;
 
         // If fixed morphology then don't record sensor stats
         this.sensorStats = isEvolvingMorphology() ? new SynchronizedDescriptiveStatistics() : null;
@@ -78,7 +78,7 @@ public class ScoreCalculator implements CalculateScore
         double score = fitness / simulationRuns;
         scoreStats.addValue(score);
 
-        if (isEvolvingMorphology() || hyperNEAT)
+        if (isEvolvingMorphology() || hyperNEATM)
         {
             sensorStats.addValue(network.getInputCount());
         }
@@ -124,6 +124,11 @@ public class ScoreCalculator implements CalculateScore
     public boolean isEvolvingMorphology()
     {
         return sensorMorphology == null;
+    }
+
+    public boolean isHyperNEATM()
+    {
+        return hyperNEATM;
     }
 
     public DescriptiveStatistics getPerformanceStatistics()
