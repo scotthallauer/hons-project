@@ -1,5 +1,8 @@
 package za.redbridge.experiment.NEATM;
 
+import com.sun.org.apache.xpath.internal.SourceTree;
+import org.encog.engine.network.activation.ActivationFunction;
+import org.encog.engine.network.activation.ActivationSIN;
 import org.encog.ml.ea.species.BasicSpecies;
 import org.encog.neural.hyperneat.FactorHyperNEATGenome;
 import org.encog.neural.hyperneat.HyperNEATCODEC;
@@ -65,7 +68,6 @@ public class NEATMPopulation extends NEATPopulation
     @Override
     public void reset()
     {
-
         // create the genome factory
         if (isHyperNEAT())                                  // Just checks if NEAT(M)Population has a valid substrate.
         {

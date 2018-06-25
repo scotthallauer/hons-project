@@ -1,6 +1,6 @@
 ---
 simulation:
-  iterations: 1000
+  timesteps: 10000
 resources:
   small:
     quantity: 10

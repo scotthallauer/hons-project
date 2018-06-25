@@ -18,7 +18,7 @@ public class SimConfig extends Config
 {
 
     private static final long DEFAULT_SIMULATION_SEED = System.currentTimeMillis();
-    private static final int DEFAULT_SIMULATION_ITERATIONS = 10000;
+    private static final int DEFAULT_SIMULATION_TIMESTEPS = 10000;
     private static final int DEFAULT_ENVIRONMENT_WIDTH = 20;
     private static final int DEFAULT_ENVIRONMENT_HEIGHT = 20;
     private static final int DEFAULT_TARGET_AREA_THICKNESS = (int) (DEFAULT_ENVIRONMENT_HEIGHT * 0.2);
@@ -42,7 +42,7 @@ public class SimConfig extends Config
     }
 
     private long simulationSeed;
-    private final int simulationIterations;
+    private final int simulationTimeSteps;
 
     private final int environmentWidth;
     private final int environmentHeight;
@@ -63,7 +63,7 @@ public class SimConfig extends Config
     //default config
     public SimConfig()
     {
-        this(DEFAULT_SIMULATION_SEED, DEFAULT_SIMULATION_ITERATIONS, DEFAULT_ENVIRONMENT_WIDTH,
+        this(DEFAULT_SIMULATION_SEED, DEFAULT_SIMULATION_TIMESTEPS, DEFAULT_ENVIRONMENT_WIDTH,
                 DEFAULT_ENVIRONMENT_HEIGHT, DEFAULT_TARGET_AREA_PLACEMENT,
                 DEFAULT_TARGET_AREA_THICKNESS, DEFAULT_TARGET_AREA_SPAN, DEFAULT_OBJECTS_ROBOTS,
                 DEFAULT_ROBOT_MASS, DEFAULT_ROBOT_RADIUS, DEFAULT_ROBOT_COLOUR, DEFAULT_MIN_DIST_BETWEEN_SENSORS,
@@ -77,7 +77,7 @@ public class SimConfig extends Config
     {
 
         this.simulationSeed = simulationSeed;
-        this.simulationIterations = simulationIterations;
+        this.simulationTimeSteps = simulationIterations;
 
         this.environmentWidth = environmentWidth;
         this.environmentHeight = environmentHeight;
@@ -112,7 +112,7 @@ public class SimConfig extends Config
 
         // This is fairly horrible
         long seed = DEFAULT_SIMULATION_SEED;
-        int iterations = DEFAULT_SIMULATION_ITERATIONS;
+        int iterations = DEFAULT_SIMULATION_TIMESTEPS;
         int width = DEFAULT_ENVIRONMENT_WIDTH;
         int height = DEFAULT_ENVIRONMENT_HEIGHT;
         Direction placement = DEFAULT_TARGET_AREA_PLACEMENT;
@@ -263,7 +263,7 @@ public class SimConfig extends Config
 
 
         this.simulationSeed = seed;
-        this.simulationIterations = iterations;
+        this.simulationTimeSteps = iterations;
         this.environmentWidth = width;
         this.environmentHeight = height;
         this.targetAreaPlacement = placement;
@@ -292,7 +292,7 @@ public class SimConfig extends Config
 
     public int getSimulationIterations()
     {
-        return simulationIterations;
+        return simulationTimeSteps;
     }
 
     public int getEnvironmentWidth()

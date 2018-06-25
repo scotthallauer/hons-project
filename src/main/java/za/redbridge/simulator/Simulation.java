@@ -228,7 +228,7 @@ public class Simulation extends SimState {
 
     /** Gets the progress of the simulation as a percentage */
     public double getProgressFraction() {
-        return (double) schedule.getSteps() / config.getSimulationIterations();
+        return (double) schedule.getSteps() / config.getSimulationIterations();     //  (timestepsUsed / possibleTimeSteps)
     }
 
     /** Get the number of steps this simulation has been run for. */

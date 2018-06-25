@@ -53,6 +53,7 @@ public class GraphvizEngine {
         }
     }
 
+
     private static void writeNeuronGenes(BufferedWriter writer, List<NEATNeuronGene> neurons)
             throws IOException {
         List<NEATNeuronGene> inputs = new ArrayList<>();
