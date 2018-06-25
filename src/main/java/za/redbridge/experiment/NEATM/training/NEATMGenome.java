@@ -115,7 +115,7 @@ public class NEATMGenome extends NEATGenome {
         NEATMPopulation population = (NEATMPopulation) pop;
 
         final SensorType[] sensorTypes = SensorType.values();
-        final int inputCount = sensorTypes.length;
+        final int inputCount = 5;//sensorTypes.length;
 
         setAdjustedScore(0);
         setOutputCount(outputCount);
@@ -133,12 +133,15 @@ public class NEATMGenome extends NEATGenome {
         neurons.add(biasGene);
 
         // then inputs - minimal set is one of each sensor type
+        // changed to two of each type for future use
+        // @TODO change back when done
+        SensorType[] array = {SensorType.PROXIMITY, SensorType.ULTRASONIC, SensorType.PROXIMITY,SensorType.BOTTOM_PROXIMITY,SensorType.ULTRASONIC};
         for (int i = 0; i < inputCount; i++) {
             NEATMNeuronGene gene =
                     new NEATMNeuronGene(NEATNeuronType.Input, af, i + 1, innovationID++);
             neurons.add(gene);
 
-            SensorType sensorType = sensorTypes[i];
+            SensorType sensorType = array[i];
 
             SensorParameterSet parameterSet = null;
             if (sensorType.isConfigurable()) {
