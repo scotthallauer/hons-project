@@ -33,7 +33,7 @@ public class ScoreCalculator implements CalculateScore
     private static final Logger log = LoggerFactory.getLogger(ScoreCalculator.class);
 
     private final SimConfig simConfig;
-    private final int simulationRuns;
+    private final int trialsPerIndividual;
     private final SensorMorphology sensorMorphology;
 
     private final DescriptiveStatistics performanceStats = new SynchronizedDescriptiveStatistics();
@@ -41,11 +41,11 @@ public class ScoreCalculator implements CalculateScore
     private final DescriptiveStatistics sensorStats;
     private boolean hyperNEAT;
 
-    public ScoreCalculator(SimConfig simConfig, int simulationRuns,
+    public ScoreCalculator(SimConfig simConfig, int trialsPerIndividual,
                            SensorMorphology sensorMorphology, boolean hyperNEAT )
     {
         this.simConfig = simConfig;
-        this.simulationRuns = simulationRuns;
+        this.trialsPerIndividual = trialsPerIndividual;
         this.sensorMorphology = sensorMorphology;
         this.hyperNEAT = hyperNEAT;
 
@@ -67,15 +67,17 @@ public class ScoreCalculator implements CalculateScore
         Simulation simulation = new Simulation(simConfig, robotFactory);
         simulation.setStopOnceCollected(true);
         double fitness = 0;
-        for (int i = 0; i < simulationRuns; i++)
+        for (int i = 0; i < trialsPerIndividual; i++)
         {
             simulation.run();
             fitness += simulation.getFitness().getTeamFitness();
-            fitness += 20 * (1.0 - simulation.getProgressFraction()); // Time bonus
+            fitness += 20 * (1.0 - simulation.getProgressFraction()); // Time bonus --> progress fraction is ratio of timesteps that were needed to gather all resources with respect to
+                                                                      // total possible timesteps for each individual's trial. So if an individual doesn't gather all resources, progress fraction
+                                                                      // will just land up being 1, and thus the time bonus will be 20*(1-1) = 0.
         }
 
         // Get the fitness and update the total score
-        double score = fitness / simulationRuns;
+        double score = fitness / trialsPerIndividual;
         scoreStats.addValue(score);
 
         if (isEvolvingMorphology() || hyperNEAT)

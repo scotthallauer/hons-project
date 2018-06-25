@@ -1,6 +1,8 @@
 package za.redbridge.experiment.NEAT;
 
+import org.encog.engine.network.activation.*;
 import org.encog.neural.hyperneat.substrate.Substrate;
+import org.encog.util.obj.ChooseObject;
 
 /**
  * NEATPopulation implementation with a weight range of -1.0 to 1.0.
@@ -21,6 +23,8 @@ public class NEATPopulation extends org.encog.neural.neat.NEATPopulation {
     public NEATPopulation(Substrate theSubstrate, int populationSize) {
         super(theSubstrate, populationSize);
     }
+
+
 
     @Override
     public double getWeightRange() {

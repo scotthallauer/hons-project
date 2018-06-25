@@ -47,7 +47,7 @@ public class Main
         log.info(options.toString());
 
         SimConfig simConfig;
-        if (!isBlank(options.configFile))
+        if (!isBlank(options.configFile))                   // if using config file
         {
             simConfig = new SimConfig(options.configFile);
         } else
@@ -69,8 +69,7 @@ public class Main
             }
         }
         ScoreCalculator calculateScore =
-                new ScoreCalculator(simConfig, options.simulationRuns, morphology, options.hyperNEATM);
-
+                new ScoreCalculator(simConfig, options.trialsPerIndividual, morphology, options.hyperNEATM);
 
         if (!isBlank(options.genomePath))
         {
@@ -84,7 +83,8 @@ public class Main
         if (!isBlank(options.populationPath))
         {
             population = (NEATPopulation) readObjectFromFile(options.populationPath);
-        } else
+        }
+        else
         {
             if (options.hyperNEATM)
             {
@@ -96,7 +96,8 @@ public class Main
                 if (!options.control)
                 {
                     population = new NEATMPopulation(2, options.populationSize);
-                } else
+                }
+                else
                 {
                     population = new NEATPopulation(morphology.getNumSensors(), 2, options.populationSize);
                 }
@@ -132,7 +133,7 @@ public class Main
 
         final StatsRecorder statsRecorder = new StatsRecorder(train, calculateScore);
 
-        for (int i = train.getIteration(); i < options.numIterations; i++)
+        for (int i = train.getIteration(); i < options.numGenerations; i++)
         {
             train.iteration();
             statsRecorder.recordIterationStats();
@@ -147,7 +148,6 @@ public class Main
         log.debug("Training complete");
         Encog.getInstance().shutdown();
 
-
         // #alex - save best network and run demo on it
         NEATNetwork bestPerformingNetwork = (NEATNetwork) train.getCODEC().decode(train.getBestGenome());   //extract best performing NN from the population
         calculateScore.demo(bestPerformingNetwork);
@@ -158,14 +158,14 @@ public class Main
         @Parameter(names = "-c", description = "Simulation config file to load")
         private String configFile = "config/bossConfig.yml";
 
-        @Parameter(names = "-i", description = "Number of simulation iterations to train for")
-        private int numIterations = 50;
+        @Parameter(names = "-g", description = "Number of generations to train for")    // Jamie calls this 'iterations'
+        private int numGenerations = 50;
 
         @Parameter(names = "-p", description = "Initial population size")
-        private int populationSize = 50;
+        private int populationSize = 75;
 
-        @Parameter(names = "--sim-runs", description = "Number of simulation runs per iteration")
-        private int simulationRuns = 3;
+        @Parameter(names = "--trials", description = "Number of simulation runs per iteration (team lifetime)") // Jamie calls this 'simulationRuns' (and 'lifetime' in his paper)
+        private int trialsPerIndividual = 3;
 
         @Parameter(names = "--conn-density", description = "Adjust the initial connection density"
                 + " for the population")
@@ -198,9 +198,9 @@ public class Main
         {
             return "Options: \n"
                     + "\tConfig file path: " + configFile + "\n"
-                    + "\tNumber of simulation steps: " + numIterations + "\n"
+                    + "\tNumber of simulation steps: " + numGenerations + "\n"
                     + "\tPopulation size: " + populationSize + "\n"
-                    + "\tNumber of simulation tests per iteration: " + simulationRuns + "\n"
+                    + "\tNumber of simulation tests per iteration: " + trialsPerIndividual + "\n"
                     + "\tInitial connection density: " + connectionDensity + "\n"
                     + "\tDemo network config path: " + genomePath + "\n"
                     + "\tRunning with the control case: " + control + "\n"

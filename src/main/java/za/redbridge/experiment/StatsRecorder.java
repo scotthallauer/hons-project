@@ -128,6 +128,9 @@ public class StatsRecorder {
     }
 
     private void saveGenome(NEATGenome genome, int epoch) {
+
+
+
         Path directory = bestNetworkDirectory.resolve("epoch-" + epoch);
         initDirectory(directory);
 
