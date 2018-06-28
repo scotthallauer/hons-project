@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 
 import za.redbridge.simulator.khepera.BottomProximitySensor;
+import za.redbridge.simulator.khepera.LowResCameraSensor;
 import za.redbridge.simulator.khepera.ProximitySensor;
 import za.redbridge.simulator.khepera.UltrasonicSensor;
 import za.redbridge.simulator.sensor.AgentSensor;
@@ -44,7 +45,12 @@ public class SensorMorphology implements Serializable {
             case ULTRASONIC:
                 return new UltrasonicSensor(config.getBearing(), config.getOrientation(),
                         config.getRange(), config.getFieldOfView());
-
+            case LOW_RES_CAM:
+                return new UltrasonicSensor(config.getBearing(), config.getOrientation(),
+                        config.getRange(), config.getFieldOfView());
+            case COLOUR_PROXIMITY:
+                return new UltrasonicSensor(config.getBearing(), config.getOrientation(),
+                        config.getRange(), config.getFieldOfView());
         }
 
         return null;
