@@ -46,7 +46,24 @@ public enum SensorType {
             // TODO: query environment size for range value
             new RangeSpec(copyExistingOrRandom(), exclusiveRange(0.01f, 40), clamp()),
             new FieldOfViewSpec(copyExistingOrRandom(), new Range(0.1f, MathUtils.PI, true, true),
+                    clamp()))),
+
+    LOW_RES_CAM(new SensorParameterSpecSet(
+            new BearingSpec(random(), plusMinusPi(), wrap()),
+            new OrientationSpec(random(), plusMinusHalfPi(), clamp()),
+            // TODO: query environment size for range value
+            new RangeSpec(copyExistingOrRandom(), exclusiveRange(0.01f, 40), clamp()),
+            new FieldOfViewSpec(copyExistingOrRandom(), new Range(0.1f, MathUtils.PI, true, true),
+                    clamp()))),
+
+    COLOUR_PROXIMITY(new SensorParameterSpecSet(
+            new BearingSpec(random(), plusMinusPi(), wrap()),
+            new OrientationSpec(random(), plusMinusHalfPi(), clamp()),
+            // TODO: query environment size for range value
+            new RangeSpec(copyExistingOrRandom(), exclusiveRange(0.01f, 40), clamp()),
+            new FieldOfViewSpec(copyExistingOrRandom(), new Range(0.1f, MathUtils.PI, true, true),
                     clamp())));
+
 
     private final SensorParameterSpecSet defaultSpecSet;
 
