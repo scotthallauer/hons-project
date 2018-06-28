@@ -104,14 +104,32 @@ public final class NEATMUtil {
         // Add the sensor position mutators
         CompoundOperator positionMutation = new CompoundOperator();
         OperationList positionMutationComponents = positionMutation.getComponents();
-        positionMutationComponents.add(0.25, new NEATMMutateIndividualSensor(
+        //MUTATE BEARING
+        //mutate one sensors
+        positionMutationComponents.add(0.125, new NEATMMutateIndividualSensor(
                 new SelectSensorsFixed(1), new MutatePerturbSensorParameter(5.0f, BEARING)));
-        positionMutationComponents.add(0.25, new NEATMMutateIndividualSensor(
+        //mutate two sensors
+        positionMutationComponents.add(0.125, new NEATMMutateIndividualSensor(
                 new SelectSensorsFixed(2), new MutatePerturbSensorParameter(5.0f, BEARING)));
-        positionMutationComponents.add(0.25, new NEATMMutateIndividualSensor(
+        //mutate three sensors
+        positionMutationComponents.add(0.125, new NEATMMutateIndividualSensor(
+                new SelectSensorsFixed(3), new MutatePerturbSensorParameter(5.0f, BEARING)));
+        //mutate four sensors
+        positionMutationComponents.add(0.125, new NEATMMutateIndividualSensor(
+                new SelectSensorsFixed(4), new MutatePerturbSensorParameter(5.0f, BEARING)));
+        //MUTATE ORIENTATION
+        //mutate one sensors
+        positionMutationComponents.add(0.125, new NEATMMutateIndividualSensor(
                 new SelectSensorsFixed(1), new MutatePerturbSensorParameter(5.0f, ORIENTATION)));
-        positionMutationComponents.add(0.25, new NEATMMutateIndividualSensor(
+        //mutate two sensors
+        positionMutationComponents.add(0.125, new NEATMMutateIndividualSensor(
                 new SelectSensorsFixed(2), new MutatePerturbSensorParameter(5.0f, ORIENTATION)));
+        //mutate three sensors
+        positionMutationComponents.add(0.125, new NEATMMutateIndividualSensor(
+                new SelectSensorsFixed(3), new MutatePerturbSensorParameter(5.0f, ORIENTATION)));
+        //mutate four sensors
+        positionMutationComponents.add(0.125, new NEATMMutateIndividualSensor(
+                new SelectSensorsFixed(4), new MutatePerturbSensorParameter(5.0f, ORIENTATION)));
         positionMutationComponents.finalizeStructure();
 
         result.addOperation(0.1, positionMutation);
