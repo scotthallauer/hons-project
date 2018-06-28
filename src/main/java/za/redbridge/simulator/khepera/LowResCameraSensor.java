@@ -39,6 +39,12 @@ public class LowResCameraSensor extends AgentSensor
         this.readingSize = readingSize;
     }
 
+    public LowResCameraSensor(float bearing, float orientation, float range, float fieldOfView)
+    {
+        super(bearing, orientation, range, fieldOfView);
+        this.readingSize = readingSize;
+    }
+
     @Override
     protected void provideObjectReading(List<SensedObject> sensedObjects, List<Double> output)
     {

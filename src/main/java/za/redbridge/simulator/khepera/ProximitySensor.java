@@ -10,6 +10,8 @@ import za.redbridge.simulator.sensor.AgentSensor;
 import za.redbridge.simulator.sensor.sensedobjects.SensedObject;
 
 /**
+ *  < Estimate distance to detected object using IR >
+ *
  * A rough estimation of the ultrasonic sensor used in the Khepera III robot: the Vishay TCRT5000
  * Created by jamie on 2014/09/23.
  */
