@@ -11,7 +11,9 @@ import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
 /**
- * ColourProximitySensor differentiates between wall and resourceObject
+ * Return type of whatever is detected (either wall or block) and estimate distance to what has been detected using IR.
+ *
+ * Differentiates between wall and resourceObject.
  *
  * Created by Danielle and Alexander on 2018/06/28.
  */
