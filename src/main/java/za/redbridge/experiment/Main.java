@@ -172,7 +172,7 @@ public class Main
         private double connectionDensity = 0.5;
 
         @Parameter(names = "--demo", description = "Show a GUI demo of a given genome")
-        private String genomePath = "/home/alex/IdeaProjects/honours-project/results/alex-laptop-20180625T1702/best networks/epoch-4/network.ser";
+        private String genomePath = null;
 
         @Parameter(names = "--control", description = "Run with the control case")
         private boolean control = false;
