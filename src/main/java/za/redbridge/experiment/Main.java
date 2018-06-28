@@ -159,20 +159,20 @@ public class Main
         private String configFile = "config/bossConfig.yml";
 
         @Parameter(names = "-g", description = "Number of generations to train for")    // Jamie calls this 'iterations'
-        private int numGenerations = 50;
+        private int numGenerations = 75;
 
         @Parameter(names = "-p", description = "Initial population size")
         private int populationSize = 75;
 
         @Parameter(names = "--trials", description = "Number of simulation runs per iteration (team lifetime)") // Jamie calls this 'simulationRuns' (and 'lifetime' in his paper)
-        private int trialsPerIndividual = 3;
+        private int trialsPerIndividual = 2;
 
         @Parameter(names = "--conn-density", description = "Adjust the initial connection density"
                 + " for the population")
         private double connectionDensity = 0.5;
 
         @Parameter(names = "--demo", description = "Show a GUI demo of a given genome")
-        private String genomePath = null;
+        private String genomePath = "/home/alex/IdeaProjects/honours-project/results/alex-laptop-20180625T1702/best networks/epoch-4/network.ser";
 
         @Parameter(names = "--control", description = "Run with the control case")
         private boolean control = false;
