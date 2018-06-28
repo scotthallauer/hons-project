@@ -522,4 +522,10 @@ public class ResourceObject extends PhysicalObject {
         }
     }
 
+    // return size of the resource (based on how many robots are required to push it)
+    public int getSize()
+    {
+        return pushingRobots;
+    }
+
 }

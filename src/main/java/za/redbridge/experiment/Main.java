@@ -172,8 +172,7 @@ public class Main
         private double connectionDensity = 0.5;
 
         @Parameter(names = "--demo", description = "Show a GUI demo of a given genome")
-        private String genomePath = "/home/danielle/IdeaProjects/honours-project/results/danielle-Extensa-2520-20180625T1748/best networks/epoch-2/network.ser";
-
+        private String genomePath = "/home/alex/IdeaProjects/honours-project/results/alex-laptop-20180625T1702/best networks/epoch-4/network.ser";
 
         @Parameter(names = "--control", description = "Run with the control case")
         private boolean control = false;
@@ -184,7 +183,7 @@ public class Main
         private String morphologyPath = null;
 
         @Parameter(names = "--HyperNEATM", description = "Using HyperNEATM")
-        private boolean hyperNEATM = false;
+        private boolean hyperNEATM = true;
 
         @Parameter(names = "--population", description = "To resume a previous experiment, provide"
                 + " the path to a serialized population")

@@ -44,6 +44,7 @@ public class SensorMorphology implements Serializable {
             case ULTRASONIC:
                 return new UltrasonicSensor(config.getBearing(), config.getOrientation(),
                         config.getRange(), config.getFieldOfView());
+
         }
 
         return null;

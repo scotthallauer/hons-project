@@ -22,6 +22,8 @@ import za.redbridge.simulator.sensor.sensedobjects.SensedObject;
 import static za.redbridge.simulator.physics.AABBUtil.testPoint;
 
 /**
+ * < DETECT GATHERING ZONE >
+ *
  * The Khepera III robots feature two IR proximity sensors facing the ground near the front of the
  * robot. These are typically used for line-tracking tasks. Here we instead treat the two sensors
  * as one sensor that is able to detect the target area. If the ground in the target area were
