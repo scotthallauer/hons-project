@@ -1,6 +1,5 @@
 package za.redbridge.experiment.HyperNEATM;
 
-import jdk.internal.util.xml.impl.Input;
 import org.encog.engine.network.activation.ActivationFunction;
 import org.encog.engine.network.activation.ActivationSteepenedSigmoid;
 import org.encog.ml.MLMethod;

@@ -13,6 +13,7 @@ import org.jbox2d.common.Transform;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Fixture;
 
+import java.awt.*;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -50,11 +51,39 @@ public abstract class AgentSensor extends Sensor<List<Double>> {
     private final List<Double> readings = new ArrayList<>();
     private final List<Double> unmodifiableReadings = Collections.unmodifiableList(readings);
 
-    public AgentSensor() {
+    public AgentSensor(Color colorSensor) {
+        super(colorSensor);
         bearing = 0.0f;
         orientation = 0.0f;
         range = 10.0f;
         fieldOfView = 1.5f;
+        fovGradient = (float) Math.tan(fieldOfView / 2);
+    }
+
+    public AgentSensor() {
+        super();
+        bearing = 0.0f;
+        orientation = 0.0f;
+        range = 10.0f;
+        fieldOfView = 1.5f;
+        fovGradient = (float) Math.tan(fieldOfView / 2);
+    }
+
+    public AgentSensor(Color colorSensor, float bearing, float orientation, float range, float fieldOfView) {
+        super(colorSensor);
+        if (fieldOfView <= 0 || fieldOfView > MathUtils.PI) {
+            throw new IllegalArgumentException("Invalid field of view value: " + fieldOfView);
+        }
+
+        if (range <= 0) {
+            throw new IllegalArgumentException("Invalid range value: " + range);
+        }
+
+        this.bearing = bearing;
+        this.orientation = orientation;
+        this.range = range;
+        this.fieldOfView = fieldOfView;
+
         fovGradient = (float) Math.tan(fieldOfView / 2);
     }
 
@@ -105,7 +134,7 @@ public abstract class AgentSensor extends Sensor<List<Double>> {
 
     @Override
     protected Portrayal createPortrayal() {
-        return new ConePortrayal(range, fieldOfView, DEFAULT_PAINT);
+        return new ConePortrayal(range, fieldOfView, PAINT);
     }
 
     @Override

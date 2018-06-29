@@ -16,6 +16,7 @@ import java.util.Map;
  * Low-resolution camera which identifies the type of a block by
  * by estimating the size of the block.
  *
+ * color = blue
  *  Created by Danielle and Alexander 28/06/2018
  */
 
@@ -25,24 +26,17 @@ public class LowResCameraSensor extends AgentSensor
     private static final float LOWRES_SENSOR_RANGE = 3.0f;
     private static final float LOWRES_SENSOR_FOV = 1.5f; // This is a guess
 
-    private static final Paint color = new Color(28, 0, 255, 138);
-    private int readingSize;
+    public static final Color SensorColor = new Color(0, 255, 255, 50);
 
-    public LowResCameraSensor(float bearing, float orientation, int readingSize)
+    public LowResCameraSensor(float bearing, float orientation)
     {
-        this(bearing, orientation, LOWRES_SENSOR_RANGE, LOWRES_SENSOR_FOV, readingSize);
-    }
-
-    public LowResCameraSensor(float bearing, float orientation, float range, float fieldOfView, int readingSize)
-    {
-        super(bearing, orientation, range, fieldOfView);
-        this.readingSize = readingSize;
+        this(bearing, orientation, LOWRES_SENSOR_RANGE, LOWRES_SENSOR_FOV);
     }
 
     public LowResCameraSensor(float bearing, float orientation, float range, float fieldOfView)
     {
-        super(bearing, orientation, range, fieldOfView);
-        this.readingSize = readingSize;
+        super(SensorColor, bearing, orientation, range, fieldOfView);
+
     }
 
     @Override
@@ -92,13 +86,13 @@ public class LowResCameraSensor extends AgentSensor
     @Override
     public AgentSensor clone()
     {
-        return new LowResCameraSensor(bearing, orientation, range, fieldOfView, readingSize);
+        return new LowResCameraSensor(bearing, orientation, range, fieldOfView);
     }
 
     @Override
     public int getReadingSize()
     {
-        return readingSize;
+        return 1;
     }
 
     @Override
@@ -106,8 +100,5 @@ public class LowResCameraSensor extends AgentSensor
     {
         return null;
     }
-    @Override
-    protected Portrayal createPortrayal() {
-        return new ConePortrayal(range, fieldOfView, color);
-    }
+
 }

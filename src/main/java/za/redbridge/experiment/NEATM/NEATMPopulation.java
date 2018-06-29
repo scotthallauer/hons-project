@@ -1,6 +1,5 @@
 package za.redbridge.experiment.NEATM;
 
-import com.sun.org.apache.xpath.internal.SourceTree;
 import org.encog.engine.network.activation.ActivationFunction;
 import org.encog.engine.network.activation.ActivationSIN;
 import org.encog.ml.ea.species.BasicSpecies;

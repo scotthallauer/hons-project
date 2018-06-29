@@ -27,7 +27,9 @@ import za.redbridge.simulator.portrayal.STRTransform;
  * @param <T> the type that this Sensor returns from the {@link #sense()} method
  */
 public abstract class Sensor<T> implements Collideable {
-    protected static final Paint DEFAULT_PAINT = new Color(100, 100, 100, 50);
+    protected static final Color DEFAULT_PAINT = new Color(100, 100, 100, 50);
+
+    protected Color PAINT;
 
     private Portrayal portrayal;
     private Fixture sensorFixture;
@@ -40,9 +42,12 @@ public abstract class Sensor<T> implements Collideable {
 
     private final List<Fixture> sensedFixtures = new ArrayList<>();
 
-    public Sensor() {
+    public Sensor(Color colorSensor) {
+        PAINT = colorSensor;
     }
-
+    public Sensor() {
+        PAINT = DEFAULT_PAINT;
+    }
     public final T sense() {
         if (sensorFixture == null) {
             throw new IllegalStateException("Sensor not attached, cannot sense");
@@ -172,7 +177,7 @@ public abstract class Sensor<T> implements Collideable {
 
     /** Get the paint for drawing this sensor. */
     protected Paint getPaint() {
-        return DEFAULT_PAINT;
+        return PAINT;
     }
 
     protected boolean filterOutObject(PhysicalObject object) {

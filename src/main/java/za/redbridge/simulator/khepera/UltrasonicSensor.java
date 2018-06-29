@@ -1,5 +1,6 @@
 package za.redbridge.simulator.khepera;
 
+import java.awt.*;
 import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +12,8 @@ import za.redbridge.simulator.sensor.sensedobjects.SensedObject;
  * A rough estimation of the ultrasonic sensor used in the Khepera III robot: the Midas 400ST/R100
  * Ultrasonic sensors are characterised by a large range but with poor tracking of objects that
  * are close to the agent. They also have a relatively wide Field of View.
+ *
+ * color = green
  * Created by jamie on 2014/09/23.
  */
 public class UltrasonicSensor extends AgentSensor {
@@ -19,12 +22,14 @@ public class UltrasonicSensor extends AgentSensor {
     public static final float RANGE_NO_DISTANCE = 0.2f; // 20 centimeters
     public static final float FIELD_OF_VIEW = 1.22f; // 35 degrees
 
+    public static final Color SensorColor = new Color(0, 255, 0, 50);
+
     public UltrasonicSensor(float bearing, float orientation) {
         this(bearing, orientation, RANGE, FIELD_OF_VIEW);
     }
 
     public UltrasonicSensor(float bearing, float orientation, float range, float fieldOfView) {
-        super(bearing, orientation, range, fieldOfView);
+        super(SensorColor, bearing, orientation, range, fieldOfView);
     }
 
     @Override

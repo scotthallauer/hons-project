@@ -15,6 +15,8 @@ import java.util.Map;
  *
  * Differentiates between wall and resourceObject.
  *
+ * color = purple
+ *
  * Created by Danielle and Alexander on 2018/06/28.
  */
 
@@ -23,7 +25,7 @@ public class ColourProximitySensor extends AgentSensor {
     public static final float RANGE = 0.6f;
     public static final float FIELD_OF_VIEW = 0.4f; // This is a guess
 
-
+    public static final Color SensorColor = new Color(128, 0, 128, 50);
 
     public ColourProximitySensor(float bearing) {
         this(bearing, 0.0f, RANGE, FIELD_OF_VIEW);
@@ -31,7 +33,7 @@ public class ColourProximitySensor extends AgentSensor {
 
     public ColourProximitySensor(float bearing, float orientation, float range,
                                  float fieldOfView) {
-        super(bearing, orientation, range, fieldOfView);
+        super(SensorColor, bearing, orientation, range, fieldOfView);
     }
 
     @Override

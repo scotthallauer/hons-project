@@ -162,7 +162,7 @@ public class Main
         private int numGenerations = 75;
 
         @Parameter(names = "-p", description = "Initial population size")
-        private int populationSize = 75;
+        private int populationSize = 5;
 
         @Parameter(names = "--trials", description = "Number of simulation runs per iteration (team lifetime)") // Jamie calls this 'simulationRuns' (and 'lifetime' in his paper)
         private int trialsPerIndividual = 2;

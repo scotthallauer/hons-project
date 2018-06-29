@@ -6,6 +6,7 @@ import org.jbox2d.collision.shapes.Shape;
 import org.jbox2d.common.Transform;
 import org.jbox2d.dynamics.Fixture;
 
+import java.awt.*;
 import java.text.ParseException;
 import java.util.Map;
 
@@ -30,6 +31,7 @@ import static za.redbridge.simulator.physics.AABBUtil.testPoint;
  * painted a different colour to the rest of the environment then these bottom-down sensors could
  * realistically be used to detect when the agent is in the target area.
  *
+ * color = grey
  * Created by jamie on 2014/10/01.
  */
 public class BottomProximitySensor extends ProximitySensor {
@@ -38,8 +40,10 @@ public class BottomProximitySensor extends ProximitySensor {
 
     private RobotObject robot;
 
+    public static final Color SensorColor = new Color(100, 100, 100, 50);
+
     public BottomProximitySensor() {
-        super(0f, 0f);
+        super( SensorColor, 0f, 0f);
     }
 
     @Override
