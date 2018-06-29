@@ -123,6 +123,7 @@ public class HyperNEATMSensorBuilder {
     //maps a float to a sensorType
     //@TODO implement actual map (for now just return
    public SensorType getSensorType(Float type){
+
         if (type <0){
             return SensorType.PROXIMITY;
         }
