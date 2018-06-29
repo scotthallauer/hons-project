@@ -135,7 +135,7 @@ public class HyperNEATMCODEC implements GeneticCODEC, Serializable {
 
             final MLData output = cppn.compute(input);
 
-            double biasWeight = output.getData(1);
+            double biasWeight = output.getData(5);
             if (Math.abs(biasWeight) > this.minWeight) {
                 biasWeight = (Math.abs(biasWeight) - this.minWeight) * c
                         * Math.signum(biasWeight);

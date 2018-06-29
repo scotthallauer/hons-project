@@ -61,7 +61,7 @@ public class NEATMPopulation extends NEATPopulation
     {
         super(theSubstrate, populationSize);
         setInputCount(4);
-        setOutputCount(5);
+        setOutputCount(6);
     }
 
 
