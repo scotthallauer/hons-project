@@ -63,12 +63,11 @@ public class ProximitySensor extends AgentSensor {
     @Override
     public String toString()
     {
-        return "ProximitySensor{" +
-                "bearing=" + bearing +
-                ", orientation=" + orientation +
-                ", range=" + range +
-                ", fieldOfView=" + fieldOfView +
-                '}';
+        return "ProximitySensor" +
+                "\nbearing=" + bearing +
+                "\norientation=" + orientation +
+                "\nrange=" + range +
+                "\nfieldOfView=" + fieldOfView;
     }
 
     @Override

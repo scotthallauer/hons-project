@@ -45,12 +45,11 @@ public class UltrasonicSensor extends AgentSensor {
     @Override
     public String toString()
     {
-        return "UltrasonicSensor{" +
-                "bearing=" + bearing +
-                ", orientation=" + orientation +
-                ", range=" + range +
-                ", fieldOfView=" + fieldOfView +
-                '}';
+        return "UltrasonicSensor" +
+                "\nbearing=" + bearing +
+                "\norientation=" + orientation +
+                "\nrange=" + range +
+                "\nfieldOfView=" + fieldOfView;
     }
 
     private double readingCurve(float distance) {

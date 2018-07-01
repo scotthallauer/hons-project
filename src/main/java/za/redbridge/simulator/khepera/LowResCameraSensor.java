@@ -42,12 +42,11 @@ public class LowResCameraSensor extends AgentSensor
     @Override
     public String toString()
     {
-        return "LowResCameraSensor{" +
-                "bearing=" + bearing +
-                ", orientation=" + orientation +
-                ", range=" + range +
-                ", fieldOfView=" + fieldOfView +
-                '}';
+        return "LowResCameraSensor" +
+                "\nbearing=" + bearing +
+                "\norientation=" + orientation +
+                "\nrange=" + range +
+                "\nfieldOfView=" + fieldOfView;
     }
 
     @Override

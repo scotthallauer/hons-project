@@ -104,12 +104,11 @@ public class ColourProximitySensor extends AgentSensor {
     @Override
     public String toString()
     {
-        return "ColourProximitySensor{" +
-                "bearing=" + bearing +
-                ", orientation=" + orientation +
-                ", range=" + range +
-                ", fieldOfView=" + fieldOfView +
-                '}';
+        return "ColourProximitySensor" +
+                "\nbearing=" + bearing +
+                "\n orientation=" + orientation +
+                "\n range=" + range +
+                "\n fieldOfView=" + fieldOfView;
     }
 
     @Override
