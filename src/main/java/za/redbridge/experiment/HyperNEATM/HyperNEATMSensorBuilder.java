@@ -119,17 +119,24 @@ public class HyperNEATMSensorBuilder
 
         //Get type of sensor from the connection with max weight
         //@TODO look into if multiple maximums
-        Float sensorTypeValue = sensorTypes.get(0);
-        Float maxWeight = weights.get(0);
-        for (int i = 1; i < weights.size(); i++)
+//        Float sensorTypeValue = sensorTypes.get(0);
+//        Float maxWeight = weights.get(0);
+//        for (int i = 1; i < weights.size(); i++)
+//        {
+//            if (weights.get(i) > maxWeight)
+//            {
+//                maxWeight = weights.get(i);
+//                sensorTypeValue = sensorTypes.get(i);
+//            }
+//        }
+        float sum = 0;
+        for (int i = 0; i < sensorTypes.size(); i++)
         {
-            if (weights.get(i) > maxWeight)
-            {
-                maxWeight = weights.get(i);
-                sensorTypeValue = sensorTypes.get(i);
-            }
+            sum += sensorTypes.get(i);
         }
+        float sensorTypeValue = sum;
         SensorType sensorType = getSensorType(sensorTypeValue);
+        System.out.println(sensorType.toString());
         return new SensorModel(sensorType, convertCartesianToRadians(),
                 calculateAverage(orientations, sensorType, ParameterType.ORIENTATION),
                 calculateAverage(ranges, sensorType, ParameterType.RANGE),
@@ -197,4 +204,8 @@ public class HyperNEATMSensorBuilder
 
         return value;
     }
+
+//    public float normaliseDistribution(){
+//
+//    }
 }
