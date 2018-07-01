@@ -40,6 +40,17 @@ public class LowResCameraSensor extends AgentSensor
     }
 
     @Override
+    public String toString()
+    {
+        return "LowResCameraSensor{" +
+                "bearing=" + bearing +
+                ", orientation=" + orientation +
+                ", range=" + range +
+                ", fieldOfView=" + fieldOfView +
+                '}';
+    }
+
+    @Override
     protected void provideObjectReading(List<SensedObject> sensedObjects, List<Double> output)
     {
         //returns the ratio between robots and the mass of resources to determine required level of cooperation

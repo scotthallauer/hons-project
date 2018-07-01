@@ -108,12 +108,12 @@ public class StatsRecorder {
         int epoch = trainer.getIteration();
         log.info("Epoch " + epoch + " complete");
 
-        recordStats(calculator.getPerformanceStatistics(), epoch, performanceStatsFile);
+        recordStats("Performance", calculator.getPerformanceStatistics(), epoch, performanceStatsFile);
 
-        recordStats(calculator.getScoreStatistics(), epoch, scoreStatsFile);
+        recordStats("Score", calculator.getScoreStatistics(), epoch, scoreStatsFile);
 
         if (evolvingMorphology) {
-            recordStats(calculator.getSensorStatistics(), epoch, sensorStatsFile);
+            recordStats("Sensor", calculator.getSensorStatistics(), epoch, sensorStatsFile);
         }
 
         savePopulation((NEATPopulation) trainer.getPopulation(), epoch);
@@ -142,8 +142,10 @@ public class StatsRecorder {
 
         if (evolvingMorphology) {
             if(HyperNEATM){
+                System.out.println("hyperNEAT");
                 NEATPopulation pop = (NEATPopulation) genome.getPopulation();
                 NEATMNetwork nw = (NEATMNetwork) pop.getCODEC().decode(genome);
+                System.out.println(pop.getCODEC().getClass().toString());
 
                 log.info("New best genome! Epoch: " + epoch + ", score: " + genome.getScore()
                         + ", num sensors: " + nw.getSensorMorphology().getNumSensors());
@@ -175,14 +177,14 @@ public class StatsRecorder {
         GraphvizEngine.saveNetwork(network, directory.resolve("network.dot"));
     }
 
-    private void recordStats(DescriptiveStatistics stats, int epoch, Path filepath) {
+    private void recordStats(String type, DescriptiveStatistics stats, int epoch, Path filepath) {
         double max = stats.getMax();
         double min = stats.getMin();
         double mean = stats.getMean();
         double sd = stats.getStandardDeviation();
         stats.clear();
 
-        log.debug("Recording stats - max: " + max + ", mean: " + mean);
+        log.debug("["+type+" ]+Recording stats - max: " + max + ", mean: " + mean);
         saveStats(filepath, epoch, max, min, mean, sd);
     }
 

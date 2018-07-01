@@ -177,4 +177,9 @@ public class BottomProximitySensor extends ProximitySensor {
         return super.readingCurve(distance + 0.0025f);
     }
 
+    @Override
+    public String toString()
+    {
+        return "BottomProximitySensor";
+    }
 }

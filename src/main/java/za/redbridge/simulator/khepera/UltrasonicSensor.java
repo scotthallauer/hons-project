@@ -42,6 +42,17 @@ public class UltrasonicSensor extends AgentSensor {
         output.add(reading);
     }
 
+    @Override
+    public String toString()
+    {
+        return "UltrasonicSensor{" +
+                "bearing=" + bearing +
+                ", orientation=" + orientation +
+                ", range=" + range +
+                ", fieldOfView=" + fieldOfView +
+                '}';
+    }
+
     private double readingCurve(float distance) {
         // Normalize the distance to the standard range
         float normalizedDistance = RANGE / range * distance;

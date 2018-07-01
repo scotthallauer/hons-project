@@ -61,6 +61,17 @@ public class ProximitySensor extends AgentSensor {
     }
 
     @Override
+    public String toString()
+    {
+        return "ProximitySensor{" +
+                "bearing=" + bearing +
+                ", orientation=" + orientation +
+                ", range=" + range +
+                ", fieldOfView=" + fieldOfView +
+                '}';
+    }
+
+    @Override
     public void readAdditionalConfigs(Map<String, Object> stringObjectMap) throws ParseException {
         throw new UnsupportedOperationException();
     }
