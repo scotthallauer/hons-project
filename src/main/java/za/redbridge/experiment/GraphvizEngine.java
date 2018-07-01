@@ -19,7 +19,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import za.redbridge.experiment.NEATM.NEATMNetwork;
 import za.redbridge.experiment.NEATM.sensor.SensorConfiguration;
+import za.redbridge.experiment.NEATM.sensor.SensorModel;
+import za.redbridge.experiment.NEATM.sensor.SensorMorphology;
 import za.redbridge.experiment.NEATM.sensor.parameter.SensorParameterSet;
 import za.redbridge.experiment.NEATM.training.NEATMNeuronGene;
 import za.redbridge.experiment.NEATM.sensor.SensorType;
@@ -147,6 +150,13 @@ public class GraphvizEngine {
     private static void writeNodes(BufferedWriter writer, NEATNetwork network)
         throws IOException {
         // Reconstruct node information from links (only works for constant inputs/outputs)
+        boolean NEATM = false;
+        SensorMorphology sensors = null;
+        if(network instanceof NEATMNetwork){
+            NEATMNetwork networkM = (NEATMNetwork) network;
+            NEATM = true;
+            sensors = networkM.getSensorMorphology();
+        }
         Map<Integer, String> nodes = new HashMap<>();
         List<Integer> inputs = new ArrayList<>();
         List<Integer> outputs = new ArrayList<>();
@@ -157,7 +167,10 @@ public class GraphvizEngine {
             int fromNeuron = link.getFromNeuron();
             if (!nodes.containsKey(fromNeuron)) {
                 NEATNeuronType type = typeForNode(fromNeuron, inputCount, outputCount);
-                nodes.put(fromNeuron, type.toString());
+                if( NEATM && type ==NEATNeuronType.Input){
+                    nodes.put(fromNeuron, type.toString()+sensors.getSensor(fromNeuron).toString());
+                }
+
 
                 if (type == NEATNeuronType.Input || type == NEATNeuronType.Bias) {
                     inputs.add(fromNeuron);

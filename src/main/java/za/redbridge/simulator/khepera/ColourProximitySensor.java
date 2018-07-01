@@ -102,6 +102,17 @@ public class ColourProximitySensor extends AgentSensor {
     }
 
     @Override
+    public String toString()
+    {
+        return "ColourProximitySensor{" +
+                "bearing=" + bearing +
+                ", orientation=" + orientation +
+                ", range=" + range +
+                ", fieldOfView=" + fieldOfView +
+                '}';
+    }
+
+    @Override
     public Map<String,Object> getAdditionalConfigs() { return additionalConfigs; }
 }
 
