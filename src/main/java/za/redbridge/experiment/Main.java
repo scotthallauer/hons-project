@@ -124,7 +124,8 @@ public class Main
                 train = NEATUtil.constructNEATTrainer(population, calculateScore);
             }
         }
-
+        //prevent elitist selection --> in future should use this for param tuning
+        train.setEliteRate(0);
         log.info("Available processors detected: " + Runtime.getRuntime().availableProcessors());
         if (options.threads > 0)
         {
@@ -162,10 +163,10 @@ public class Main
         private int numGenerations = 75;
 
         @Parameter(names = "-p", description = "Initial population size")
-        private int populationSize = 75;
+        private int populationSize = 10;
 
         @Parameter(names = "--trials", description = "Number of simulation runs per iteration (team lifetime)") // Jamie calls this 'simulationRuns' (and 'lifetime' in his paper)
-        private int trialsPerIndividual = 2;
+        private int trialsPerIndividual = 1;
 
         @Parameter(names = "--conn-density", description = "Adjust the initial connection density"
                 + " for the population")
