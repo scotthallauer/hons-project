@@ -142,10 +142,8 @@ public class StatsRecorder {
 
         if (evolvingMorphology) {
             if(HyperNEATM){
-                System.out.println("hyperNEAT");
                 NEATPopulation pop = (NEATPopulation) genome.getPopulation();
                 NEATMNetwork nw = (NEATMNetwork) pop.getCODEC().decode(genome);
-                System.out.println(pop.getCODEC().getClass().toString());
 
                 log.info("New best genome! Epoch: " + epoch + ", score: " + genome.getScore()
                         + ", num sensors: " + nw.getSensorMorphology().getNumSensors());

@@ -160,13 +160,13 @@ public class Main
         private String configFile = "config/bossConfig.yml";
 
         @Parameter(names = "-g", description = "Number of generations to train for")    // Jamie calls this 'iterations'
-        private int numGenerations = 75;
+        private int numGenerations = 150;
 
         @Parameter(names = "-p", description = "Initial population size")
-        private int populationSize = 10;
+        private int populationSize = 150;
 
         @Parameter(names = "--trials", description = "Number of simulation runs per iteration (team lifetime)") // Jamie calls this 'simulationRuns' (and 'lifetime' in his paper)
-        private int trialsPerIndividual = 1;
+        private int trialsPerIndividual = 3;
 
         @Parameter(names = "--conn-density", description = "Adjust the initial connection density"
                 + " for the population")

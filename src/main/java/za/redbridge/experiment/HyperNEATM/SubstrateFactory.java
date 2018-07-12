@@ -20,10 +20,11 @@ public class SubstrateFactory
      -----------------------------------------------------------------------------*/
 
     public static Substrate createKheperaSubstrate(double distBetweenEachSensor, double radius)
+
     {
         Substrate substrate = new Substrate(2); // Substrate exists on a single 2D-Cartesian coordinate plane.
-
-
+        //improves distribution
+        radius=radius*10;
 
         for (double theta = 0; theta < Math.PI*2; theta+=distBetweenEachSensor)     // loop around circle substrate and place a possible
         {                                                                           // input sensor node, each separated by distBetweenEachSensor
