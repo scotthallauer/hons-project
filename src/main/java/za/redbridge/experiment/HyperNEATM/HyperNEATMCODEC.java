@@ -23,6 +23,8 @@ import za.redbridge.experiment.NEATM.sensor.SensorMorphology;
 import za.redbridge.experiment.NEATM.sensor.SensorType;
 
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.Serializable;
 import java.util.*;
 
@@ -37,6 +39,7 @@ public class HyperNEATMCODEC implements GeneticCODEC, Serializable {
     private double minWeight = 0.2;
     private double maxWeight = 5.0;
 
+
     /**
      * {@inheritDoc}
      */
@@ -45,6 +48,21 @@ public class HyperNEATMCODEC implements GeneticCODEC, Serializable {
         final NEATPopulation pop = (NEATPopulation) genome.getPopulation();
         final Substrate substrate = pop.getSubstrate();
         return decode(pop, substrate, genome);
+    }
+
+    public void write(String s)
+    {
+        try
+        {
+            BufferedWriter w = new BufferedWriter(new FileWriter("SensorDistributions.csv", true));
+            w.write(s);
+            w.newLine();
+            w.close();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 
     public MLMethod decode(final NEATPopulation pop, final Substrate substrate, final Genome genome) {
@@ -107,6 +125,9 @@ public class HyperNEATMCODEC implements GeneticCODEC, Serializable {
                     sensorBuilder.addOrientations((float) (output.getData(2)));
                     sensorBuilder.addRanges((float) (output.getData(3)));
                     sensorBuilder.addSensorTypes((float) (output.getData(4)));
+
+                    write(output.getData(4)+"");
+
                     //ensures no memory issues (look into this)
                     InputNodeSensorMap.put(IDUsing, sensorBuilder);
 
