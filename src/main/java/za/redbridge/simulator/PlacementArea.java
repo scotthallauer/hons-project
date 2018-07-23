@@ -156,8 +156,11 @@ public class PlacementArea {
         }
 
         if (overlappingWithOtherObject(space.aabb)) {
+            System.out.println(space.getAabb().upperBound+"-"+space.getAabb().lowerBound);
             throw new IllegalArgumentException("Placement space is not available");
+
         }
+
 
         if (!space.aabb.contains(getObjectAABB(object))) {
             throw new IllegalArgumentException("Object space does not match placement space");
@@ -201,7 +204,7 @@ public class PlacementArea {
 
         private boolean used = false;
 
-        private Space(AABB aabb, float angle) {
+        public Space(AABB aabb, float angle) {
             this.aabb = aabb;
             this.angle = angle;
         }
@@ -233,6 +236,8 @@ public class PlacementArea {
         private void markUsed() {
             used = true;
         }
+
+        public AABB getAabb(){return aabb;}
 
     }
 

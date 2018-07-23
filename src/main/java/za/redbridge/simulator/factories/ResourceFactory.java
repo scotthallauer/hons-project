@@ -19,6 +19,12 @@ public interface ResourceFactory {
      * @param world the JBox2D world that the object will be created in
      */
     void placeInstances(PlacementArea.ForType<ResourceObject> placementArea, World world);
+    /**
+     * Place all the resources within the provided placement area from a JSONfile.
+     * @param placementArea A placement area for ResourceObjects
+     * @param world the JBox2D world that the object will be created in
+     */
+    void placeInstancesFile(PlacementArea.ForType<ResourceObject> placementArea, World world);
 
     void configure(Map<String, Object> resourceConfigs);
 
