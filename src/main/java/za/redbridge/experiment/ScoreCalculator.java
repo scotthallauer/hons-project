@@ -93,6 +93,16 @@ public class ScoreCalculator implements CalculateScore
         return score;
     }
 
+    public double calculateScore2(MLMethod method)  // second fitness function score (multi-objective)
+    {
+        NEATNetwork network = (NEATNetwork) method;
+        System.out.println(network.getInputCount());
+
+        double score = 100 - (( (double) network.getInputCount() / 11) * 100);
+        return score;
+
+    }
+
     public void demo(MLMethod method)
     {
         // Create the robot and resource factories

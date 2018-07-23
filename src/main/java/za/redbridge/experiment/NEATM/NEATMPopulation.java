@@ -1,20 +1,15 @@
 package za.redbridge.experiment.NEATM;
 
-import org.encog.engine.network.activation.ActivationFunction;
-import org.encog.engine.network.activation.ActivationSIN;
 import org.encog.ml.ea.species.BasicSpecies;
-import org.encog.neural.hyperneat.FactorHyperNEATGenome;
-import org.encog.neural.hyperneat.HyperNEATCODEC;
-import org.encog.neural.hyperneat.HyperNEATGenome;
 import org.encog.neural.hyperneat.substrate.Substrate;
-import org.encog.neural.neat.FactorNEATGenome;
-import org.encog.neural.neat.NEATCODEC;
 import org.encog.neural.neat.training.NEATGenome;
 import org.encog.neural.neat.training.NEATInnovationList;
 
 import java.util.Random;
 
 import za.redbridge.experiment.HyperNEATM.HyperNEATMCODEC;
+import za.redbridge.experiment.MultiObjective.FactorMultiObjectiveHyperNEATGenome;
+import za.redbridge.experiment.MultiObjective.FactorMultiObjectiveNEATMGenome;
 import za.redbridge.experiment.NEATM.sensor.SensorType;
 import za.redbridge.experiment.NEAT.NEATPopulation;
 
@@ -29,6 +24,8 @@ public class NEATMPopulation extends NEATPopulation
     /**
      * An empty constructor for serialization.
      */
+
+    private boolean multiObjective;
     public NEATMPopulation()
     {
 
@@ -41,10 +38,13 @@ public class NEATMPopulation extends NEATPopulation
      * @param outputCount    The output neuron count.
      * @param populationSize The population size.
      */
-    public NEATMPopulation(int outputCount, int populationSize)
+    public NEATMPopulation(int outputCount, int populationSize, boolean multiObjective)
     {
         super(SensorType.values().length, outputCount, populationSize); // inputCount = SensorType.values().length
-    }                                                                   // This is because initial population begins with one of each sensor type.
+                                                                        // This is because initial population begins with one of each sensor type.
+        this.multiObjective = multiObjective;
+    }
+
 
 
     /**
@@ -56,11 +56,12 @@ public class NEATMPopulation extends NEATPopulation
      * @param populationSize
      *            Number of CPPNs in each generation.
      */
-    public NEATMPopulation(final Substrate theSubstrate, final int populationSize)
+    public NEATMPopulation(final Substrate theSubstrate, final int populationSize, boolean multiObjective)
     {
         super(theSubstrate, populationSize);
         setInputCount(4);
         setOutputCount(6);
+        this.multiObjective = multiObjective;
     }
 
 
@@ -71,12 +72,27 @@ public class NEATMPopulation extends NEATPopulation
         if (isHyperNEAT())                                  // Just checks if NEAT(M)Population has a valid substrate.
         {
             setCODEC(new HyperNEATMCODEC());
-            setGenomeFactory(new za.redbridge.experiment.HyperNEATM.FactorHyperNEATGenome());
+            if(multiObjective)
+            {
+                setGenomeFactory(new FactorMultiObjectiveHyperNEATGenome());
+            }
+            else
+            {
+                setGenomeFactory(new za.redbridge.experiment.HyperNEATM.FactorHyperNEATGenome());
+            }
+
         }
         else
         {
             setCODEC(new NEATMCODEC());
-            setGenomeFactory(new FactorNEATMGenome());
+            if(multiObjective)
+            {
+                setGenomeFactory(new FactorMultiObjectiveNEATMGenome());
+            }
+            else
+            {
+                setGenomeFactory(new FactorNEATMGenome());
+            }
         }
 
 

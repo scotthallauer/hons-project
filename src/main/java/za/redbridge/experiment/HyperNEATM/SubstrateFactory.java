@@ -31,8 +31,6 @@ public class SubstrateFactory
            SubstrateNode inputNode = substrate.createInputNode();
            inputNode.getLocation()[0] = radius*Math.cos(theta);     // x = radius*Math.cos(theta)
            inputNode.getLocation()[1] = radius*Math.sin(theta);     // y = radius*Math.cos(theta)
-
-
         }
         double outputYcoord = 0 - radius - radius*0.25;
         double outputXcoord = radius*0.3333;
