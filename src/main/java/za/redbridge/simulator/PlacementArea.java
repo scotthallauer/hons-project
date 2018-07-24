@@ -155,11 +155,12 @@ public class PlacementArea {
             throw new IllegalArgumentException("Space already used");
         }
 
+        /*
         if (overlappingWithOtherObject(space.aabb)) {
             System.out.println(space.getAabb().upperBound+"-"+space.getAabb().lowerBound);
             throw new IllegalArgumentException("Placement space is not available");
-
         }
+        */
 
 
         if (!space.aabb.contains(getObjectAABB(object))) {

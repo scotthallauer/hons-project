@@ -65,7 +65,7 @@ public class ConfigurableResourceFactory extends Config implements ResourceFacto
     @Override
     public void placeInstances(PlacementArea.ForType<ResourceObject> placementArea, World world) {
      //   String file = "configPlacementNumber"+Random.number(0,max);
-        String makeNewFile =  "../configPlacementNumber"+NumPlacements;
+        String makeNewFile =  "configPlacementNumber"+NumPlacements;
         NumPlacements++;
         JSONObject json = new JSONObject();
         JSONArray small = placeInstances(smallResourceSpec, placementArea, world);
@@ -90,7 +90,7 @@ public class ConfigurableResourceFactory extends Config implements ResourceFacto
 
     }
     public void placeInstancesFile(PlacementArea.ForType<ResourceObject> placementArea, World world) {
-        String file = "configPlacementNumber10.json";
+        String file = "BossConfigPlacementAreas/configPlacementNumber0.json";
         JSONParser parser = new JSONParser();
         JSONObject jsonObject;
         try {

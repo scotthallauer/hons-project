@@ -160,13 +160,13 @@ public class Main
         private String configFile = "config/bossConfig.yml";
 
         @Parameter(names = "-g", description = "Number of generations to train for")    // Jamie calls this 'iterations'
-        private int numGenerations = 150;
+        private int numGenerations = 5;
 
         @Parameter(names = "-p", description = "Initial population size")
-        private int populationSize = 150;
+        private int populationSize = 5;
 
         @Parameter(names = "--trials", description = "Number of simulation runs per iteration (team lifetime)") // Jamie calls this 'simulationRuns' (and 'lifetime' in his paper)
-        private int trialsPerIndividual = 3;
+        private int trialsPerIndividual = 1;
 
         @Parameter(names = "--conn-density", description = "Adjust the initial connection density"
                 + " for the population")
@@ -184,7 +184,7 @@ public class Main
         private String morphologyPath = null;
 
         @Parameter(names = "--HyperNEATM", description = "Using HyperNEATM")
-        private boolean hyperNEATM = true;
+        private boolean hyperNEATM = false;
 
         @Parameter(names = "--population", description = "To resume a previous experiment, provide"
                 + " the path to a serialized population")
@@ -192,7 +192,7 @@ public class Main
 
         @Parameter(names = "--threads", description = "Number of threads to run simulations with."
                 + " By default Runtime#availableProcessors() is used to determine the number of threads to use")
-        private int threads = 0;
+        private int threads = 1;
 
         @Override
         public String toString()
