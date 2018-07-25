@@ -31,7 +31,9 @@ public class MultiObjectiveHyperNEATUtil
                                                final CalculateScore calculateScore)
     {
         final MultiObjectiveEA result = new MultiObjectiveEA(population, calculateScore);
-        result.setSpeciation(new OriginalNEATSpeciation());
+        OriginalNEATSpeciation speciation = new OriginalNEATSpeciation();
+        speciation.setMaxNumberOfSpecies(population.size());         //todo chat to Geoff about this
+        result.setSpeciation(speciation);
 
         result.setSelection(new TruncationSelection(result, 0.3));
         final CompoundOperator weightMutation = new CompoundOperator();

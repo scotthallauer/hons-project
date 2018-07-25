@@ -12,6 +12,7 @@ import org.encog.neural.neat.training.opp.links.MutatePerturbLinkWeight;
 import org.encog.neural.neat.training.opp.links.MutateResetLinkWeight;
 import org.encog.neural.neat.training.opp.links.SelectFixed;
 import org.encog.neural.neat.training.opp.links.SelectProportion;
+import org.encog.neural.neat.training.species.OriginalNEATSpeciation;
 import za.redbridge.experiment.NEATM.NEATMCODEC;
 import za.redbridge.experiment.NEATM.NEATMPopulation;
 import za.redbridge.experiment.NEATM.sensor.SensorType;
@@ -44,9 +45,9 @@ public class MultiObjectiveNEATMUtil
     public static MultiObjectiveEA constructNEATTrainer(NEATPopulation population,
                                                CalculateScore calculateScore) {
         final MultiObjectiveEA result = new MultiObjectiveEA(population, calculateScore);
-
-        // Speciation
-        result.setSpeciation(new NEATMSpeciation());
+        NEATMSpeciation speciation = new NEATMSpeciation();
+        speciation.setMaxNumberOfSpecies(population.size());         //todo chat to Geoff about this
+        result.setSpeciation(speciation);
 
         // Selection
         result.setSelection(new TruncationSelection(result, 0.3));
