@@ -46,11 +46,12 @@ public class Main
 
     public static void main(String[] args) throws IOException
     {
+
         Args options = new Args();
         new JCommander(options, args);
 
         log.info(options.toString());
-
+        //Loading in the config
         SimConfig simConfig;
         if (!isBlank(options.configFile))                   // if using config file
         {
@@ -60,21 +61,8 @@ public class Main
             simConfig = new SimConfig();
         }
 
-        // Load the morphology
-        SensorMorphology morphology = null;
-        if (options.control)
-        {
-            if (!isBlank(options.morphologyPath))
-            {
-                NEATMNetwork network = (NEATMNetwork) readObjectFromFile(options.morphologyPath);
-                morphology = network.getSensorMorphology();
-            } else
-            {
-                morphology = new KheperaIIIMorphology();
-            }
-        }
         ScoreCalculator calculateScore =
-                new ScoreCalculator(simConfig, options.trialsPerIndividual, morphology, options.hyperNEATM);
+                new ScoreCalculator(simConfig, options.trialsPerIndividual, null, options.hyperNEATM);
 
         if (!isBlank(options.genomePath))
         {
@@ -98,14 +86,7 @@ public class Main
             }
             else
             {
-                if (!options.control)
-                {
-                    population = new NEATMPopulation(2, options.populationSize, options.multiObjective);
-                }
-                else
-                {
-                    population = new NEATPopulation(morphology.getNumSensors(), 2, options.populationSize);
-                }
+                population = new NEATMPopulation(2, options.populationSize, options.multiObjective);
             }
             population.setInitialConnectionDensity(options.connectionDensity);
             population.reset();
@@ -128,21 +109,14 @@ public class Main
         }
         else
         {
-            if (!options.control)    // if using NEATM
-            {
-                if(options.multiObjective)
-                {
-                    train = MultiObjectiveNEATMUtil.constructNEATTrainer(population, calculateScore);
-                }
-                else
-                {
-                    train = NEATMUtil.constructNEATTrainer(population, calculateScore);
-                }
 
-            }
-            else                   // if using NEAT (control case)
+            if(options.multiObjective)
             {
-                train = NEATUtil.constructNEATTrainer(population, calculateScore);
+                train = MultiObjectiveNEATMUtil.constructNEATTrainer(population, calculateScore);
+            }
+            else
+            {
+                train = NEATMUtil.constructNEATTrainer(population, calculateScore);
             }
         }
         //prevent elitist selection --> in future should use this for param tuning
@@ -206,14 +180,6 @@ public class Main
         @Parameter(names = "--demo", description = "Show a GUI demo of a given genome")
         private String genomePath = null;
 
-        @Parameter(names = "--control", description = "Run with the control case")
-        private boolean control = false;
-
-        @Parameter(names = "--morphology", description = "For use with the control case, provide"
-                + " the path to a serialized MMNEATNetwork to have its morphology used for the"
-                + " control case")
-        private String morphologyPath = null;
-
         @Parameter(names = "--HyperNEATM", description = "Using HyperNEATM")
         private boolean hyperNEATM = false;
 
@@ -240,9 +206,7 @@ public class Main
                     + "\tNumber of simulation tests per iteration: " + trialsPerIndividual + "\n"
                     + "\tInitial connection density: " + connectionDensity + "\n"
                     + "\tDemo network config path: " + genomePath + "\n"
-                    + "\tRunning with the control case: " + control + "\n"
                     + "\tHyperNEATM: " + hyperNEATM + "\n"
-                    + "\tMorphology path: " + morphologyPath + "\n"
                     + "\tPopulation path: " + populationPath + "\n"
                     + "\tNumber of threads: " + threads;
         }
