@@ -9,9 +9,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class MultiObjectiveNEATMGenome extends NEATMGenome
+public class MultiObjectiveNEATMGenome extends NEATMGenome implements MultiObjectiveGenome
 {
     private ArrayList<Double> scoreVector;
+
+    private int rank;
+
+    private Double distance;
 
     /**
      * Construct a genome by copying another.
@@ -79,5 +83,21 @@ public class MultiObjectiveNEATMGenome extends NEATMGenome
 
     public ArrayList<Double> getScoreVector(){
         return scoreVector;
+    }
+
+    public  void setDistance(Double distance){
+        this.distance = distance;
+    }
+
+    public  void setRank(int rank){
+        this.rank = rank;
+    }
+
+    public  double getDistance(){
+        return distance;
+    }
+
+    public int getRank(){
+        return rank;
     }
 }

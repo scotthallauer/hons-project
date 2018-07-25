@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import za.redbridge.experiment.HyperNEATM.HyperNEATMCODEC;
 import za.redbridge.experiment.MultiObjective.MultiObjectiveEA;
@@ -193,7 +194,7 @@ public class Main
         private int numGenerations = 30;
 
         @Parameter(names = "-p", description = "Initial population size")
-        private int populationSize = 4;
+        private int populationSize = 30;
 
         @Parameter(names = "--trials", description = "Number of simulation runs per iteration (team lifetime)") // Jamie calls this 'simulationRuns' (and 'lifetime' in his paper)
         private int trialsPerIndividual = 1;
@@ -203,7 +204,7 @@ public class Main
         private double connectionDensity = 0.5;
 
         @Parameter(names = "--demo", description = "Show a GUI demo of a given genome")
-        private String genomePath = "/home/alex/Desktop/epoch-102/network.ser";
+        private String genomePath = null;
 
         @Parameter(names = "--control", description = "Run with the control case")
         private boolean control = false;
@@ -227,7 +228,7 @@ public class Main
         // TODO description
         @Parameter(names = "--multi-objective", description = "Number of threads to run simulations with."
                 + " By default Runtime#availableProcessors() is used to determine the number of threads to use")
-        private boolean multiObjective = false;
+        private boolean multiObjective = true;
 
         @Override
         public String toString()

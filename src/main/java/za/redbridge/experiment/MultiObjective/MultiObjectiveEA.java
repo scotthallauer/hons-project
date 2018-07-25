@@ -21,12 +21,16 @@ import org.encog.ml.ea.species.Species;
 import org.encog.ml.ea.train.EvolutionaryAlgorithm;
 import org.encog.ml.genetic.GeneticError;
 import org.encog.util.concurrency.MultiThreadable;
-import za.redbridge.experiment.NEATM.training.NEATMGenome;
+import za.redbridge.experiment.MultiObjective.Comparator.DistanceComparator;
+import za.redbridge.experiment.MultiObjective.Comparator.MaximisingObjectiveComparator;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
@@ -455,6 +459,132 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
         return this.validationMode;
     }
 
+    private void setNonDominationAndCrowdDists()
+    {
+        HashMap<MultiObjectiveGenome, ArrayList<MultiObjectiveGenome>> S = new HashMap<>();
+        HashMap<MultiObjectiveGenome, Integer> n = new HashMap<>();  // number of individuals that dominate p
+        ArrayList<ArrayList<MultiObjectiveGenome>> Fronts = new ArrayList<>();
+        ArrayList<Species> SelectedSpecies = new ArrayList<Species>();
+
+        for(Species species : population.getSpecies())
+        {
+            for (Genome pp : species.getMembers())
+            {
+                MultiObjectiveGenome p = (MultiObjectiveGenome)pp;
+                System.out.println(p.getScoreVector().get(0) + " ... "+p.getScoreVector().get(1));
+            }
+        }
+        Fronts.add(new ArrayList<MultiObjectiveGenome>());
+        for(Species species : population.getSpecies())
+        {
+            for(Genome pp : species.getMembers())
+            {
+                MultiObjectiveGenome p = (MultiObjectiveGenome)pp;
+                S.put(p, new ArrayList<MultiObjectiveGenome>());
+                n.put(p, 0);
+                for(Species species2 : population.getSpecies())
+                {
+                    for(Genome qq : species2.getMembers())
+                    {
+                        MultiObjectiveGenome q = (MultiObjectiveGenome)qq;
+                        if(checkADominatesB(p,q))
+                        {
+                            S.get(p).add(q);
+                        }
+                        else if (checkADominatesB(q,p))
+                        {
+                            n.put(p,n.get(p)+1);
+                        }
+                    }
+                }
+                if(n.get(p).equals(0))   // if p dominated by no one
+                {
+
+                    p.setRank(0);    // then p belongs to the 1st Pareto front
+                    Fronts.get(0).add(p);   // add p to first front
+
+                }
+            }
+        }
+
+        // first iteration now finished - everyone scored
+
+
+        int i = 0; // initialise Front counter to 0
+
+        while(!(Fronts.get(i).size()==0))
+        {
+            Fronts.set(i,crowdingDistance(Fronts.get(i))); //sorts on crowding distance
+
+            ArrayList<MultiObjectiveGenome> Q = new ArrayList<>();  // will store individuals in Fronts[i+1]
+
+            for(MultiObjectiveGenome p: Fronts.get(i))
+            {
+                //Selected Species add
+                if(!SelectedSpecies.contains(p.getSpecies())) {
+                    SelectedSpecies.add(p.getSpecies());
+                 }
+
+                for(MultiObjectiveGenome q: S.get(p))   // for each invidiual q that is dominated by p
+                {
+                    n.put(q,n.get(q)-1);    // decrement # of individuals that dominate q
+                    if(n.get(q).equals(0))     // if q is only dominated by the first front
+                    {
+                        q.setRank(i+1)              ;      // then it belongs in the second front
+                        Q.add(q);
+                    }
+                }
+            }
+
+            Fronts.add(Q); // update the next front to be Q
+
+            i++;                                     // increment front counter
+        }
+       // System.out.println("i "+ i);
+       // System.out.println("fronts"+Fronts.size());
+
+    }
+
+    private ArrayList<MultiObjectiveGenome> crowdingDistance(ArrayList<MultiObjectiveGenome> front){
+        int l = front.size();
+        for(MultiObjectiveGenome i : front)
+        {
+            i.setDistance(0.0);
+        }
+        MaximisingObjectiveComparator<MultiObjectiveGenome> comparator = new MaximisingObjectiveComparator<>();
+        for(int i =0;i<2;i++){
+            comparator.setObjectiveIndex(i);
+            Collections.sort(front,comparator);
+            front.get(0).setDistance(Double.POSITIVE_INFINITY);
+            front.get(l-1).setDistance(Double.POSITIVE_INFINITY);
+            for(int j =1;j<l-1;j++){
+                front.get(j).setDistance(front.get(j).getDistance()+(front.get(j+1).getScoreVector().get(i)-front.get(j-1).getScoreVector().get(i)));
+            }
+
+        }
+
+        Collections.sort(front, new DistanceComparator<MultiObjectiveGenome>());
+        return front;
+
+
+
+    }
+
+    private boolean checkADominatesB(MultiObjectiveGenome a, MultiObjectiveGenome b) // check if a dominates b
+    {
+
+
+
+        if(a.getScoreVector().get(0) >= b.getScoreVector().get(0) && a.getScoreVector().get(1) >= b.getScoreVector().get(1))
+        {
+            if(a.getScoreVector().get(0) > b.getScoreVector().get(0) || a.getScoreVector().get(1) > b.getScoreVector().get(1))
+            {
+                return true; // a dominates b
+            }
+        }
+        return false;
+    }
+
     /**
      * The first iteration of Multi-Objective NEAT. Also determines number of threads to use.
      */
@@ -467,12 +597,7 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
         if (this.getThreadCount() == 0) this.actualThreadCount = Runtime.getRuntime().availableProcessors();
         else this.actualThreadCount = this.getThreadCount();
 
-        // Score parentPopulation - similar to NSGAII
-            // non-domination
-            // crowding distances
-            // set final scores
-
-        // score the initial population
+        // Score the initial (parent) population
         final MultiObjectiveParallelScore pscore = new MultiObjectiveParallelScore(getPopulation(),
                 getCODEC(), new ArrayList<AdjustScore>(), getScoreFunction(),
                 this.actualThreadCount);
@@ -480,15 +605,50 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
         pscore.process();
         this.actualThreadCount = pscore.getThreadCount();
 
-        //test to check
-        List<Species> spec =getPopulation().getSpecies();
-        for(Species species: spec){
-            for(Genome g: species.getMembers()){
-                ArrayList<Double> list = ((MultiObjectiveHyperNEATGenome) g).getScoreVector();
-                System.out.println(list.size());
-                System.out.println(list.get(0)+ "       "+list.get(1));
-            }
+        // start up the thread pool
+        if (this.actualThreadCount == 1)
+        {
+            this.taskExecutor = Executors.newSingleThreadScheduledExecutor();
         }
+        else
+        {
+            this.taskExecutor = Executors.newFixedThreadPool(this.actualThreadCount);
+        }
+
+        // register for shutdown
+        Encog.getInstance().addShutdownTask(this);
+
+        // just pick the first genome with a valid score as best, it will be
+        // updated later.
+        // also most populations are sorted this way after training finishes
+        // (for reload)
+        // if there is an empty population, the constructor would have blow
+        final List<Genome> list = getPopulation().flatten();
+
+        int idx = 0;
+        do
+        {
+            this.bestGenome = list.get(idx++);
+        } while (idx < list.size()
+                && (Double.isInfinite(this.bestGenome.getScore()) || Double
+                .isNaN(this.bestGenome.getScore())));
+
+        getPopulation().setBestGenome(this.bestGenome);
+
+        // speciate
+        final List<Genome> genomes = getPopulation().flatten();
+        this.speciation.performSpeciation(genomes);
+
+        // purge invalid genomes
+        this.population.purgeInvalidGenomes();
+
+        // Set Non-Domination ranks and Crowding Distance scores
+        setNonDominationAndCrowdDists();
+
+
+        // Set final scores
+
+
 
         // Speciation
 

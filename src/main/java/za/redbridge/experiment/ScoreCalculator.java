@@ -96,7 +96,6 @@ public class ScoreCalculator implements CalculateScore
     public double calculateScore2(MLMethod method)  // second fitness function score (multi-objective)
     {
         NEATNetwork network = (NEATNetwork) method;
-        System.out.println(network.getInputCount());
 
         double score = 100 - (( (double) network.getInputCount() / 11) * 100);
         return score;
