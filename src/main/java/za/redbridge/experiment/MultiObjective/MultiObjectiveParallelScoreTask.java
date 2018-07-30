@@ -69,28 +69,13 @@ private final Genome genome;
                 score2 = Double.NaN;
             }
 
-            if (genome.getClass().equals(MultiObjectiveHyperNEATGenome.class))
-            {
-                ((MultiObjectiveHyperNEATGenome) genome).addScore(score);
-                ((MultiObjectiveHyperNEATGenome) genome).addScore(score2);
-            }
-            else if(genome.getClass().equals(MultiObjectiveNEATMGenome.class))
-            {
-
-                ((MultiObjectiveNEATMGenome) genome).addScore(score);
-                ((MultiObjectiveNEATMGenome) genome).addScore(score2);
-            }
-            else
-            {
-                throw new ClassCastException("Genome isn't of any multi-objective type.");
-            }
-
+            ((MultiObjectiveGenome) genome).addScore(score);
+            ((MultiObjectiveGenome) genome).addScore(score2);
+            //@todo: look into setting score here :D
 
             genome.setScore(score);
             genome.setAdjustedScore(score);
             BasicEA.calculateScoreAdjustment(genome, adjusters);
-        } else {
-
         }
     }
 }

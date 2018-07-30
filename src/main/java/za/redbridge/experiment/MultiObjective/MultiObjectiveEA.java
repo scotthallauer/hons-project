@@ -27,6 +27,7 @@ import org.encog.util.concurrency.MultiThreadable;
 import org.encog.util.logging.EncogLogging;
 import za.redbridge.experiment.MultiObjective.Comparator.DistanceComparator;
 import za.redbridge.experiment.MultiObjective.Comparator.MaximisingObjectiveComparator;
+import za.redbridge.experiment.ScoreCalculator;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -293,14 +294,15 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
         // offspringPopulation = mutateAndCrossover(parentPopulation)
 
         this.newPopulation.clear();
-        //todo: look into old best Genome (shouldnt have one because we are combining population
+        //todo: look into old best Genome (shouldnt have one because we are combining population)
 
         // execute species in parallel
         this.threadList.clear();
         for (final Species species : getPopulation().getSpecies()) {
             int numToSpawn = species.getOffspringCount();
+            // @to do see if old population is already added! - m
             for(Genome g: species.getMembers()){
-                parentPopulation.add(g);
+                addChild(g);
             }
 
             // now add one task for each offspring that each species is allowed
@@ -325,22 +327,19 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
             throw new GeneticError(this.reportedError);
         }
 
-        //Now we have newPopulation and Population full!
+
+        //add this point --> new population is actually combined population
 
 
-        // Create combinedPopulation (2N)
-            // combinedPopulation = offspringPopulation + parentPopulation
-
-
-        // Evaluate combinedPopulation (In Encogg this is done in creation)
-            // compute each individual's performance vector (1 score for each objective)
-
-        // speciate(combinedPopulation)
+        // speciate(combinedPopulation) --> In Encogg this is added to the actual population
 
         this.speciation.performSpeciation(this.newPopulation);
 
         // purge invalid genomes (FROM BasicEA)
+        // todo what is this?
         this.population.purgeInvalidGenomes();
+
+
 
         //call method on combined population (nonDomCrowd Sort
 
@@ -362,6 +361,8 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
 
             // Set parent population to these N selected individuals
             // parentPopulation = the N selected individuals
+
+        setNonDominationAndCrowdDists();
 
 
     }
@@ -614,6 +615,7 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
         // decode
         final MLMethod phenotype = getCODEC().decode(g);
         double score;
+        double score2;
 
         // deal with invalid decode
         if (phenotype == null)
@@ -621,10 +623,12 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
             if (getBestComparator().shouldMinimize())
             {
                 score = Double.POSITIVE_INFINITY;
+                score2 = Double.POSITIVE_INFINITY;
             }
             else
             {
                 score = Double.NEGATIVE_INFINITY;
+                score2 = Double.NEGATIVE_INFINITY;
             }
         }
         else
@@ -634,9 +638,14 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
                 ((MLContext) phenotype).clearContext();
             }
             score = getScoreFunction().calculateScore(phenotype);
+            score2 = ((ScoreCalculator) getScoreFunction()).calculateScore2(phenotype);
+
         }
 
         // now set the scores
+       //
+        ( (MultiObjectiveGenome) g).addScore(score);
+        ( (MultiObjectiveGenome) g).addScore(score2);
         g.setScore(score);
         g.setAdjustedScore(score);
     }
