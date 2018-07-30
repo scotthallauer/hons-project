@@ -300,7 +300,7 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
         this.threadList.clear();
         for (final Species species : getPopulation().getSpecies()) {
             int numToSpawn = species.getOffspringCount();
-            // @to do see if old population is already added! - m
+            // @todo see if old population is already added! - m
             for(Genome g: species.getMembers()){
                 addChild(g);
             }
@@ -373,6 +373,8 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
         HashMap<MultiObjectiveGenome, Integer> n = new HashMap<>();  // number of individuals that dominate p
         ArrayList<ArrayList<MultiObjectiveGenome>> Fronts = new ArrayList<>();
         ArrayList<Species> SelectedSpecies = new ArrayList<Species>();
+        int scoreCount = population.size()*2;
+        System.out.println("size"+population.size()*2);
 
         for(Species species : population.getSpecies())
         {
@@ -429,6 +431,8 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
             for(MultiObjectiveGenome p: Fronts.get(i))
             {
                 //Selected Species add
+                p.setScore(scoreCount);
+                scoreCount--;
                 if(!SelectedSpecies.contains(p.getSpecies())) {
                     SelectedSpecies.add(p.getSpecies());
                 }
@@ -448,8 +452,7 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
 
             i++;                                     // increment front counter
         }
-        // System.out.println("i "+ i);
-        // System.out.println("fronts"+Fronts.size());
+
 
     }
 
