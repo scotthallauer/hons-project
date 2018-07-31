@@ -284,7 +284,6 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
         if (this.actualThreadCount == -1) {
             firstIteration();
         }
-        System.out.println("first done");
         if (getPopulation().getSpecies().size() == 0) {
             throw new EncogError("Population is empty, there are no species.");
         }
@@ -313,7 +312,6 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
                 this.threadList.add(worker);
             }
         }
-        System.out.println("added workers");
 
         // run all threads and wait for them to finish
         // each thread creates one bae! the bae is then evaluated
@@ -328,16 +326,12 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
         if (this.reportedError != null && !getShouldIgnoreExceptions()) {
             throw new GeneticError(this.reportedError);
         }
-        System.out.println("finished ending");
-
         //add this point --> new population is actually combined population
 
 
         // speciate(combinedPopulation) --> In Encogg this is added to the actual population
 
         this.speciation.performSpeciation(this.newPopulation);
-        System.out.println("speciation");
-
         // purge invalid genomes (FROM BasicEA)
         // todo what is this?
         this.population.purgeInvalidGenomes();
@@ -393,6 +387,10 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
             for(Genome pp : species.getMembers())
             {
                 MultiObjectiveGenome p = (MultiObjectiveGenome)pp;
+                if(pp.getSpecies()==null)  // When a new species is created, the BasicSpecies class forgets to set the species variable of the leader genome in that species.
+                {
+                    pp.setSpecies(species);
+                }
                 S.put(p, new ArrayList<MultiObjectiveGenome>());
                 n.put(p, 0);
                 for(Species species2 : population.getSpecies())
@@ -415,7 +413,6 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
 
                     p.setRank(0);    // then p belongs to the 1st Pareto front
                     Fronts.get(0).add(p);   // add p to first front
-
                 }
             }
         }
@@ -437,10 +434,13 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
                 p.setScore(scoreCount);
                 p.setAdjustedScore(scoreCount);
                 scoreCount--;
-                System.out.println(scoreCount);
                 if(!SelectedSpecies.contains(p.getSpecies())) {
+                    if(p.getSpecies()==null){
+                        System.out.println("bad bad");
+                    }
                     SelectedSpecies.add(p.getSpecies());
                 }
+
 
                 for(MultiObjectiveGenome q: S.get(p))   // for each invidiual q that is dominated by p
                 {
@@ -457,7 +457,14 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
 
             i++;                                     // increment front counter
         }
-        System.out.println("ending crowding");
+
+//        for(int j =0;j<SelectedSpecies.size();j++){
+//            SelectedSpecies.get(j).setOffspringCount(300);
+//        }
+//        System.out.println("population");
+//        for(int j =0;j<population.getSpecies().size();j++){
+//            System.out.println(SelectedSpecies.get(j).getOffspringCount());
+//        }
 
 
     }
