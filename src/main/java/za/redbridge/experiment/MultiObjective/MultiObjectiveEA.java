@@ -13,7 +13,9 @@ import org.encog.ml.ea.genome.Genome;
 import org.encog.ml.ea.opp.EvolutionaryOperator;
 import org.encog.ml.ea.opp.OperationList;
 import org.encog.ml.ea.opp.selection.SelectionOperator;
+import org.encog.ml.ea.opp.selection.TournamentSelection;
 import org.encog.ml.ea.population.Population;
+import org.encog.ml.ea.rules.BasicRuleHolder;
 import org.encog.ml.ea.rules.RuleHolder;
 import org.encog.ml.ea.score.AdjustScore;
 import org.encog.ml.ea.sort.*;
@@ -29,6 +31,7 @@ import za.redbridge.experiment.MultiObjective.Comparator.DistanceComparator;
 import za.redbridge.experiment.MultiObjective.Comparator.MaximisingObjectiveComparator;
 import za.redbridge.experiment.ScoreCalculator;
 
+import javax.xml.bind.SchemaOutputResolver;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -169,6 +172,8 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
     {
         this.population = thePopulation;
         this.scoreFunction = theScoreFunction;
+        this.selection = new TournamentSelection(this, 4);
+        this.rules = new BasicRuleHolder();
 
 
         // set the score compare method
@@ -279,15 +284,12 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
         if (this.actualThreadCount == -1) {
             firstIteration();
         }
-
+        System.out.println("first done");
         if (getPopulation().getSpecies().size() == 0) {
             throw new EncogError("Population is empty, there are no species.");
         }
 
         this.iteration++;
-
-        ArrayList<Genome> parentPopulation = new ArrayList<Genome>();
-
 
 
         // Create offspringPopulation (N)
@@ -300,7 +302,6 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
         this.threadList.clear();
         for (final Species species : getPopulation().getSpecies()) {
             int numToSpawn = species.getOffspringCount();
-            // @todo see if old population is already added! - m
             for(Genome g: species.getMembers()){
                 addChild(g);
             }
@@ -312,6 +313,7 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
                 this.threadList.add(worker);
             }
         }
+        System.out.println("added workers");
 
         // run all threads and wait for them to finish
         // each thread creates one bae! the bae is then evaluated
@@ -326,7 +328,7 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
         if (this.reportedError != null && !getShouldIgnoreExceptions()) {
             throw new GeneticError(this.reportedError);
         }
-
+        System.out.println("finished ending");
 
         //add this point --> new population is actually combined population
 
@@ -334,6 +336,7 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
         // speciate(combinedPopulation) --> In Encogg this is added to the actual population
 
         this.speciation.performSpeciation(this.newPopulation);
+        System.out.println("speciation");
 
         // purge invalid genomes (FROM BasicEA)
         // todo what is this?
@@ -381,7 +384,7 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
             for (Genome pp : species.getMembers())
             {
                 MultiObjectiveGenome p = (MultiObjectiveGenome)pp;
-                System.out.println(p.getScoreVector().get(0) + " ... "+p.getScoreVector().get(1));
+              //  System.out.println(p.getScoreVector().get(0) + " ... "+p.getScoreVector().get(1));
             }
         }
         Fronts.add(new ArrayList<MultiObjectiveGenome>());
@@ -432,7 +435,9 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
             {
                 //Selected Species add
                 p.setScore(scoreCount);
+                p.setAdjustedScore(scoreCount);
                 scoreCount--;
+                System.out.println(scoreCount);
                 if(!SelectedSpecies.contains(p.getSpecies())) {
                     SelectedSpecies.add(p.getSpecies());
                 }
@@ -452,6 +457,7 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
 
             i++;                                     // increment front counter
         }
+        System.out.println("ending crowding");
 
 
     }
@@ -535,7 +541,7 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
      */
     public boolean addChild(final Genome genome) {
         synchronized (this.newPopulation) {
-            if (this.newPopulation.size() < getPopulation().getPopulationSize()) {
+            if (this.newPopulation.size() < getPopulation().getPopulationSize()*2) {
 
                 if (isValidationMode()) {
                     if (this.newPopulation.contains(genome)) {
@@ -557,6 +563,7 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
                 }
                 return true;
             } else {
+                System.out.println("tooo big");
                 return false;
             }
         }
@@ -651,6 +658,7 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
         ( (MultiObjectiveGenome) g).addScore(score2);
         g.setScore(score);
         g.setAdjustedScore(score);
+      //  System.out.println("hello");
     }
 
     /**

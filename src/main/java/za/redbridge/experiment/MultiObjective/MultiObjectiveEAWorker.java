@@ -72,6 +72,7 @@ public class MultiObjectiveEAWorker implements Callable<Object> {
      */
     @Override
     public Object call() {
+        System.out.println("Call");
         boolean success = false;
         int tries = this.train.getMaxOperationErrors();
         do {
@@ -127,9 +128,9 @@ public class MultiObjectiveEAWorker implements Callable<Object> {
                         child.setPopulation(this.parents[0].getPopulation());
                         if (this.train.getRules().isValid(child)) {
                             child.setBirthGeneration(this.train.getIteration());
-
                             this.train.calculateScore(child);
                             if (!this.train.addChild(child)) {
+                                System.out.println("error adding: omg!");
                                 return null;
                             }
                             success = true;
@@ -145,9 +146,7 @@ public class MultiObjectiveEAWorker implements Callable<Object> {
                                     + " tries.");
                 }
             } catch (final Throwable t) {
-                if (!this.train.getShouldIgnoreExceptions()) {
-                    this.train.reportError(t);
-                }
+                this.train.reportError(t);
             }
 
         } while (!success);
