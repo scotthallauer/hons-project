@@ -20,9 +20,7 @@ import org.encog.ml.ea.rules.BasicRuleHolder;
 import org.encog.ml.ea.rules.RuleHolder;
 import org.encog.ml.ea.score.AdjustScore;
 import org.encog.ml.ea.sort.*;
-import org.encog.ml.ea.species.SingleSpeciation;
-import org.encog.ml.ea.species.Speciation;
-import org.encog.ml.ea.species.Species;
+import org.encog.ml.ea.species.*;
 import org.encog.ml.ea.train.EvolutionaryAlgorithm;
 import org.encog.ml.ea.train.basic.EAWorker;
 import org.encog.ml.genetic.GeneticError;
@@ -265,7 +263,7 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
         this.population.purgeInvalidGenomes();
 
         // Set Non-Domination ranks and Crowding Distance scores
-        setNonDominationAndCrowdDists();
+        setNonDominationAndCrowdDists(true);
 
 
         // Set final scores --> based on sort index (maybe do in method setNonDomAndCRowdDsi
@@ -331,7 +329,7 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
         //add this point --> new population is actually combined population
 
 
-        // speciate(combinedPopulation) --> In Encogg this is added to the actual population
+        // speciate(combinedPopulation) --> In Encog this is added to the actual population
 
         this.speciation.performSpeciation(this.newPopulation);
         // purge invalid genomes (FROM BasicEA)
@@ -361,27 +359,20 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
             // Set parent population to these N selected individuals
             // parentPopulation = the N selected individuals
 
-        setNonDominationAndCrowdDists();
+        setNonDominationAndCrowdDists(false);
 
 
     }
 
-    private void setNonDominationAndCrowdDists()
+    private void setNonDominationAndCrowdDists(boolean isFirstGen)
     {
         HashMap<MultiObjectiveGenome, ArrayList<MultiObjectiveGenome>> S = new HashMap<>();
         HashMap<MultiObjectiveGenome, Integer> n = new HashMap<>();  // number of individuals that dominate p
         ArrayList<ArrayList<MultiObjectiveGenome>> Fronts = new ArrayList<>();
         ArrayList<Species> SelectedSpecies = new ArrayList<Species>();
-        int scoreCount = population.getPopulationSize()*2;
+        int scoreCount = population.getPopulationSize()*2;              // size 2N since selection pool contains N parents and N children (elitism!)
+        int UpperBoundSpecies = population.getPopulationSize()/2;       //populationsize/objectiveSize
 
-
-        for(Species species : population.getSpecies())
-        {
-            for (Genome pp : species.getMembers())
-            {
-                MultiObjectiveGenome p = (MultiObjectiveGenome)pp;
-            }
-        }
         Fronts.add(new ArrayList<MultiObjectiveGenome>());
         for(Species species : population.getSpecies())
         {
@@ -418,7 +409,7 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
             }
         }
 
-        // first iteration now finished - everyone scored
+        // First iteration now finished - everyone scored
 
 
         int i = 0; // initialise Front counter to 0
@@ -436,16 +427,19 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
                 p.setAdjustedScore(scoreCount);
                 scoreCount--;
                 if(!SelectedSpecies.contains(p.getSpecies())) {
-                    SelectedSpecies.add(p.getSpecies());
+                    if(SelectedSpecies.size()< UpperBoundSpecies)
+                    {
+                        SelectedSpecies.add(p.getSpecies());
+                    }
                 }
 
 
                 for(MultiObjectiveGenome q: S.get(p))   // for each invidiual q that is dominated by p
                 {
-                    n.put(q,n.get(q)-1);    // decrement # of individuals that dominate q
-                    if(n.get(q).equals(0))     // if q is only dominated by the first front
+                    n.put(q,n.get(q)-1);             // decrement # of individuals that dominate q
+                    if(n.get(q).equals(0))              // if q is only dominated by the first front
                     {
-                        q.setRank(i+1)              ;      // then it belongs in the second front
+                        q.setRank(i+1);                 // then it belongs in the second front
                         Q.add(q);
                     }
                 }
@@ -455,8 +449,14 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
 
             i++;                                     // increment front counter
         }
+
+        if(isFirstGen){
+            return;
+        }
+
         //[non-domination] sort within each species
-        for(int j =0;j<SelectedSpecies.size();j++){
+        for(int j =0;j<SelectedSpecies.size();j++)
+        {
            Collections.sort(SelectedSpecies.get(j).getMembers(), new ScoreComparator<Genome>());
 
         }
@@ -488,6 +488,13 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
             }
             row++;
         }
+
+        double totalSpeciesScore = 0;
+        for (final Species species : SelectedSpecies)
+        {
+            totalSpeciesScore += species.calculateShare(false, population.getPopulationSize()*2);
+        }
+        divideByFittestSpecies(SelectedSpecies,totalSpeciesScore);
 
         population.getSpecies().clear();
         population.getSpecies().addAll(SelectedSpecies);
@@ -1042,6 +1049,44 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
     public void setIteration(final int iteration)
     {
         this.iteration = iteration;
+    }
+
+    /**
+     * Divide up the potential offspring by the most fit species. To do this we
+     * look at the total species score, vs each individual species percent
+     * contribution to that score.
+     *
+     * @param speciesCollection
+     *            The current species list.
+     * @param totalSpeciesScore
+     *            The total score over all species.
+     */
+    public void divideByFittestSpecies(final List<Species> speciesCollection,
+                                        final double totalSpeciesScore) {
+        // loop over all species and calculate its share
+        final Object[] speciesArray = speciesCollection.toArray();
+        for (final Object element : speciesArray) {
+            final Species species = (Species) element;
+            // calculate the species share based on the percent of the total
+            // species score
+            int share = (int) Math
+                    .round((species.getOffspringShare() / totalSpeciesScore)
+                            * getPopulation().getPopulationSize());
+
+            // do not give the best species a zero-share
+            if ((species == population.getBestGenome().getSpecies()) && (share == 0)) {
+                share = 1;
+            }
+
+            // if the share is zero, then remove the species
+            if ((species.getMembers().size() == 0) || (share == 0)) {
+                speciesCollection.remove(species);
+            }
+            else {
+                // otherwise assign a share and sort the members.
+                species.setOffspringCount(share);
+            }
+        }
     }
 
 }
