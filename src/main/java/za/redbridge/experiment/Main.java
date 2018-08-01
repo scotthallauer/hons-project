@@ -46,6 +46,25 @@ public class Main
 
     public static void main(String[] args) throws IOException
     {
+//        DaniString x = null;
+//
+//        ArrayList<DaniString> list1 = new ArrayList<>();
+//        list1.add(x);
+//
+//        ArrayList<DaniString> list2 = new ArrayList<>();
+//        list2.add(x);
+//
+//        list1.remove(x);
+//
+//        ArrayList<DaniString> list1 = new ArrayList<>();
+//        list1.add(new DaniString(22));
+//        ArrayList<DaniString> list2 = new ArrayList<>();
+//        list2.add(list1.get(0));
+//        list2.get(0).setAge(10);
+//        System.out.println(list1.get(0).getAge());
+
+
+
 
         Args options = new Args();
         new JCommander(options, args);

@@ -1,5 +1,6 @@
 package za.redbridge.experiment.MultiObjective;
 
+import com.sun.org.apache.bcel.internal.generic.POP;
 import org.encog.Encog;
 import org.encog.EncogError;
 import org.encog.EncogShutdownTask;
@@ -29,6 +30,7 @@ import org.encog.util.concurrency.MultiThreadable;
 import org.encog.util.logging.EncogLogging;
 import za.redbridge.experiment.MultiObjective.Comparator.DistanceComparator;
 import za.redbridge.experiment.MultiObjective.Comparator.MaximisingObjectiveComparator;
+import za.redbridge.experiment.MultiObjective.Comparator.ScoreComparator;
 import za.redbridge.experiment.ScoreCalculator;
 
 import javax.xml.bind.SchemaOutputResolver;
@@ -370,15 +372,14 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
         HashMap<MultiObjectiveGenome, Integer> n = new HashMap<>();  // number of individuals that dominate p
         ArrayList<ArrayList<MultiObjectiveGenome>> Fronts = new ArrayList<>();
         ArrayList<Species> SelectedSpecies = new ArrayList<Species>();
-        int scoreCount = population.size()*2;
-        System.out.println("size"+population.size()*2);
+        int scoreCount = population.getPopulationSize()*2;
+
 
         for(Species species : population.getSpecies())
         {
             for (Genome pp : species.getMembers())
             {
                 MultiObjectiveGenome p = (MultiObjectiveGenome)pp;
-              //  System.out.println(p.getScoreVector().get(0) + " ... "+p.getScoreVector().get(1));
             }
         }
         Fronts.add(new ArrayList<MultiObjectiveGenome>());
@@ -435,9 +436,6 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
                 p.setAdjustedScore(scoreCount);
                 scoreCount--;
                 if(!SelectedSpecies.contains(p.getSpecies())) {
-                    if(p.getSpecies()==null){
-                        System.out.println("bad bad");
-                    }
                     SelectedSpecies.add(p.getSpecies());
                 }
 
@@ -457,15 +455,42 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
 
             i++;                                     // increment front counter
         }
+        //[non-domination] sort within each species
+        for(int j =0;j<SelectedSpecies.size();j++){
+           Collections.sort(SelectedSpecies.get(j).getMembers(), new ScoreComparator<Genome>());
 
-//        for(int j =0;j<SelectedSpecies.size();j++){
-//            SelectedSpecies.get(j).setOffspringCount(300);
-//        }
-//        System.out.println("population");
-//        for(int j =0;j<population.getSpecies().size();j++){
-//            System.out.println(SelectedSpecies.get(j).getOffspringCount());
-//        }
+        }
 
+
+        // Serial Progression to select N individuals from the list of sorted species we selected in phase 1.
+        //---------------------
+
+        int numSelectedSoFar = 0;
+        int row = 0;
+        boolean done = false;
+        while(!done)
+        {
+            done = true;
+            for (int col = 0; col < SelectedSpecies.size(); col++)
+            {
+                if (row < SelectedSpecies.get(col).getMembers().size())
+                {
+                    done = false;
+                    if (numSelectedSoFar >= population.getPopulationSize())
+                    {
+                        SelectedSpecies.get(col).getMembers().subList(row,SelectedSpecies.get(col).getMembers().size()).clear();
+                    }
+                    else
+                    {
+                        numSelectedSoFar++;
+                    }
+                }
+            }
+            row++;
+        }
+
+        population.getSpecies().clear();
+        population.getSpecies().addAll(SelectedSpecies);
 
     }
 
