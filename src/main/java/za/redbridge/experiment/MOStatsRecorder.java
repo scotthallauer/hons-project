@@ -157,7 +157,6 @@ public class MOStatsRecorder extends StatsRecorder {
         initDirectory(directory);
 
         ArrayList<MultiObjectiveGenome> pareto = trainer.getFirstParetoFront();
-        System.out.println("size:"+pareto.size());
 
         final LabeledXYDataset paretoFront = new LabeledXYDataset(pareto.size());
 
@@ -166,7 +165,6 @@ public class MOStatsRecorder extends StatsRecorder {
             saveParetoOptimalGenome(genome, directory);
             ArrayList<Double> scoreVector = genome.getScoreVector();
             paretoFront.add(scoreVector.get(0),scoreVector.get(1),genome.getScore()+"");
-            System.out.println(scoreVector.get(0));
 
         }
 

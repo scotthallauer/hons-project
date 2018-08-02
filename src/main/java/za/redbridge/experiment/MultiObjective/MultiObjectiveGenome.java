@@ -18,4 +18,6 @@ public interface MultiObjectiveGenome extends Genome
     public abstract double getDistance();
 
     public abstract int getRank();
+
+    public abstract void clearScore();
 }

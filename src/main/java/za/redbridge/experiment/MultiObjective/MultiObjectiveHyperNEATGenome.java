@@ -107,4 +107,8 @@ public class MultiObjectiveHyperNEATGenome extends HyperNEATGenome implements Mu
         return rank;
     }
 
+    public void clearScore(){
+        scoreVector.clear();
+    }
+
 }

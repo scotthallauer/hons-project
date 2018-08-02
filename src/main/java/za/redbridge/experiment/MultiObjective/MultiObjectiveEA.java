@@ -33,6 +33,7 @@ import za.redbridge.experiment.ScoreCalculator;
 
 import javax.xml.bind.SchemaOutputResolver;
 import java.io.Serializable;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -380,7 +381,6 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
         int UpperBoundSpecies = population.getPopulationSize()/2;       //populationsize/objectiveSize
 
         Fronts.add(new ArrayList<MultiObjectiveGenome>());
-        System.out.println("front");
         for(Species species : population.getSpecies())
         {
             for(Genome pp : species.getMembers())
@@ -391,7 +391,6 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
                 {
                     pp.setSpecies(species);
                 }
-                System.out.println(((MultiObjectiveGenome) pp).getScoreVector().toString());
                 S.put(p, new ArrayList<MultiObjectiveGenome>());
                 n.put(p, 0);
                 for(Species species2 : population.getSpecies())
@@ -414,7 +413,6 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
 
                     p.setRank(0);    // then p belongs to the 1st Pareto front
                     Fronts.get(0).add(p);   // add p to first front
-                    System.out.println("is in paretofront");
                 }
             }
         }
@@ -707,6 +705,7 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
 
         // now set the scores
        //
+        ( (MultiObjectiveGenome) g).clearScore();
         ( (MultiObjectiveGenome) g).addScore(score);
         ( (MultiObjectiveGenome) g).addScore(score2);
         g.setScore(score);

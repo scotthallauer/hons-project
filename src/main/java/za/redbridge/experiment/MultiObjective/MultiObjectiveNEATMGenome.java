@@ -100,4 +100,8 @@ public class MultiObjectiveNEATMGenome extends NEATMGenome implements MultiObjec
     public int getRank(){
         return rank;
     }
+
+    public void clearScore(){
+        scoreVector.clear();
+    }
 }
