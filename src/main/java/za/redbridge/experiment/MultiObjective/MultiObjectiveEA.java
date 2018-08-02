@@ -162,6 +162,12 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
 
     private int maxOperationErrors = 500;
 
+    /**
+      * This variable stores pareto front for each generation
+     */
+
+    ArrayList<MultiObjectiveGenome> paretoFront;
+
 
     /**
      * Create a trainer for a score function.
@@ -374,15 +380,18 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
         int UpperBoundSpecies = population.getPopulationSize()/2;       //populationsize/objectiveSize
 
         Fronts.add(new ArrayList<MultiObjectiveGenome>());
+        System.out.println("front");
         for(Species species : population.getSpecies())
         {
             for(Genome pp : species.getMembers())
             {
+
                 MultiObjectiveGenome p = (MultiObjectiveGenome)pp;
                 if(pp.getSpecies()==null)  // When a new species is created, the BasicSpecies class forgets to set the species variable of the leader genome in that species.
                 {
                     pp.setSpecies(species);
                 }
+                System.out.println(((MultiObjectiveGenome) pp).getScoreVector().toString());
                 S.put(p, new ArrayList<MultiObjectiveGenome>());
                 n.put(p, 0);
                 for(Species species2 : population.getSpecies())
@@ -405,11 +414,16 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
 
                     p.setRank(0);    // then p belongs to the 1st Pareto front
                     Fronts.get(0).add(p);   // add p to first front
+                    System.out.println("is in paretofront");
                 }
             }
         }
 
+
+
         // First iteration now finished - everyone scored
+        paretoFront = new ArrayList<>();
+        paretoFront.addAll(Fronts.get(0));
 
 
         int i = 0; // initialise Front counter to 0
@@ -1087,6 +1101,11 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
                 species.setOffspringCount(share);
             }
         }
+    }
+
+    public ArrayList<MultiObjectiveGenome> getFirstParetoFront()
+    {
+        return paretoFront;
     }
 
 }

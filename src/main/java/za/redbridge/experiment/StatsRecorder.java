@@ -150,10 +150,10 @@ public class StatsRecorder {
                 txt = String.format("epoch: %d, fitness: %f, sensors: %d", epoch, genome.getScore(),
                         nw.getSensorMorphology().getNumSensors());
             }
-            else{
+            else{//
                 log.info("New best genome! Epoch: " + epoch + ", score: " + genome.getScore()
                         + ", num sensors: " + genome.getInputCount());
-                txt = String.format("epoch: %d, fitness: %f, sensors: %d", epoch, genome.getScore(),
+                txt = String.format("epoch: %d, fitness: %f, sensors: %d", epoch, genome.getScore()+0,
                         genome.getInputCount());
             }
 
@@ -175,7 +175,7 @@ public class StatsRecorder {
         GraphvizEngine.saveNetwork(network, directory.resolve("network.dot"));
     }
 
-    private void recordStats(String type, DescriptiveStatistics stats, int epoch, Path filepath) {
+    public void recordStats(String type, DescriptiveStatistics stats, int epoch, Path filepath) {
         double max = stats.getMax();
         double min = stats.getMin();
         double mean = stats.getMean();

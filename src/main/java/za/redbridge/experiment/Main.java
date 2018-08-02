@@ -156,7 +156,14 @@ public class Main
             }
         }
 
-        final StatsRecorder statsRecorder = new StatsRecorder(train, calculateScore);
+        final StatsRecorder statsRecorder;
+        if(options.multiObjective){
+            statsRecorder = new MOStatsRecorder(train,calculateScore);
+        }
+        else{
+            statsRecorder= new StatsRecorder(train, calculateScore);
+        }
+
 
         for (int i = train.getIteration(); i < options.numGenerations; i++)
         {
