@@ -84,7 +84,7 @@ public class StatsRecorder {
     }
 
     private void initStatsFiles() {
-        performanceStatsFile = rootDirectory.resolve("performance.csv");
+        performanceStatsFile = rootDirectory.resolve("timeTaken.csv");
         initStatsFile(performanceStatsFile);
 
         scoreStatsFile = rootDirectory.resolve("scores.csv");
@@ -108,7 +108,7 @@ public class StatsRecorder {
         int epoch = trainer.getIteration();
         log.info("Epoch " + epoch + " complete");
 
-        recordStats("Performance", calculator.getPerformanceStatistics(), epoch, performanceStatsFile);
+        recordStats("Time", calculator.getTimeTakenStatistics(), epoch, performanceStatsFile);
 
         recordStats("Score", calculator.getScoreStatistics(), epoch, scoreStatsFile);
 
@@ -150,7 +150,7 @@ public class StatsRecorder {
                 txt = String.format("epoch: %d, fitness: %f, sensors: %d", epoch, genome.getScore(),
                         nw.getSensorMorphology().getNumSensors());
             }
-            else{//
+            else{
                 log.info("New best genome! Epoch: " + epoch + ", score: " + genome.getScore()
                         + ", num sensors: " + genome.getInputCount());
                 txt = String.format("epoch: %d, fitness: %f, sensors: %d", epoch, genome.getScore()+0,

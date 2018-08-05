@@ -124,24 +124,18 @@ public class MOStatsRecorder extends StatsRecorder {
 
     public void recordIterationStats() {
         int epoch = trainer.getIteration();
+
         log.info("Epoch " + epoch + " complete");
 
-        recordStats("Performance", calculator.getPerformanceStatistics(), epoch, performanceStatsFile);
+        recordStats("Performance", calculator.getTimeTakenStatistics(), epoch, performanceStatsFile);
 
         recordStats("Score", calculator.getScoreStatistics(), epoch, scoreStatsFile);
 
         recordStats("Sensor", calculator.getSensorStatistics(), epoch, sensorStatsFile);
 
-
         savePopulation((NEATPopulation) trainer.getPopulation(), epoch);
 
         saveParetoFront(epoch);
-
-//        NEATGenome newBestGenome = (NEATGenome) trainer.getBestGenome();
-//        if (newBestGenome != currentBestGenome) {
-//            saveGenome(newBestGenome, epoch);
-//            currentBestGenome = newBestGenome;
-//        }
 
     }
 

@@ -204,8 +204,4 @@ public class HyperNEATMSensorBuilder
 
         return value;
     }
-
-//    public float normaliseDistribution(){
-//
-//    }
 }

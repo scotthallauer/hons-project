@@ -2,7 +2,6 @@ package za.redbridge.experiment;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
-
 import org.encog.Encog;
 import org.encog.ml.ea.train.EvolutionaryAlgorithm;
 import org.encog.ml.ea.train.basic.TrainEA;
@@ -10,24 +9,17 @@ import org.encog.neural.hyperneat.substrate.Substrate;
 import org.encog.neural.neat.NEATNetwork;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.util.ArrayList;
-
 import za.redbridge.experiment.HyperNEATM.HyperNEATMCODEC;
+import za.redbridge.experiment.HyperNEATM.SubstrateFactory;
 import za.redbridge.experiment.MultiObjective.MultiObjectiveEA;
 import za.redbridge.experiment.MultiObjective.MultiObjectiveHyperNEATUtil;
 import za.redbridge.experiment.MultiObjective.MultiObjectiveNEATMUtil;
-import za.redbridge.experiment.NEATM.NEATMNetwork;
+import za.redbridge.experiment.NEAT.NEATPopulation;
 import za.redbridge.experiment.NEATM.NEATMPopulation;
 import za.redbridge.experiment.NEATM.NEATMUtil;
-import za.redbridge.experiment.NEATM.sensor.SensorMorphology;
-import za.redbridge.experiment.NEAT.NEATPopulation;
-import za.redbridge.experiment.NEAT.NEATUtil;
-import za.redbridge.experiment.HyperNEATM.SubstrateFactory;
-import za.redbridge.simulator.config.ExperimentConfig;
 import za.redbridge.simulator.config.SimConfig;
 
+import java.io.IOException;
 
 import static za.redbridge.experiment.Utils.isBlank;
 import static za.redbridge.experiment.Utils.readObjectFromFile;
@@ -46,25 +38,6 @@ public class Main
 
     public static void main(String[] args) throws IOException
     {
-//        DaniString x = null;
-//
-//        ArrayList<DaniString> list1 = new ArrayList<>();
-//        list1.add(x);
-//
-//        ArrayList<DaniString> list2 = new ArrayList<>();
-//        list2.add(x);
-//
-//        list1.remove(x);
-//
-//        ArrayList<DaniString> list1 = new ArrayList<>();
-//        list1.add(new DaniString(22));
-//        ArrayList<DaniString> list2 = new ArrayList<>();
-//        list2.add(list1.get(0));
-//        list2.get(0).setAge(10);
-//        System.out.println(list1.get(0).getAge());
-
-
-
 
         Args options = new Args();
         new JCommander(options, args);

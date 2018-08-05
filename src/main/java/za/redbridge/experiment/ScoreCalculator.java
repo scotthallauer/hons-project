@@ -4,15 +4,10 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.commons.math3.stat.descriptive.SynchronizedDescriptiveStatistics;
 import org.encog.ml.CalculateScore;
 import org.encog.ml.MLMethod;
-import org.encog.ml.ea.genome.Genome;
 import org.encog.neural.neat.NEATNetwork;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.TimeUnit;
-
 import sim.display.Console;
-import za.redbridge.experiment.HyperNEATM.HyperNEATMCODEC;
 import za.redbridge.experiment.NEATM.NEATMNetwork;
 import za.redbridge.experiment.NEATM.sensor.SensorMorphology;
 import za.redbridge.simulator.Simulation;
@@ -21,6 +16,8 @@ import za.redbridge.simulator.config.SimConfig;
 import za.redbridge.simulator.factories.HomogeneousRobotFactory;
 import za.redbridge.simulator.factories.RobotFactory;
 import za.redbridge.simulator.phenotype.Phenotype;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * Test runner for the simulation.
@@ -36,7 +33,7 @@ public class ScoreCalculator implements CalculateScore
     private final int trialsPerIndividual;
     private final SensorMorphology sensorMorphology;
 
-    private final DescriptiveStatistics performanceStats = new SynchronizedDescriptiveStatistics();
+    private final DescriptiveStatistics TimeTakenStats = new SynchronizedDescriptiveStatistics();
     private final DescriptiveStatistics scoreStats = new SynchronizedDescriptiveStatistics();
     private final DescriptiveStatistics sensorStats;
     private boolean hyperNEATM;
@@ -56,7 +53,6 @@ public class ScoreCalculator implements CalculateScore
     @Override
     public double calculateScore(MLMethod method)
     {
-        long start = System.nanoTime();
 
         NEATNetwork network = (NEATNetwork) method;
         RobotFactory robotFactory = new HomogeneousRobotFactory(getPhenotypeForNetwork(network),
@@ -67,13 +63,14 @@ public class ScoreCalculator implements CalculateScore
         Simulation simulation = new Simulation(simConfig, robotFactory);
         simulation.setStopOnceCollected(true);
         double fitness = 0;
+        double peformance =0;
         for (int i = 0; i < trialsPerIndividual; i++)
         {
             simulation.run();
             fitness += simulation.getFitness().getTeamFitness();
-            fitness += 20 * (1.0 - simulation.getProgressFraction()); // Time bonus --> progress fraction is ratio of timesteps that were needed to gather all resources with respect to
-                                                                      // total possible timesteps for each individual's trial. So if an individual doesn't gather all resources, progress fraction
+            fitness += 20 * (1.0 - simulation.getProgressFraction()); // Time bonus --> progress fraction is ratio of timesteps that were needed to gather all resources with respect to// total possible timesteps for each individual's trial. So if an individual doesn't gather all resources, progress fraction
                                                                       // will just land up being 1, and thus the time bonus will be 20*(1-1) = 0.
+            peformance +=simulation.getProgressFraction();
         }
 
         // Get the fitness and update the total score
@@ -87,8 +84,7 @@ public class ScoreCalculator implements CalculateScore
 
         log.debug("Score calculation completed: " + score);
 
-        long duration = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start);
-        performanceStats.addValue(duration);
+        TimeTakenStats.addValue(peformance/trialsPerIndividual);
 
         return score;
     }
@@ -142,9 +138,9 @@ public class ScoreCalculator implements CalculateScore
         return hyperNEATM;
     }
 
-    public DescriptiveStatistics getPerformanceStatistics()
+    public DescriptiveStatistics getTimeTakenStatistics()
     {
-        return performanceStats;
+        return TimeTakenStats;
     }
 
     public DescriptiveStatistics getScoreStatistics()
