@@ -2,27 +2,24 @@ package za.redbridge.experiment;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
-
 import org.encog.Encog;
+import org.encog.ml.ea.train.EvolutionaryAlgorithm;
 import org.encog.ml.ea.train.basic.TrainEA;
 import org.encog.neural.hyperneat.substrate.Substrate;
 import org.encog.neural.neat.NEATNetwork;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.util.Scanner;
-
 import za.redbridge.experiment.HyperNEATM.HyperNEATMCODEC;
-import za.redbridge.experiment.NEATM.NEATMNetwork;
+import za.redbridge.experiment.HyperNEATM.SubstrateFactory;
+import za.redbridge.experiment.MultiObjective.MultiObjectiveEA;
+import za.redbridge.experiment.MultiObjective.MultiObjectiveHyperNEATUtil;
+import za.redbridge.experiment.MultiObjective.MultiObjectiveNEATMUtil;
+import za.redbridge.experiment.NEAT.NEATPopulation;
 import za.redbridge.experiment.NEATM.NEATMPopulation;
 import za.redbridge.experiment.NEATM.NEATMUtil;
-import za.redbridge.experiment.NEATM.sensor.SensorMorphology;
-import za.redbridge.experiment.NEAT.NEATPopulation;
-import za.redbridge.experiment.NEAT.NEATUtil;
-import za.redbridge.experiment.HyperNEATM.SubstrateFactory;
 import za.redbridge.simulator.config.SimConfig;
 
+import java.io.IOException;
 
 import static za.redbridge.experiment.Utils.isBlank;
 import static za.redbridge.experiment.Utils.readObjectFromFile;
@@ -41,11 +38,12 @@ public class Main
 
     public static void main(String[] args) throws IOException
     {
+
         Args options = new Args();
         new JCommander(options, args);
 
         log.info(options.toString());
-
+        //Loading in the config
         SimConfig simConfig;
         if (!isBlank(options.configFile))                   // if using config file
         {
@@ -55,21 +53,8 @@ public class Main
             simConfig = new SimConfig();
         }
 
-        // Load the morphology
-        SensorMorphology morphology = null;
-        if (options.control)
-        {
-            if (!isBlank(options.morphologyPath))
-            {
-                NEATMNetwork network = (NEATMNetwork) readObjectFromFile(options.morphologyPath);
-                morphology = network.getSensorMorphology();
-            } else
-            {
-                morphology = new KheperaIIIMorphology();
-            }
-        }
         ScoreCalculator calculateScore =
-                new ScoreCalculator(simConfig, options.trialsPerIndividual, morphology, options.hyperNEATM);
+                new ScoreCalculator(simConfig, options.trialsPerIndividual, null, options.hyperNEATM);
 
         if (!isBlank(options.genomePath))
         {
@@ -89,18 +74,11 @@ public class Main
             if (options.hyperNEATM)
             {
                 Substrate substrate = SubstrateFactory.createKheperaSubstrate(simConfig.getMinDistBetweenSensors(), simConfig.getRobotRadius());
-                population = new NEATMPopulation(substrate, options.populationSize);
+                population = new NEATMPopulation(substrate, options.populationSize, options.multiObjective);
             }
             else
             {
-                if (!options.control)
-                {
-                    population = new NEATMPopulation(2, options.populationSize);
-                }
-                else
-                {
-                    population = new NEATPopulation(morphology.getNumSensors(), 2, options.populationSize);
-                }
+                population = new NEATMPopulation(2, options.populationSize, options.multiObjective);
             }
             population.setInitialConnectionDensity(options.connectionDensity);
             population.reset();
@@ -108,31 +86,57 @@ public class Main
             log.debug("Population initialized");
         }
 
-        TrainEA train;
+        EvolutionaryAlgorithm train;
         if(options.hyperNEATM)
         {
-            train = org.encog.neural.neat.NEATUtil.constructNEATTrainer(population, calculateScore);
-            train.setCODEC(new HyperNEATMCODEC());
+            if(options.multiObjective)
+            {
+                train = MultiObjectiveHyperNEATUtil.constructNEATTrainer(population,calculateScore);
+            }
+            else
+            {
+                train = org.encog.neural.neat.NEATUtil.constructNEATTrainer(population, calculateScore);
+                ((TrainEA)train).setCODEC(new HyperNEATMCODEC());
+            }
         }
         else
         {
-            if (!options.control)    // if using NEATM
+
+            if(options.multiObjective)
+            {
+                train = MultiObjectiveNEATMUtil.constructNEATTrainer(population, calculateScore);
+            }
+            else
             {
                 train = NEATMUtil.constructNEATTrainer(population, calculateScore);
-            } else                   // if using NEAT (control case)
-            {
-                train = NEATUtil.constructNEATTrainer(population, calculateScore);
             }
         }
         //prevent elitist selection --> in future should use this for param tuning
-        train.setEliteRate(0);
+        if(!options.multiObjective)
+        {
+            ((TrainEA)train).setEliteRate(0);
+        }
         log.info("Available processors detected: " + Runtime.getRuntime().availableProcessors());
         if (options.threads > 0)
         {
-            train.setThreadCount(options.threads);
+            if(!options.multiObjective)
+            {
+                ((TrainEA)train).setThreadCount(options.threads);
+            }
+            else
+            {
+                ((MultiObjectiveEA)train).setThreadCount(options.threads);
+            }
         }
 
-        final StatsRecorder statsRecorder = new StatsRecorder(train, calculateScore);
+        final StatsRecorder statsRecorder;
+        if(options.multiObjective){
+            statsRecorder = new MOStatsRecorder(train,calculateScore);
+        }
+        else{
+            statsRecorder= new StatsRecorder(train, calculateScore);
+        }
+
 
         for (int i = train.getIteration(); i < options.numGenerations; i++)
         {
@@ -160,13 +164,13 @@ public class Main
         private String configFile = "config/bossConfig.yml";
 
         @Parameter(names = "-g", description = "Number of generations to train for")    // Jamie calls this 'iterations'
-        private int numGenerations = 150;
+        private int numGenerations = 30;
 
         @Parameter(names = "-p", description = "Initial population size")
-        private int populationSize = 150;
+        private int populationSize = 5;
 
         @Parameter(names = "--trials", description = "Number of simulation runs per iteration (team lifetime)") // Jamie calls this 'simulationRuns' (and 'lifetime' in his paper)
-        private int trialsPerIndividual = 3;
+        private int trialsPerIndividual = 1;
 
         @Parameter(names = "--conn-density", description = "Adjust the initial connection density"
                 + " for the population")
@@ -175,16 +179,8 @@ public class Main
         @Parameter(names = "--demo", description = "Show a GUI demo of a given genome")
         private String genomePath = null;
 
-        @Parameter(names = "--control", description = "Run with the control case")
-        private boolean control = false;
-
-        @Parameter(names = "--morphology", description = "For use with the control case, provide"
-                + " the path to a serialized MMNEATNetwork to have its morphology used for the"
-                + " control case")
-        private String morphologyPath = null;
-
         @Parameter(names = "--HyperNEATM", description = "Using HyperNEATM")
-        private boolean hyperNEATM = true;
+        private boolean hyperNEATM = false;
 
         @Parameter(names = "--population", description = "To resume a previous experiment, provide"
                 + " the path to a serialized population")
@@ -193,6 +189,11 @@ public class Main
         @Parameter(names = "--threads", description = "Number of threads to run simulations with."
                 + " By default Runtime#availableProcessors() is used to determine the number of threads to use")
         private int threads = 0;
+
+        // TODO description
+        @Parameter(names = "--multi-objective", description = "Number of threads to run simulations with."
+                + " By default Runtime#availableProcessors() is used to determine the number of threads to use")
+        private boolean multiObjective = true;
 
         @Override
         public String toString()
@@ -204,9 +205,7 @@ public class Main
                     + "\tNumber of simulation tests per iteration: " + trialsPerIndividual + "\n"
                     + "\tInitial connection density: " + connectionDensity + "\n"
                     + "\tDemo network config path: " + genomePath + "\n"
-                    + "\tRunning with the control case: " + control + "\n"
                     + "\tHyperNEATM: " + hyperNEATM + "\n"
-                    + "\tMorphology path: " + morphologyPath + "\n"
                     + "\tPopulation path: " + populationPath + "\n"
                     + "\tNumber of threads: " + threads;
         }

@@ -84,7 +84,7 @@ public class StatsRecorder {
     }
 
     private void initStatsFiles() {
-        performanceStatsFile = rootDirectory.resolve("performance.csv");
+        performanceStatsFile = rootDirectory.resolve("timeTaken.csv");
         initStatsFile(performanceStatsFile);
 
         scoreStatsFile = rootDirectory.resolve("scores.csv");
@@ -108,7 +108,7 @@ public class StatsRecorder {
         int epoch = trainer.getIteration();
         log.info("Epoch " + epoch + " complete");
 
-        recordStats("Performance", calculator.getPerformanceStatistics(), epoch, performanceStatsFile);
+        recordStats("Time", calculator.getTimeTakenStatistics(), epoch, performanceStatsFile);
 
         recordStats("Score", calculator.getScoreStatistics(), epoch, scoreStatsFile);
 
@@ -153,7 +153,7 @@ public class StatsRecorder {
             else{
                 log.info("New best genome! Epoch: " + epoch + ", score: " + genome.getScore()
                         + ", num sensors: " + genome.getInputCount());
-                txt = String.format("epoch: %d, fitness: %f, sensors: %d", epoch, genome.getScore(),
+                txt = String.format("epoch: %d, fitness: %f, sensors: %d", epoch, genome.getScore()+0,
                         genome.getInputCount());
             }
 
@@ -175,7 +175,7 @@ public class StatsRecorder {
         GraphvizEngine.saveNetwork(network, directory.resolve("network.dot"));
     }
 
-    private void recordStats(String type, DescriptiveStatistics stats, int epoch, Path filepath) {
+    public void recordStats(String type, DescriptiveStatistics stats, int epoch, Path filepath) {
         double max = stats.getMax();
         double min = stats.getMin();
         double mean = stats.getMean();
