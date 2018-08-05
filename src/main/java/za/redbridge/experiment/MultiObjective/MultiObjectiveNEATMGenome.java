@@ -76,9 +76,17 @@ public class MultiObjectiveNEATMGenome extends NEATMGenome implements MultiObjec
         super();
     }
 
-    public void addScore(Double score)
+    public void setScore(int objective, Double score)
     {
-        scoreVector.add(score);
+        if(objective == scoreVector.size())
+        {
+            scoreVector.add(score);
+        }
+        else if(objective<scoreVector.size())
+        {
+            scoreVector.set(objective,score);
+        }
+
     }
 
     public ArrayList<Double> getScoreVector(){

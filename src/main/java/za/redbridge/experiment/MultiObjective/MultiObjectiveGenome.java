@@ -7,7 +7,7 @@ import java.util.ArrayList;
 
 public interface MultiObjectiveGenome extends Genome
 {
-    public abstract void addScore(Double score);
+    public abstract void setScore(int objective, Double score);
 
     public abstract ArrayList<Double> getScoreVector();
 
@@ -19,5 +19,4 @@ public interface MultiObjectiveGenome extends Genome
 
     public abstract int getRank();
 
-    public abstract void clearScore();
 }

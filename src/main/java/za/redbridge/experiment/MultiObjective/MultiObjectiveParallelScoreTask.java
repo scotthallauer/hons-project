@@ -69,8 +69,8 @@ private final Genome genome;
                 score2 = Double.NaN;
             }
 
-            ((MultiObjectiveGenome) genome).addScore(score);
-            ((MultiObjectiveGenome) genome).addScore(score2);
+            ((MultiObjectiveGenome) genome).setScore(0,score);
+            ((MultiObjectiveGenome) genome).setScore(1, score2);
             //@todo: look into setting score here :D
 
             genome.setScore(score);

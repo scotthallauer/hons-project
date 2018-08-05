@@ -705,9 +705,8 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
 
         // now set the scores
        //
-        ( (MultiObjectiveGenome) g).clearScore();
-        ( (MultiObjectiveGenome) g).addScore(score);
-        ( (MultiObjectiveGenome) g).addScore(score2);
+        ( (MultiObjectiveGenome) g).setScore(0,score);
+        ( (MultiObjectiveGenome) g).setScore(1,score2);
         g.setScore(score);
         g.setAdjustedScore(score);
       //  System.out.println("hello");
