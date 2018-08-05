@@ -126,6 +126,10 @@ public class HyperNEATMCODEC implements GeneticCODEC, Serializable {
                     sensorBuilder.addRanges((float) (output.getData(3)));
                     sensorBuilder.addSensorTypes((float) (output.getData(4)));
 
+                    write(output.getData(0)+"");
+                    write(output.getData(1)+"");
+                    write(output.getData(2)+"");
+                    write(output.getData(3)+"");
                     write(output.getData(4)+"");
 
                     //ensures no memory issues (look into this)
