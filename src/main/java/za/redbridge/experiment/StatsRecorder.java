@@ -16,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.HashMap;
 
 import za.redbridge.experiment.NEAT.NEATPopulation;
 import za.redbridge.experiment.NEATM.NEATMNetwork;
@@ -47,14 +48,22 @@ public class StatsRecorder {
     private Path performanceStatsFile;
     private Path scoreStatsFile;
     private Path sensorStatsFile;
+    private Path sensorParamStatsFile;
     private String txt;
     private NEATMNetwork nw;
+    private String type;
+    private String config;
+    private String[] sensorTypes;
 
-    public StatsRecorder(EvolutionaryAlgorithm trainer, ScoreCalculator calculator) {
+
+    public StatsRecorder(EvolutionaryAlgorithm trainer, ScoreCalculator calculator, String type, String config) {
         this.trainer = trainer;
         this.calculator = calculator;
         this.evolvingMorphology = calculator.isEvolvingMorphology();
         this.HyperNEATM = calculator.isHyperNEATM();
+        this.type = type;
+        this.config = config;
+        sensorTypes = calculator.names;
 
         initFiles();
     }
@@ -65,7 +74,8 @@ public class StatsRecorder {
     }
 
     private void initDirectories() {
-        rootDirectory = getLoggingDirectory();
+
+        rootDirectory = getLoggingDirectory(type,config);
         initDirectory(rootDirectory);
 
         populationDirectory = rootDirectory.resolve("populations");
@@ -93,12 +103,24 @@ public class StatsRecorder {
         if (evolvingMorphology) {
             sensorStatsFile = rootDirectory.resolve("sensors.csv");
             initStatsFile(sensorStatsFile);
+            sensorParamStatsFile = rootDirectory.resolve("sensorsParams.csv");
+            initStatsFileSensor(sensorParamStatsFile);
         }
+
     }
 
     private static void initStatsFile(Path path) {
         try (BufferedWriter writer = Files.newBufferedWriter(path, Charset.defaultCharset())) {
-            writer.write("epoch, max, min, mean, standev\n");
+            writer.write("epoch,max,min,mean,standev\n");
+        } catch (IOException e) {
+            log.error("Unable to initialize stats file", e);
+        }
+    }
+    private static void initStatsFileSensor(Path path) {
+        try (BufferedWriter writer = Files.newBufferedWriter(path, Charset.defaultCharset())) {
+            writer.write(",ColourProximity,,,,,,,,,,,,,,,ProximitySensor,,,,,,,,,,,,,,,LowResCamera,,,,,,,,,,,,,,,UltraSonic,,,,,,,,,,,,,,\n");
+            writer.write(",FOV,,,,,Bearing,,,,,Range,,,,,FOV,,,,,Range,,,,,Bearing,,,,,FOV,,,,,Range,,,,,Bearing,,,,,FOV,,,,,Range,,,,,Bearing,,,,\n");
+            writer.write("epoch,max,min,mean,standev,size,max,min,mean,standev,size,max,min,mean,standev,size,max,min,mean,standev,size,max,min,mean,standev,size,max,min,mean,standev,size,max,min,mean,standev,size,max,min,mean,standev,size,max,min,mean,standev,size,max,min,mean,standev,size,max,min,mean,standev,size,max,min,mean,standev,size\n");
         } catch (IOException e) {
             log.error("Unable to initialize stats file", e);
         }
@@ -114,7 +136,10 @@ public class StatsRecorder {
 
         if (evolvingMorphology) {
             recordStats("Sensor", calculator.getSensorStatistics(), epoch, sensorStatsFile);
+            recordStats("SensorParams", calculator.getParamSensor(), epoch, sensorParamStatsFile);
         }
+
+
 
         savePopulation((NEATPopulation) trainer.getPopulation(), epoch);
 
@@ -172,7 +197,7 @@ public class StatsRecorder {
         saveObjectToFile(network, directory.resolve("network.ser"));
 
         GraphvizEngine.saveGenome(genome, directory.resolve("graph.dot"));
-        GraphvizEngine.saveNetwork(network, directory.resolve("network.dot"));
+        GraphvizEngine.saveNetwork(network, directory.resolve("network.dot")); String[] params = {"FOV","Range","Orientation"};
     }
 
     public void recordStats(String type, DescriptiveStatistics stats, int epoch, Path filepath) {
@@ -186,6 +211,31 @@ public class StatsRecorder {
         saveStats(filepath, epoch, max, min, mean, sd);
     }
 
+    public void recordStats(String type, HashMap<String,DescriptiveStatistics[]> stats, int epoch, Path filepath) {
+        saveStatNew(filepath, epoch);
+
+        for(int i =0;i<sensorTypes.length;i++ ){
+            DescriptiveStatistics[] descriptStats = stats.get(sensorTypes[i]);
+            String[] params = {"FOV","Bearing","Range"};
+            for(int  j=0;j<descriptStats.length;j++){
+                double max = descriptStats[j].getMax();
+                double min = descriptStats[j].getMin();
+                double mean = descriptStats[j].getMean();
+                double sd = descriptStats[j].getStandardDeviation();
+                double size = descriptStats[j].getN();
+                log.debug("["+type+"-"+sensorTypes[i]+"-"+params[j] +"]+Recording stats - max: " + max + ", mean: " + mean);
+                saveStat(filepath, max, min, mean, sd,size);
+                descriptStats[j].clear();
+            }
+
+
+        }
+
+        stats.clear();
+
+
+    }
+
     private NEATNetwork decodeGenome(Genome genome)
     {
         return (NEATNetwork) trainer.getCODEC().decode(genome);
@@ -194,6 +244,35 @@ public class StatsRecorder {
     private static void saveStats(Path path, int epoch, double max, double min, double mean,
             double sd) {
         String line = String.format("%d, %f, %f, %f, %f\n", epoch, max, min, mean, sd);
+
+        final OpenOption[] options = {
+                StandardOpenOption.APPEND, StandardOpenOption.CREATE, StandardOpenOption.WRITE
+        };
+        try (PrintWriter writer = new PrintWriter(Files.newBufferedWriter(path,
+                Charset.defaultCharset(), options))) {
+            writer.append(line);
+        } catch (IOException e) {
+            log.error("Failed to append to log file", e);
+        }
+    }
+
+    private static void saveStat(Path path,  double max, double min, double mean,
+                                  double sd, double size) {
+        String line = String.format("%f, %f, %f, %f, %f,", max, min, mean, sd, size);
+
+        final OpenOption[] options = {
+                StandardOpenOption.APPEND, StandardOpenOption.CREATE, StandardOpenOption.WRITE
+        };
+        try (PrintWriter writer = new PrintWriter(Files.newBufferedWriter(path,
+                Charset.defaultCharset(), options))) {
+            writer.append(line);
+        } catch (IOException e) {
+            log.error("Failed to append to log file", e);
+        }
+    }
+
+    private static void saveStatNew(Path path,  int epoch) {
+        String line = String.format("\n%d,",epoch);
 
         final OpenOption[] options = {
                 StandardOpenOption.APPEND, StandardOpenOption.CREATE, StandardOpenOption.WRITE

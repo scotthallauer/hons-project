@@ -134,7 +134,7 @@ public class HyperNEATMSensorBuilder
         {
             sum += sensorTypes.get(i);
         }
-        float sensorTypeValue = sum;
+        float sensorTypeValue = sum/sensorTypes.size();
         SensorType sensorType = getSensorType(sensorTypeValue);
        // System.out.println(sensorType.toString());
         return new SensorModel(sensorType, convertCartesianToRadians(),

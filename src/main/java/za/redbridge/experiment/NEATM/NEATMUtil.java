@@ -95,7 +95,7 @@ public final class NEATMUtil {
 
         // Add all the operators, probability should sum to 1
         result.addOperation(0.32, new NEATMCrossover());
-        result.addOperation(0.375, weightMutation);
+        result.addOperation(0.335, weightMutation);
         result.addOperation(0.05, new NEATMMutateAddNode());
         result.addOperation(0.05, new NEATMutateAddLink());
         result.addOperation(0.005, new NEATMMutateRemoveLink());
@@ -161,7 +161,7 @@ public final class NEATMUtil {
 
         fieldMutationComponents.finalizeStructure();
 
-        result.addOperation(0.05, fieldMutation);
+        result.addOperation(0.07, fieldMutation);
 
         // Add sensor mutation
         double connectionDensity = 0.1;
@@ -178,7 +178,7 @@ public final class NEATMUtil {
                 connectionDensity, new MutatePerturbLinkWeight(0.2)));
         addSensorComponents.finalizeStructure();
 
-        result.addOperation(0.05, addSensorMutation);
+        result.addOperation(0.07, addSensorMutation);
 
 
         result.getOperators().finalizeStructure();

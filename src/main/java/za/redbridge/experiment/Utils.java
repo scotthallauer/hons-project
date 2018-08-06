@@ -55,15 +55,14 @@ public final class Utils {
         }
     }
 
-    public static Path getLoggingDirectory() {
-        String hostname = getLocalHostName();
-        if (hostname == null) {
-            hostname = "unknown";
-        }
+    public static Path getLoggingDirectory(String type, String config) {
+        config = config.replace("config/","").replace(".yml","");
+        String name = type+" ("+config+")";
 
-        String date = new SimpleDateFormat("yyyyMMdd'T'HHmm").format(new Date());
 
-        return Paths.get("results", hostname + "-" + date);
+        String date = new SimpleDateFormat("MMdd'T'HHmm").format(new Date());
+
+        return Paths.get("results", name +"-"+date);
     }
 
     public static String getLocalHostName() {

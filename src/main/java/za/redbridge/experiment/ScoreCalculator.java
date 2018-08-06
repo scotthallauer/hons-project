@@ -16,7 +16,9 @@ import za.redbridge.simulator.config.SimConfig;
 import za.redbridge.simulator.factories.HomogeneousRobotFactory;
 import za.redbridge.simulator.factories.RobotFactory;
 import za.redbridge.simulator.phenotype.Phenotype;
+import za.redbridge.simulator.sensor.AgentSensor;
 
+import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -38,6 +40,11 @@ public class ScoreCalculator implements CalculateScore
     private final DescriptiveStatistics sensorStats;
     private boolean hyperNEATM;
 
+    private final HashMap<String, DescriptiveStatistics[]> sensorParam= new HashMap<>();
+    public final String[] names = {"ColourProximitySensor", "LowResCameraSensor", "ProximitySensor", "UltrasonicSensor"};
+
+
+
     public ScoreCalculator(SimConfig simConfig, int trialsPerIndividual,
                            SensorMorphology sensorMorphology, boolean hyperNEAT )
     {
@@ -48,6 +55,16 @@ public class ScoreCalculator implements CalculateScore
 
         // If fixed morphology then don't record sensor stats
         this.sensorStats = isEvolvingMorphology() ? new SynchronizedDescriptiveStatistics() : null;
+
+        for(int j =0;j<names.length;j++) {
+            DescriptiveStatistics[] stats = new DescriptiveStatistics[3];
+            for (int i = 0; i < 3; i++) // 3 parameters per sensor
+            {
+                stats[i] = new DescriptiveStatistics();
+            }
+            sensorParam.put(names[j],stats);
+
+        }
     }
 
     @Override
@@ -85,6 +102,17 @@ public class ScoreCalculator implements CalculateScore
         log.debug("Score calculation completed: " + score);
 
         TimeTakenStats.addValue(peformance/trialsPerIndividual);
+
+        SensorMorphology sensors = ((NEATMNetwork) network).getSensorMorphology();
+        for(int i =0;i<sensors.getNumSensors();i++){
+            AgentSensor sensor = sensors.getSensor(i);
+            if(!sensor.getClass().getSimpleName().equals("BottomProximitySensor")){
+                sensorParam.get(sensor.getClass().getSimpleName())[0].addValue(sensor.getFieldOfView());
+                sensorParam.get(sensor.getClass().getSimpleName())[1].addValue(sensor.getBearing());
+                sensorParam.get(sensor.getClass().getSimpleName())[2].addValue(sensor.getRange());
+            }
+
+        }
 
         return score;
     }
@@ -151,6 +179,10 @@ public class ScoreCalculator implements CalculateScore
     public DescriptiveStatistics getSensorStatistics()
     {
         return sensorStats;
+    }
+
+    public HashMap<String,DescriptiveStatistics[]> getParamSensor(){
+        return sensorParam;
     }
 
     @Override

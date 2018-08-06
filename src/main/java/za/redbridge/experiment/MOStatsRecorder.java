@@ -69,9 +69,11 @@ public class MOStatsRecorder extends StatsRecorder {
     private Path sensorStatsFile;
     private String txt;
     private NEATMNetwork nw;
+    private String type;
+    private String config;
 
-    public MOStatsRecorder(EvolutionaryAlgorithm trainer, ScoreCalculator calculator) {
-        super(trainer, calculator);
+    public MOStatsRecorder(EvolutionaryAlgorithm trainer, ScoreCalculator calculator,String type, String config) {
+        super(trainer, calculator,type, config);
         this.trainer = (MultiObjectiveEA) trainer;
         this.calculator = calculator;
         this.HyperNEATM = calculator.isHyperNEATM();
@@ -85,7 +87,7 @@ public class MOStatsRecorder extends StatsRecorder {
     }
 
     private void initDirectories() {
-        rootDirectory = getLoggingDirectory();
+        rootDirectory = getLoggingDirectory(type, config);
         initDirectory(rootDirectory);
 
         populationDirectory = rootDirectory.resolve("populations");

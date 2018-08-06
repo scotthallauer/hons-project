@@ -39,6 +39,7 @@ public class Main
     public static void main(String[] args) throws IOException
     {
 
+
         Args options = new Args();
         new JCommander(options, args);
 
@@ -56,6 +57,7 @@ public class Main
         ScoreCalculator calculateScore =
                 new ScoreCalculator(simConfig, options.trialsPerIndividual, null, options.hyperNEATM);
 
+        String type="";
         if (!isBlank(options.genomePath))
         {
             NEATNetwork network = (NEATNetwork) readObjectFromFile(options.genomePath);
@@ -73,11 +75,13 @@ public class Main
         {
             if (options.hyperNEATM)
             {
+                type ="HyperNEATM";
                 Substrate substrate = SubstrateFactory.createKheperaSubstrate(simConfig.getMinDistBetweenSensors(), simConfig.getRobotRadius());
                 population = new NEATMPopulation(substrate, options.populationSize, options.multiObjective);
             }
             else
             {
+                type ="NEATM";
                 population = new NEATMPopulation(2, options.populationSize, options.multiObjective);
             }
             population.setInitialConnectionDensity(options.connectionDensity);
@@ -91,6 +95,7 @@ public class Main
         {
             if(options.multiObjective)
             {
+                type ="MO-"+type;
                 train = MultiObjectiveHyperNEATUtil.constructNEATTrainer(population,calculateScore);
             }
             else
@@ -131,10 +136,10 @@ public class Main
 
         final StatsRecorder statsRecorder;
         if(options.multiObjective){
-            statsRecorder = new MOStatsRecorder(train,calculateScore);
+            statsRecorder = new MOStatsRecorder(train,calculateScore,type, options.configFile);
         }
         else{
-            statsRecorder= new StatsRecorder(train, calculateScore);
+            statsRecorder= new StatsRecorder(train, calculateScore,type, options.configFile);
         }
 
 
@@ -177,10 +182,10 @@ public class Main
         private double connectionDensity = 0.5;
 
         @Parameter(names = "--demo", description = "Show a GUI demo of a given genome")
-        private String genomePath = null;
+        private String genomePath =null;
 
         @Parameter(names = "--HyperNEATM", description = "Using HyperNEATM")
-        private boolean hyperNEATM = false;
+        private boolean hyperNEATM = true;
 
         @Parameter(names = "--population", description = "To resume a previous experiment, provide"
                 + " the path to a serialized population")
@@ -193,7 +198,7 @@ public class Main
         // TODO description
         @Parameter(names = "--multi-objective", description = "Number of threads to run simulations with."
                 + " By default Runtime#availableProcessors() is used to determine the number of threads to use")
-        private boolean multiObjective = true;
+        private boolean multiObjective = false;
 
         @Override
         public String toString()
