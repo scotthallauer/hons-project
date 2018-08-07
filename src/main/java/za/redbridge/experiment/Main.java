@@ -106,7 +106,6 @@ public class Main
         }
         else
         {
-
             if(options.multiObjective)
             {
                 train = MultiObjectiveNEATMUtil.constructNEATTrainer(population, calculateScore);
@@ -147,8 +146,7 @@ public class Main
         {
             train.iteration();
             statsRecorder.recordIterationStats();
-
-            if (train.getBestGenome().getScore() >= CONVERGENCE_SCORE)
+            if (!options.multiObjective && train.getBestGenome().getScore() >= CONVERGENCE_SCORE)
             {
                 log.info("Convergence reached at epoch " + train.getIteration());
                 break;
@@ -198,7 +196,7 @@ public class Main
         // TODO description
         @Parameter(names = "--multi-objective", description = "Number of threads to run simulations with."
                 + " By default Runtime#availableProcessors() is used to determine the number of threads to use")
-        private boolean multiObjective = false;
+        private boolean multiObjective = true;
 
         @Override
         public String toString()
@@ -211,6 +209,7 @@ public class Main
                     + "\tInitial connection density: " + connectionDensity + "\n"
                     + "\tDemo network config path: " + genomePath + "\n"
                     + "\tHyperNEATM: " + hyperNEATM + "\n"
+                    + "\tMulti-Objective: " + multiObjective + "\n"
                     + "\tPopulation path: " + populationPath + "\n"
                     + "\tNumber of threads: " + threads;
         }

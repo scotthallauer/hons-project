@@ -56,6 +56,7 @@ public final class Utils {
     }
 
     public static Path getLoggingDirectory(String type, String config) {
+
         config = config.replace("config/","").replace(".yml","");
         String name = type+" ("+config+")";
 
