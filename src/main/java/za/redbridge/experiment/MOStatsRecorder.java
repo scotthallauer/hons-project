@@ -77,7 +77,8 @@ public class MOStatsRecorder extends StatsRecorder {
         this.trainer = (MultiObjectiveEA) trainer;
         this.calculator = calculator;
         this.HyperNEATM = calculator.isHyperNEATM();
-
+        this.type = type;
+        this.config = config;
         initFiles();
     }
 
@@ -155,18 +156,27 @@ public class MOStatsRecorder extends StatsRecorder {
         ArrayList<MultiObjectiveGenome> pareto = trainer.getFirstParetoFront();
 
         final LabeledXYDataset paretoFront = new LabeledXYDataset(pareto.size());
-
+        ArrayList<String> genomesLOG = new ArrayList<>();
         for(MultiObjectiveGenome genome: pareto)
         {
             saveParetoOptimalGenome(genome, directory);
             ArrayList<Double> scoreVector = genome.getScoreVector();
-            paretoFront.add(scoreVector.get(0),scoreVector.get(1),genome.getScore()+"");
-
+            Double score1 = scoreVector.get(0);
+            Double score2 = scoreVector.get(1);
+            paretoFront.add(score1,score2,genome.getScore()+"");
+            genomesLOG.add(genome.getScore()+": "+score1 +"\t"+score2);
         }
 
+        Path txtPath = directory.resolve("Paret0LOg.txt");
+        try (BufferedWriter writer = Files.newBufferedWriter(txtPath, Charset.defaultCharset())) {
+            writer.write("   performance\tsensor\n");
+            for(String s: genomesLOG){
+                writer.write(s+"\n");
+            }
 
-
-
+        } catch (IOException e) {
+            log.error("Error writing pareto optimal network info file", e);
+        }
         JFreeChart paretoChart = createChart(paretoFront);
 
         int width = 640;   /* Width of the image */
@@ -201,14 +211,7 @@ public class MOStatsRecorder extends StatsRecorder {
 
     private void saveParetoOptimalGenome(MultiObjectiveGenome genome, Path directory)  // serialise all the genome's from iteration N which have rank 0 (ie are in first pareto front)
     {
-        /* TODO
-        Path txtPath = directory.resolve("info.txt");
-        try (BufferedWriter writer = Files.newBufferedWriter(txtPath, Charset.defaultCharset())) {
-            writer.write(txt);
-        } catch (IOException e) {
-            log.error("Error writing pareto optimal network info file", e);
-        }
-        */
+
 
         NEATNetwork network = decodeGenome(genome);
         saveObjectToFile(network, directory.resolve("network"+genome.getScore()+".ser"));   // a network's score is its crowding distance index within its front
