@@ -46,10 +46,10 @@ public class Main
 
     public static void main(String[] args) throws IOException
     {
-        //todo: random number or dateTime for logback name?
-        String random = (int)(Math.random()*10000000)+"";
-        //String random = new SimpleDateFormat("MMdd'T'HHmm").format(new Date());
-        System.setProperty("log.name", "logback-"+random+".log");
+        String date = new SimpleDateFormat("MMdd'T'HHmm").format(new Date());
+        System.setProperty("log.name", "logback-"+date+".log");
+        Utils.date = date;
+
         Logger log = LoggerFactory.getLogger(Main.class);
 
         Args options = new Args();
@@ -82,14 +82,16 @@ public class Main
         if (!isBlank(options.populationPath))
         {
             population = (NEATPopulation) readObjectFromFile(options.populationPath);
-        } else
+        }
+        else
         {
             if (options.hyperNEATM)
             {
                 type = "HyperNEATM";
                 Substrate substrate = SubstrateFactory.createKheperaSubstrate(simConfig.getMinDistBetweenSensors(), simConfig.getRobotRadius());
                 population = new NEATMPopulation(substrate, options.populationSize, options.multiObjective);
-            } else
+            }
+            else
             {
                 type = "NEATM";
                 population = new NEATMPopulation(2, options.populationSize, options.multiObjective);
@@ -107,18 +109,21 @@ public class Main
             {
                 type = "MO-" + type;
                 train = MultiObjectiveHyperNEATUtil.constructNEATTrainer(population, calculateScore);
-            } else
+            }
+            else
             {
                 train = org.encog.neural.neat.NEATUtil.constructNEATTrainer(population, calculateScore);
                 ((TrainEA) train).setCODEC(new HyperNEATMCODEC());
             }
-        } else
+        }
+        else    // if NEATM
         {
-
             if (options.multiObjective)
             {
+                type = "MO-" + type;
                 train = MultiObjectiveNEATMUtil.constructNEATTrainer(population, calculateScore);
-            } else
+            }
+            else
             {
                 train = NEATMUtil.constructNEATTrainer(population, calculateScore);
             }
@@ -134,7 +139,8 @@ public class Main
             if (!options.multiObjective)
             {
                 ((TrainEA) train).setThreadCount(options.threads);
-            } else
+            }
+            else
             {
                 ((MultiObjectiveEA) train).setThreadCount(options.threads);
             }
@@ -165,7 +171,7 @@ public class Main
         log.debug("Training complete");
         Encog.getInstance().shutdown();
 
-        Files.move(Paths.get("results/logback-"+random+".log"), Paths.get(getLoggingDirectory(type, options.configFile)+"/logback.log"), StandardCopyOption.REPLACE_EXISTING);   // move logback to correct results folder
+        Files.move(Paths.get("results/logback-"+date+".log"), Paths.get(getLoggingDirectory(type, options.configFile)+"/logback.log"));   // move logback to correct results folder
 
         // #alex - save best network and run demo on it
         NEATNetwork bestPerformingNetwork = (NEATNetwork) train.getCODEC().decode(train.getBestGenome());   //extract best performing NN from the population
@@ -175,13 +181,13 @@ public class Main
     private static class Args
     {
         @Parameter(names = "-c", description = "Simulation config file to load")
-        private String configFile = "config/bossConfig.yml";
+        private String configFile = "config/ConfigSimple.yml";
 
         @Parameter(names = "-g", description = "Number of generations to train for")    // Jamie calls this 'iterations'
-        private int numGenerations = 2;
+        private int numGenerations = 3;
 
         @Parameter(names = "-p", description = "Initial population size")
-        private int populationSize = 2;
+        private int populationSize = 3;
 
         @Parameter(names = "--trials", description = "Number of simulation runs per iteration (team lifetime)")
         // Jamie calls this 'simulationRuns' (and 'lifetime' in his paper)
@@ -208,7 +214,7 @@ public class Main
         // TODO description
         @Parameter(names = "--multi-objective", description = "Number of threads to run simulations with."
                 + " By default Runtime#availableProcessors() is used to determine the number of threads to use")
-        private boolean multiObjective = true;
+        private boolean multiObjective = false;
 
         @Override
         public String toString()
