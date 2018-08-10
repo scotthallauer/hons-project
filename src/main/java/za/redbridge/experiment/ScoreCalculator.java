@@ -99,7 +99,7 @@ public class ScoreCalculator implements CalculateScore
             sensorStats.addValue(network.getInputCount());
         }
 
-        log.debug("Score calculation completed: " + score);
+
 
         TimeTakenStats.addValue(peformance/trialsPerIndividual);
 
@@ -113,6 +113,8 @@ public class ScoreCalculator implements CalculateScore
             }
 
         }
+
+        log.debug("Score calculation completed: " + score+"\tnumber of sensors: "+sensors.getNumSensors());
 
         return score;
     }
