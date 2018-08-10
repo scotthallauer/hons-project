@@ -19,6 +19,8 @@ import java.util.Date;
  */
 public final class Utils {
 
+    public static String date;
+
     private static final Logger log = LoggerFactory.getLogger(Utils.class);
 
     /** Check if a String is either null or empty. */
@@ -59,9 +61,6 @@ public final class Utils {
 
         config = config.replace("config/","").replace(".yml","");
         String name = type+" ("+config+")";
-
-
-        String date = new SimpleDateFormat("MMdd'T'HHmm").format(new Date());
 
         return Paths.get("results", name +"-"+date);
     }
