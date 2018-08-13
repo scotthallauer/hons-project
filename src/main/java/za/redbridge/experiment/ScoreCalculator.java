@@ -94,9 +94,11 @@ public class ScoreCalculator implements CalculateScore
         double score = fitness / trialsPerIndividual;
         scoreStats.addValue(score);
 
+        double score2 =calculateScore2(method);
+
         if (isEvolvingMorphology() || hyperNEATM)
         {
-            sensorStats.addValue(network.getInputCount());
+            sensorStats.addValue(score2);
         }
 
 
@@ -114,7 +116,7 @@ public class ScoreCalculator implements CalculateScore
 
         }
 
-        log.debug("Score calculation completed: " + score+"\tnumber of sensors: "+sensors.getNumSensors());
+        log.debug("task performance: " + score+"\tsensor complexity: "+score2);
 
         return score;
     }
@@ -123,7 +125,7 @@ public class ScoreCalculator implements CalculateScore
     {
         NEATNetwork network = (NEATNetwork) method;
 
-        double score = 100 - (( (double) network.getInputCount() / 11) * 100);
+        double score = 100 - (( (double) network.getInputCount() / 10) * 100);
         return score;
 
     }

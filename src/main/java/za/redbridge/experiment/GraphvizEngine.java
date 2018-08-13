@@ -6,6 +6,8 @@ import org.encog.neural.neat.NEATNeuronType;
 import org.encog.neural.neat.training.NEATGenome;
 import org.encog.neural.neat.training.NEATLinkGene;
 import org.encog.neural.neat.training.NEATNeuronGene;
+import org.encog.util.arrayutil.NormalizationAction;
+import org.encog.util.arrayutil.NormalizedField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +26,7 @@ import za.redbridge.experiment.NEATM.sensor.SensorConfiguration;
 import za.redbridge.experiment.NEATM.sensor.SensorModel;
 import za.redbridge.experiment.NEATM.sensor.SensorMorphology;
 import za.redbridge.experiment.NEATM.sensor.parameter.SensorParameterSet;
+import za.redbridge.experiment.NEATM.sensor.parameter.spec.Range;
 import za.redbridge.experiment.NEATM.training.NEATMNeuronGene;
 import za.redbridge.experiment.NEATM.sensor.SensorType;
 
@@ -121,9 +124,11 @@ public class GraphvizEngine {
             throws IOException {
         for (NEATLinkGene link : links) {
             writer.write("  ");
+            NormalizedField normlalizer = new NormalizedField(NormalizationAction.SingleField, "", 1, -1, 5, -5);
+            float value = (float) normlalizer.deNormalize(link.getWeight());
             writer.write(link.getFromNeuronID() + " -> " + link.getToNeuronID());
             if (link.isEnabled()) {
-                writer.write(" [ label=\"" + String.format("%.3f", link.getWeight()) + "\" ];");
+                writer.write(" [ label=\"" + String.format("%.3f",value) + "\" ];");
             } else {
                 writer.write(" [ style=\"dashed\" ];");
             }
@@ -236,10 +241,13 @@ public class GraphvizEngine {
 
     private static void writeLinks(BufferedWriter writer, NEATLink[] links)
             throws IOException {
+
         for (NEATLink link : links) {
+            NormalizedField normlalizer = new NormalizedField(NormalizationAction.SingleField, "", 1, -1, 5, -5);
+            float value = (float) normlalizer.deNormalize(link.getWeight());
             writer.write("  ");
             writer.write(link.getFromNeuron() + " -> " + link.getToNeuron());
-            writer.write(" [ label=\"" + String.format("%.3f", link.getWeight()) + "\" ];");
+            writer.write(" [ label=\"" + String.format("%.3f", value) + "\" ];");
             writer.newLine();
         }
     }

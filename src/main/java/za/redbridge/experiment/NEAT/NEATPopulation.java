@@ -28,6 +28,6 @@ public class NEATPopulation extends org.encog.neural.neat.NEATPopulation {
 
     @Override
     public double getWeightRange() {
-        return 1.0;
+        return 5.0;
     }
 }

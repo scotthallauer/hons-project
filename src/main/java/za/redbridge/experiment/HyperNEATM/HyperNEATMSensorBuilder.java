@@ -180,11 +180,11 @@ public class HyperNEATMSensorBuilder
 
     }
 
-    //CPPN gives range between [-1,1] so need to convert to appropriate sensor range
+    //CPPN gives range between [-5,5] so need to convert to appropriate sensor range
     public float normalise_range(float num, SensorType sensorType, ParameterType paramType)
     {
         Range range = sensorType.getDefaultSpecSet().getParameterSpec(paramType).getRange();
-        NormalizedField normlalizer = new NormalizedField(NormalizationAction.SingleField, "", range.max, range.min, 1, -1);
+        NormalizedField normlalizer = new NormalizedField(NormalizationAction.SingleField, "", range.max, range.min, 5, -5);
         float value = (float) normlalizer.deNormalize(num);
         if (!range.inclusiveMin)
         {

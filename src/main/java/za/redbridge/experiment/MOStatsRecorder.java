@@ -191,7 +191,7 @@ public class MOStatsRecorder extends StatsRecorder {
     }
 
     private static JFreeChart createChart(final XYDataset dataset) {
-        NumberAxis domain = new NumberAxis("Peformance");
+        NumberAxis domain = new NumberAxis("Performance");
         NumberAxis range = new NumberAxis("Sensor");
         domain.setAutoRangeIncludesZero(true);
         XYItemRenderer renderer = new XYLineAndShapeRenderer(true, false);
@@ -211,13 +211,15 @@ public class MOStatsRecorder extends StatsRecorder {
 
     private void saveParetoOptimalGenome(MultiObjectiveGenome genome, Path directory)  // serialise all the genome's from iteration N which have rank 0 (ie are in first pareto front)
     {
-
-
         NEATNetwork network = decodeGenome(genome);
-        saveObjectToFile(network, directory.resolve("network"+genome.getScore()+".ser"));   // a network's score is its crowding distance index within its front
-
-        GraphvizEngine.saveGenome((NEATGenome) genome, directory.resolve("graph"+genome.getScore()+".dot"));
-        GraphvizEngine.saveNetwork(network, directory.resolve("network"+genome.getScore()+".dot"));
+        if(!HyperNEATM){
+            GraphvizEngine.saveGenome((NEATGenome)genome, directory.resolve("phenome-ANN"+genome.getScore()+".dot"));
+        }
+        else{
+            GraphvizEngine.saveGenome((NEATGenome)genome, directory.resolve("genome-CPPN"+genome.getScore()+".dot"));
+            GraphvizEngine.saveNetwork(network, directory.resolve("phenome-ANN"+genome.getScore()+".dot"));
+        }
+        saveObjectToFile(network, directory.resolve("network"+".ser"));
     }
 
 

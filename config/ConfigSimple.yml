@@ -29,7 +29,7 @@ robots:
   numRobots: 20
   mass: 0.7
   radius: 0.15
-  minDistBetweenSensors: 0.6
+  minDistBetweenSensors: 0.65
   colour: 0, 0, 0
 environment:
   width: 40

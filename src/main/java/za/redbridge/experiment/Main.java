@@ -185,16 +185,18 @@ public class Main
     {
         @Parameter(names = "-c", description = "Simulation config file to load")
         private String configFile = "config/ConfigSimple.yml";
+        // private String configFile = "config/ConfigMedium.yml";
+        // private String configFile = "config/ConfigDifficult.yml";
 
         @Parameter(names = "-g", description = "Number of generations to train for")    // Jamie calls this 'iterations'
-        private int numGenerations = 3;
+        private int numGenerations = 150;
 
         @Parameter(names = "-p", description = "Initial population size")
-        private int populationSize = 3;
+        private int populationSize = 150;
 
         @Parameter(names = "--trials", description = "Number of simulation runs per iteration (team lifetime)")
         // Jamie calls this 'simulationRuns' (and 'lifetime' in his paper)
-        private int trialsPerIndividual = 1;
+        private int trialsPerIndividual = 5;
 
         @Parameter(names = "--conn-density", description = "Adjust the initial connection density"
                 + " for the population")
@@ -204,7 +206,7 @@ public class Main
         private String genomePath = null;
 
         @Parameter(names = "--HyperNEATM", description = "Using HyperNEATM")
-        private boolean hyperNEATM = true;
+        private boolean hyperNEATM = false;
 
         @Parameter(names = "--population", description = "To resume a previous experiment, provide"
                 + " the path to a serialized population")
