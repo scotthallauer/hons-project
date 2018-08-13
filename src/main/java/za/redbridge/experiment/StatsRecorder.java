@@ -215,6 +215,7 @@ public class StatsRecorder {
         saveStatNew(filepath, epoch);
 
         for(int i =0;i<sensorTypes.length;i++ ){
+
             DescriptiveStatistics[] descriptStats = stats.get(sensorTypes[i]);
             String[] params = {"FOV","Bearing","Range"};
             for(int  j=0;j<descriptStats.length;j++){
@@ -230,9 +231,6 @@ public class StatsRecorder {
 
 
         }
-
-        stats.clear();
-
 
     }
 

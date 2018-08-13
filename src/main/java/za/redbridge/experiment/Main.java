@@ -161,10 +161,13 @@ public class Main
             train.iteration();
             statsRecorder.recordIterationStats();
 
-            if (train.getBestGenome().getScore() >= CONVERGENCE_SCORE)
+            if(!options.multiObjective)
             {
-                log.info("Convergence reached at epoch " + train.getIteration());
-                break;
+                if (train.getBestGenome().getScore() >= CONVERGENCE_SCORE)
+                {
+                    log.info("Convergence reached at epoch " + train.getIteration());
+                    break;
+                }
             }
         }
 
@@ -201,7 +204,7 @@ public class Main
         private String genomePath = null;
 
         @Parameter(names = "--HyperNEATM", description = "Using HyperNEATM")
-        private boolean hyperNEATM = false;
+        private boolean hyperNEATM = true;
 
         @Parameter(names = "--population", description = "To resume a previous experiment, provide"
                 + " the path to a serialized population")
@@ -228,7 +231,8 @@ public class Main
                     + "\tDemo network config path: " + genomePath + "\n"
                     + "\tHyperNEATM: " + hyperNEATM + "\n"
                     + "\tPopulation path: " + populationPath + "\n"
-                    + "\tNumber of threads: " + threads;
+                    + "\tNumber of threads: " + threads + "\n"
+                    + "\tMultiobjective: " + multiObjective;
         }
     }
 }

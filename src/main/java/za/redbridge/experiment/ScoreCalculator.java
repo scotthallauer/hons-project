@@ -46,7 +46,7 @@ public class ScoreCalculator implements CalculateScore
 
 
     public ScoreCalculator(SimConfig simConfig, int trialsPerIndividual,
-                           SensorMorphology sensorMorphology, boolean hyperNEAT )
+                           SensorMorphology sensorMorphology, boolean hyperNEATM )
     {
         this.simConfig = simConfig;
         this.trialsPerIndividual = trialsPerIndividual;
