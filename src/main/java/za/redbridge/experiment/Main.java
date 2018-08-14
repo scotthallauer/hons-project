@@ -1,10 +1,7 @@
 package za.redbridge.experiment;
 
-import ch.qos.logback.core.util.FileUtil;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
-import com.sun.net.ssl.HostnameVerifier;
-import com.sun.org.apache.xpath.internal.SourceTree;
 import org.encog.Encog;
 import org.encog.ml.ea.train.EvolutionaryAlgorithm;
 import org.encog.ml.ea.train.basic.TrainEA;
@@ -25,15 +22,13 @@ import za.redbridge.simulator.config.SimConfig;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 
-import static za.redbridge.experiment.Utils.getLoggingDirectory;
-import static za.redbridge.experiment.Utils.isBlank;
-import static za.redbridge.experiment.Utils.readObjectFromFile;
+import static za.redbridge.experiment.Utils.*;
 
 /**
  * Entry point for the experiment platform.
@@ -54,6 +49,30 @@ public class Main
 
         Args options = new Args();
         new JCommander(options, args);
+
+
+        // if resuming experiment, move old logback into results folder immediately
+        if (!isBlank(options.populationPath))
+        {
+            File[] files = new File("results").listFiles();
+            ArrayList<File> logbacks = new ArrayList<>();
+            if(files != null)
+            {
+                for (File file : files)
+                {
+                    if (file.isFile())
+                    {
+                        if(file.getName().contains("logback"))
+                        {
+                            logbacks.add(file);
+                        }
+                    }
+                }
+            }
+            Collections.sort(logbacks);
+            Files.move(Paths.get("results/"+logbacks.get(0).getName()), Paths.get(options.populationPath.split("/populations/")[0]+"/"+logbacks.get(0).getName()));   // move logback to correct results folder
+
+        }
 
         log.info(options.toString());
         //Loading in the config
@@ -77,15 +96,12 @@ public class Main
             return;
         }
 
-
         final NEATPopulation population;
         String popDirectory ="";
         if (!isBlank(options.populationPath))
         {
             population = (NEATPopulation) readObjectFromFile(options.populationPath);
-            popDirectory = options.populationPath.split("/results/")[1].split("/populations")[0];
-            System.out.println(popDirectory);
-
+            popDirectory = options.populationPath.split("results/")[1].split("/populations")[0];
         }
         else
         {
@@ -195,10 +211,10 @@ public class Main
         // private String configFile = "config/ConfigDifficult.yml";
 
         @Parameter(names = "-g", description = "Number of generations to train for")    // Jamie calls this 'iterations'
-        private int numGenerations = 20;
+        private int numGenerations = 150;
 
         @Parameter(names = "-p", description = "Initial population size")
-        private int populationSize = 10;
+        private int populationSize = 3;
 
         @Parameter(names = "--trials", description = "Number of simulation runs per iteration (team lifetime)")
         // Jamie calls this 'simulationRuns' (and 'lifetime' in his paper)
@@ -212,11 +228,11 @@ public class Main
         private String genomePath = null;
 
         @Parameter(names = "--HyperNEATM", description = "Using HyperNEATM")
-        private boolean hyperNEATM = true;
+        private boolean hyperNEATM = false;
 
         @Parameter(names = "--population", description = "To resume a previous experiment, provide"
                 + " the path to a serialized population")
-        private String populationPath = "/home/danielle/IdeaProjects/honours-project/results/MO-HyperNEATM (ConfigSimple)-0814T1430/populations/epoch-10.ser";
+        private String populationPath = "results/NEATM (ConfigSimple)-0814T1607/populations/epoch-1.ser";
 
         @Parameter(names = "--threads", description = "Number of threads to run simulations with."
                 + " By default Runtime#availableProcessors() is used to determine the number of threads to use")
@@ -225,7 +241,7 @@ public class Main
         // TODO description
         @Parameter(names = "--multi-objective", description = "Number of threads to run simulations with."
                 + " By default Runtime#availableProcessors() is used to determine the number of threads to use")
-        private boolean multiObjective = true;
+        private boolean multiObjective = false;
 
         @Override
         public String toString()
