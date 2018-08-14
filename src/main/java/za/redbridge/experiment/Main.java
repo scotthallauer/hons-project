@@ -232,7 +232,7 @@ public class Main
 
         @Parameter(names = "--population", description = "To resume a previous experiment, provide"
                 + " the path to a serialized population")
-        private String populationPath = "results/NEATM (ConfigSimple)-0814T1607/populations/epoch-1.ser";
+        private String populationPath =  null;
 
         @Parameter(names = "--threads", description = "Number of threads to run simulations with."
                 + " By default Runtime#availableProcessors() is used to determine the number of threads to use")
