@@ -12,10 +12,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.OpenOption;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.*;
 import java.util.HashMap;
 
 import za.redbridge.experiment.NEAT.NEATPopulation;
@@ -54,9 +51,10 @@ public class StatsRecorder {
     private String type;
     private String config;
     private String[] sensorTypes;
+    private String folderResume;
 
 
-    public StatsRecorder(EvolutionaryAlgorithm trainer, ScoreCalculator calculator, String type, String config) {
+    public StatsRecorder(EvolutionaryAlgorithm trainer, ScoreCalculator calculator, String type, String config, String folderResume) {
         this.trainer = trainer;
         this.calculator = calculator;
         this.evolvingMorphology = calculator.isEvolvingMorphology();
@@ -64,6 +62,7 @@ public class StatsRecorder {
         this.type = type;
         this.config = config;
         sensorTypes = calculator.names;
+        this.folderResume=folderResume;
 
         initFiles();
     }
@@ -74,8 +73,12 @@ public class StatsRecorder {
     }
 
     private void initDirectories() {
-
-        rootDirectory = getLoggingDirectory(type,config);
+        if(!folderResume.equals("")){
+            rootDirectory=Paths.get("results", folderResume);
+        }
+        else {
+            rootDirectory = getLoggingDirectory(type, config);
+        }
         initDirectory(rootDirectory);
 
         populationDirectory = rootDirectory.resolve("populations");

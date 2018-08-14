@@ -35,10 +35,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.OpenOption;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,15 +68,18 @@ public class MOStatsRecorder extends StatsRecorder {
     private NEATMNetwork nw;
     private String type;
     private String config;
+    private String folderResume;
 
-    public MOStatsRecorder(EvolutionaryAlgorithm trainer, ScoreCalculator calculator,String type, String config) {
-        super(trainer, calculator,type, config);
+    public MOStatsRecorder(EvolutionaryAlgorithm trainer, ScoreCalculator calculator,String type, String config, String folderResume) {
+        super(trainer, calculator,type, config,folderResume);
         this.trainer = (MultiObjectiveEA) trainer;
         this.calculator = calculator;
         this.HyperNEATM = calculator.isHyperNEATM();
         this.type = type;
         this.config = config;
+        this.folderResume = folderResume;
         initFiles();
+
     }
 
     private void initFiles() {
@@ -88,7 +88,12 @@ public class MOStatsRecorder extends StatsRecorder {
     }
 
     private void initDirectories() {
-        rootDirectory = getLoggingDirectory(type, config);
+        if(!folderResume.equals("")){
+            rootDirectory=Paths.get("results", folderResume);
+        }
+        else {
+            rootDirectory = getLoggingDirectory(type, config);
+        }
         initDirectory(rootDirectory);
 
         populationDirectory = rootDirectory.resolve("populations");
@@ -164,12 +169,12 @@ public class MOStatsRecorder extends StatsRecorder {
             Double score1 = scoreVector.get(0);
             Double score2 = scoreVector.get(1);
             paretoFront.add(score1,score2,genome.getScore()+"");
-            genomesLOG.add(genome.getScore()+": "+score1 +"\t"+score2);
+            genomesLOG.add(genome.getScore()+","+score1 +","+score2);
         }
 
-        Path txtPath = directory.resolve("Paret0LOg.txt");
+        Path txtPath = directory.resolve("P@r@t0L0g.csv");
         try (BufferedWriter writer = Files.newBufferedWriter(txtPath, Charset.defaultCharset())) {
-            writer.write("   performance\tsensor\n");
+            writer.write("rank,performance,sensor\n");
             for(String s: genomesLOG){
                 writer.write(s+"\n");
             }
@@ -191,8 +196,8 @@ public class MOStatsRecorder extends StatsRecorder {
     }
 
     private static JFreeChart createChart(final XYDataset dataset) {
-        NumberAxis domain = new NumberAxis("Performance");
-        NumberAxis range = new NumberAxis("Sensor");
+        NumberAxis domain = new NumberAxis("Task Performance");
+        NumberAxis range = new NumberAxis("Sensor Complexity");
         domain.setAutoRangeIncludesZero(true);
         XYItemRenderer renderer = new XYLineAndShapeRenderer(true, false);
         renderer.setDefaultItemLabelGenerator(new LabelGenerator());

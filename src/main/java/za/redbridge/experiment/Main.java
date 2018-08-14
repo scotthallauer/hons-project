@@ -79,9 +79,13 @@ public class Main
 
 
         final NEATPopulation population;
+        String popDirectory ="";
         if (!isBlank(options.populationPath))
         {
             population = (NEATPopulation) readObjectFromFile(options.populationPath);
+            popDirectory = options.populationPath.split("/results/")[1].split("/populations")[0];
+            System.out.println(popDirectory);
+
         }
         else
         {
@@ -147,13 +151,15 @@ public class Main
         }
 
         final StatsRecorder statsRecorder;
+
         if (options.multiObjective)
         {
-            statsRecorder = new MOStatsRecorder(train, calculateScore, type, options.configFile);
+
+            statsRecorder = new MOStatsRecorder(train, calculateScore, type, options.configFile,popDirectory);
         }
         else
         {
-            statsRecorder = new StatsRecorder(train, calculateScore, type, options.configFile);
+            statsRecorder = new StatsRecorder(train, calculateScore, type, options.configFile,popDirectory);
         }
 
         for (int i = train.getIteration(); i < options.numGenerations; i++)
@@ -189,14 +195,14 @@ public class Main
         // private String configFile = "config/ConfigDifficult.yml";
 
         @Parameter(names = "-g", description = "Number of generations to train for")    // Jamie calls this 'iterations'
-        private int numGenerations = 150;
+        private int numGenerations = 20;
 
         @Parameter(names = "-p", description = "Initial population size")
-        private int populationSize = 150;
+        private int populationSize = 10;
 
         @Parameter(names = "--trials", description = "Number of simulation runs per iteration (team lifetime)")
         // Jamie calls this 'simulationRuns' (and 'lifetime' in his paper)
-        private int trialsPerIndividual = 5;
+        private int trialsPerIndividual = 1;
 
         @Parameter(names = "--conn-density", description = "Adjust the initial connection density"
                 + " for the population")
@@ -206,11 +212,11 @@ public class Main
         private String genomePath = null;
 
         @Parameter(names = "--HyperNEATM", description = "Using HyperNEATM")
-        private boolean hyperNEATM = false;
+        private boolean hyperNEATM = true;
 
         @Parameter(names = "--population", description = "To resume a previous experiment, provide"
                 + " the path to a serialized population")
-        private String populationPath = null;
+        private String populationPath = "/home/danielle/IdeaProjects/honours-project/results/MO-HyperNEATM (ConfigSimple)-0814T1430/populations/epoch-10.ser";
 
         @Parameter(names = "--threads", description = "Number of threads to run simulations with."
                 + " By default Runtime#availableProcessors() is used to determine the number of threads to use")
@@ -219,7 +225,7 @@ public class Main
         // TODO description
         @Parameter(names = "--multi-objective", description = "Number of threads to run simulations with."
                 + " By default Runtime#availableProcessors() is used to determine the number of threads to use")
-        private boolean multiObjective = false;
+        private boolean multiObjective = true;
 
         @Override
         public String toString()
@@ -234,7 +240,7 @@ public class Main
                     + "\tHyperNEATM: " + hyperNEATM + "\n"
                     + "\tPopulation path: " + populationPath + "\n"
                     + "\tNumber of threads: " + threads + "\n"
-                    + "\tMultiobjective: " + multiObjective;
+                    + "\tMulti-objective: " + multiObjective;
         }
     }
 }
