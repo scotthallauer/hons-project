@@ -1,42 +1,36 @@
 package za.redbridge.experiment;
 
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.encog.ml.ea.genome.Genome;
 import org.encog.ml.ea.train.EvolutionaryAlgorithm;
 import org.encog.neural.neat.NEATNetwork;
 import org.encog.neural.neat.training.NEATGenome;
+import org.jfree.chart.ChartUtils;
+import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.labels.*;
+import org.jfree.chart.labels.ItemLabelAnchor;
+import org.jfree.chart.labels.ItemLabelPosition;
+import org.jfree.chart.labels.StandardXYToolTipGenerator;
+import org.jfree.chart.labels.XYItemLabelGenerator;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.chart.ui.TextAnchor;
-import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.xy.AbstractXYDataset;
 import org.jfree.data.xy.XYDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sim.display.ChartUtilities;
 import za.redbridge.experiment.MultiObjective.MultiObjectiveEA;
 import za.redbridge.experiment.MultiObjective.MultiObjectiveGenome;
 import za.redbridge.experiment.NEAT.NEATPopulation;
-import za.redbridge.experiment.NEATM.NEATMNetwork;
 
 import java.awt.*;
-import java.io.*;
-
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.JFreeChart;
-import org.jfree.data.xy.XYSeries;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.data.xy.XYSeriesCollection;
-import org.jfree.chart.ChartUtils;
-
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.nio.charset.Charset;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,10 +39,11 @@ import static za.redbridge.experiment.Utils.saveObjectToFile;
 
 /**
  * Class for recording stats each epoch.
- *
+ * <p>
  * Created by Danielle and Alex on 2018/08/02.
  */
-public class MOStatsRecorder extends StatsRecorder {
+public class MOStatsRecorder extends StatsRecorder
+{
 
     private static final Logger log = LoggerFactory.getLogger(StatsRecorder.class);
 
@@ -70,9 +65,10 @@ public class MOStatsRecorder extends StatsRecorder {
     private String config;
     private String folderResume;
 
-    public MOStatsRecorder(EvolutionaryAlgorithm trainer, ScoreCalculator calculator,String type, String config, String folderResume) {
+    public MOStatsRecorder(EvolutionaryAlgorithm trainer, ScoreCalculator calculator, String type, String config, String folderResume)
+    {
 
-        super(trainer, calculator,type, config,folderResume);
+        super(trainer, calculator, type, config, folderResume);
         this.trainer = (MultiObjectiveEA) trainer;
         this.calculator = calculator;
         this.HyperNEATM = calculator.isHyperNEATM();
@@ -83,12 +79,14 @@ public class MOStatsRecorder extends StatsRecorder {
 
     }
 
-    private void initFiles() {
+    private void initFiles()
+    {
         initDirectories();
         initStatsFiles();
     }
 
-    private void initStatsFiles() {
+    private void initStatsFiles()
+    {
 
         performanceStatsFile = rootDirectory.resolve("timeTaken.csv");
         initStatsFile(performanceStatsFile);
@@ -104,11 +102,14 @@ public class MOStatsRecorder extends StatsRecorder {
 
 
     }
-    private void initDirectories() {
-        if(!folderResume.equals("")){
-            rootDirectory=Paths.get("results", folderResume);
-        }
-        else {
+
+    private void initDirectories()
+    {
+        if (!folderResume.equals(""))
+        {
+            rootDirectory = Paths.get("results", folderResume);
+        } else
+        {
             rootDirectory = getLoggingDirectory(type, config);
         }
 
@@ -121,25 +122,31 @@ public class MOStatsRecorder extends StatsRecorder {
         initDirectory(paretoDirectory);
     }
 
-    private static void initDirectory(Path path) {
-        try {
+    private static void initDirectory(Path path)
+    {
+        try
+        {
             Files.createDirectories(path);
-        } catch (IOException e) {
+        } catch (IOException e)
+        {
             log.error("Unable to create directories", e);
         }
     }
 
 
-
-    private static void initStatsFile(Path path) {
-        try (BufferedWriter writer = Files.newBufferedWriter(path, Charset.defaultCharset())) {
+    private static void initStatsFile(Path path)
+    {
+        try (BufferedWriter writer = Files.newBufferedWriter(path, Charset.defaultCharset()))
+        {
             writer.write("epoch,max,min,mean,standev\n");
-        } catch (IOException e) {
+        } catch (IOException e)
+        {
             log.error("Unable to initialize stats file", e);
         }
     }
 
-    public void recordIterationStats() {
+    public void recordIterationStats()
+    {
         int epoch = trainer.getIteration();
 
         log.info("Epoch " + epoch + " complete");
@@ -158,7 +165,8 @@ public class MOStatsRecorder extends StatsRecorder {
 
     }
 
-    private void savePopulation(NEATPopulation population, int epoch) {
+    private void savePopulation(NEATPopulation population, int epoch)
+    {
         String filename = "epoch-" + epoch + ".ser";
         Path path = populationDirectory.resolve(filename);
         saveObjectToFile(population, path);
@@ -166,69 +174,67 @@ public class MOStatsRecorder extends StatsRecorder {
 
     private void saveParetoFront(int epoch)
     {
-        Path directory = paretoDirectory.resolve("epoch-"+epoch);
+        Path directory = paretoDirectory.resolve("epoch-" + epoch);
         initDirectory(directory);
 
         ArrayList<MultiObjectiveGenome> pareto = trainer.getFirstParetoFront();
 
-        final XYSeries paretoFrontSeries = new XYSeries("pareto front");
+        final LabeledXYDataset paretoFront = new LabeledXYDataset(pareto.size());
         ArrayList<String> genomesLOG = new ArrayList<>();
-        for(MultiObjectiveGenome genome: pareto)
+
+        for (MultiObjectiveGenome genome : pareto)
         {
             saveParetoOptimalGenome(genome, directory);
             ArrayList<Double> scoreVector = genome.getScoreVector();
             Double score1 = scoreVector.get(0);
             Double score2 = scoreVector.get(1);
-            paretoFrontSeries.add(score1,score2);
-            genomesLOG.add(genome.getScore()+","+score1 +","+score2);
+            paretoFront.add(score1, score2, genome.getScore() + "");
+            genomesLOG.add(genome.getScore() + "," + score1 + "," + score2);
         }
 
         Path txtPath = directory.resolve("P@ret0_L0g.csv");
-        try (BufferedWriter writer = Files.newBufferedWriter(txtPath, Charset.defaultCharset())) {
+        try (BufferedWriter writer = Files.newBufferedWriter(txtPath, Charset.defaultCharset()))
+        {
             writer.write("rank,performance,sensor\n");
-            for(String s: genomesLOG){
-                writer.write(s+"\n");
+            for (String s : genomesLOG)
+            {
+                writer.write(s + "\n");
             }
 
-        } catch (IOException e) {
+        } catch (IOException e)
+        {
             log.error("Error writing pareto optimal network info file", e);
         }
-        final XYSeriesCollection paretoFront = new XYSeriesCollection(paretoFrontSeries);
 
-        JFreeChart chartPareto = ChartFactory.createXYLineChart(
-                "Pareto Front",
-                "Task Performance",
-                "Sensor Complexity",
-                paretoFront,
-                PlotOrientation.VERTICAL,
-                true, true, false);
+        JFreeChart paretoChart = createChart(paretoFront);
 
         int width = 640;   /* Width of the image */
         int height = 480;  /* Height of the image */
-        File XYChart = new File( directory.toString()+"/ParetoFront.jpeg" );
+        File XYChart = new File(directory.toString() + "/ParetoFront.jpeg");
 
 
-        try {
-            ChartUtils.saveChartAsJPEG(XYChart, chartPareto, width, height);
-        }
-        catch(Exception e){
+        try
+        {
+            ChartUtils.saveChartAsJPEG(XYChart, paretoChart, width, height);
+        } catch (Exception e)
+        {
             e.printStackTrace();
         }
     }
 
 
-
     private void saveParetoOptimalGenome(MultiObjectiveGenome genome, Path directory)  // serialise all the genome's from iteration N which have rank 0 (ie are in first pareto front)
     {
         NEATNetwork network = decodeGenome(genome);
-        if(!HyperNEATM){
-            GraphvizEngine.saveGenome((NEATGenome)genome, directory.resolve("phenome-ANN"+genome.getScore()+".dot"));
+        if (!HyperNEATM)
+        {
+            GraphvizEngine.saveGenome((NEATGenome) genome, directory.resolve("phenome-ANN-" + genome.getScore() + ".dot"));
+        } else
+        {
+            GraphvizEngine.saveGenome((NEATGenome) genome, directory.resolve("genome-CPPN-" + genome.getScore() + ".dot"));
+            GraphvizEngine.saveNetwork(network, directory.resolve("phenome-ANN" + genome.getScore() + ".dot"));
         }
-        else{
-            GraphvizEngine.saveGenome((NEATGenome)genome, directory.resolve("genome-CPPN"+genome.getScore()+".dot"));
-            GraphvizEngine.saveNetwork(network, directory.resolve("phenome-ANN"+genome.getScore()+".dot"));
-        }
-        saveObjectToFile(network, directory.resolve("network"+".ser"));
+        saveObjectToFile(network, directory.resolve("network" + ".ser"));
     }
 
 
@@ -237,6 +243,91 @@ public class MOStatsRecorder extends StatsRecorder {
         return (NEATNetwork) trainer.getCODEC().decode(genome);
     }
 
+    private static JFreeChart createChart(final XYDataset dataset)
+    {
+        NumberAxis domain = new NumberAxis("Task Performance");
+        NumberAxis range = new NumberAxis("Sensor Complexity");
+        domain.setAutoRangeIncludesZero(true);
+        XYItemRenderer renderer = new XYLineAndShapeRenderer(true, false);
+        renderer.setDefaultItemLabelGenerator(new LabelGenerator());
+        renderer.setDefaultItemLabelPaint(Color.orange);
+        renderer.setDefaultPositiveItemLabelPosition(
+                new ItemLabelPosition(ItemLabelAnchor.CENTER, TextAnchor.CENTER));
+        renderer.setDefaultItemLabelFont(
+                renderer.getDefaultItemLabelFont().deriveFont(14f));
+        renderer.setDefaultItemLabelsVisible(true);
+        renderer.setDefaultToolTipGenerator(new StandardXYToolTipGenerator());
+        XYPlot plot = new XYPlot(dataset, domain, range, renderer);
+        JFreeChart chart = new JFreeChart(
+                "Pareto Front", JFreeChart.DEFAULT_TITLE_FONT, plot, false);
+        return chart;
+    }
+
+    private class LabeledXYDataset extends AbstractXYDataset
+    {
+        private List<Number> x;
+        private List<Number> y;
+        private List<String> label;
+
+        public LabeledXYDataset(int N)
+        {
+            x = new ArrayList<Number>(N);
+            y = new ArrayList<Number>(N);
+            label = new ArrayList<String>(N);
+        }
+
+        public void add(double x, double y, String label)
+        {
+            this.x.add(x);
+            this.y.add(y);
+            this.label.add(label);
+        }
+
+        public String getLabel(int series, int item)
+        {
+            return label.get(item);
+        }
+
+        @Override
+        public int getSeriesCount()
+        {
+            return 1;
+        }
+
+        @Override
+        public Comparable getSeriesKey(int series)
+        {
+            return "Unit";
+        }
+
+        @Override
+        public int getItemCount(int series)
+        {
+            return label.size();
+        }
+
+        @Override
+        public Number getX(int series, int item)
+        {
+            return x.get(item);
+        }
+
+        @Override
+        public Number getY(int series, int item)
+        {
+            return y.get(item);
+        }
+    }
+
+    private static class LabelGenerator implements XYItemLabelGenerator
+    {
+        @Override
+        public String generateLabel(XYDataset dataset, int series, int item)
+        {
+            LabeledXYDataset labelSource = (LabeledXYDataset) dataset;
+            return labelSource.getLabel(series, item);
+        }
+    }
 
 
 }

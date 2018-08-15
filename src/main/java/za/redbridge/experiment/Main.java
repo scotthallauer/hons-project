@@ -214,7 +214,7 @@ public class Main
         private int numGenerations = 150;
 
         @Parameter(names = "-p", description = "Initial population size")
-        private int populationSize = 3;
+        private int populationSize = 15;
 
         @Parameter(names = "--trials", description = "Number of simulation runs per iteration (team lifetime)")
         // Jamie calls this 'simulationRuns' (and 'lifetime' in his paper)
@@ -241,7 +241,7 @@ public class Main
         // TODO description
         @Parameter(names = "--multi-objective", description = "Number of threads to run simulations with."
                 + " By default Runtime#availableProcessors() is used to determine the number of threads to use")
-        private boolean multiObjective = false;
+        private boolean multiObjective = true;
 
         @Override
         public String toString()
