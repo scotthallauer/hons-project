@@ -228,7 +228,7 @@ public class Main
         private String genomePath = null;
 
         @Parameter(names = "--HyperNEATM", description = "Using HyperNEATM")
-        private boolean hyperNEATM = false;
+        private boolean hyperNEATM = true;
 
         @Parameter(names = "--population", description = "To resume a previous experiment, provide"
                 + " the path to a serialized population")
@@ -241,7 +241,7 @@ public class Main
         // TODO description
         @Parameter(names = "--multi-objective", description = "Number of threads to run simulations with."
                 + " By default Runtime#availableProcessors() is used to determine the number of threads to use")
-        private boolean multiObjective = true;
+        private boolean multiObjective = false;
 
         @Override
         public String toString()

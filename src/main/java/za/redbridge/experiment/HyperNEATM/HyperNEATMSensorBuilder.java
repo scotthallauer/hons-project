@@ -112,35 +112,33 @@ public class HyperNEATMSensorBuilder
     }
 
     /**
-     * creates a sensor model from param arrayLists
+     * Creates a sensor model from param arrayLists (for a single given sensor)
+     *
+     * Gets type, FOV, orientation and range of the given sensor (input node)
+     * from the connection to that sensor (input node) with the highest weight
      */
     public SensorModel createSensorModel()
     {
-
-        //Get type of sensor from the connection with max weight
-        //@TODO look into if multiple maximums
-//        Float sensorTypeValue = sensorTypes.get(0);
-//        Float maxWeight = weights.get(0);
-//        for (int i = 1; i < weights.size(); i++)
-//        {
-//            if (weights.get(i) > maxWeight)
-//            {
-//                maxWeight = weights.get(i);
-//                sensorTypeValue = sensorTypes.get(i);
-//            }
-//        }
-        float sum = 0;
-        for (int i = 0; i < sensorTypes.size(); i++)
+        int maxWeightIndex = 0;
+        Float maxWeight = weights.get(0);
+        for (int i = 1; i < weights.size(); i++)
         {
-            sum += sensorTypes.get(i);
+            if (weights.get(i) > maxWeight)
+            {
+                maxWeight = weights.get(i);
+                maxWeightIndex = i;
+            }
         }
-        float sensorTypeValue = sum/sensorTypes.size();
-        SensorType sensorType = getSensorType(sensorTypeValue);
-       // System.out.println(sensorType.toString());
+
+        SensorType sensorType = getSensorType(sensorTypes.get(maxWeightIndex));
+        Float sensorOrientation = normalise_range(orientations.get(maxWeightIndex),sensorType, ParameterType.ORIENTATION);
+        Float sensorRange = normalise_range(ranges.get(maxWeightIndex),sensorType, ParameterType.RANGE);
+        Float sensorFOV = normalise_range(FOVs.get(maxWeightIndex),sensorType, ParameterType.FIELD_OF_VIEW);
+
         return new SensorModel(sensorType, convertCartesianToRadians(),
-                calculateAverage(orientations, sensorType, ParameterType.ORIENTATION),
-                calculateAverage(ranges, sensorType, ParameterType.RANGE),
-                calculateAverage(FOVs, sensorType, ParameterType.FIELD_OF_VIEW)
+                sensorOrientation,
+                sensorRange,
+                sensorFOV
         );
     }
 
@@ -162,16 +160,6 @@ public class HyperNEATMSensorBuilder
         }
         return SensorType.values()[sensorChoice];
 
-    }
-
-    public float calculateAverage(List<Float> arrayList, SensorType type, ParameterType param)
-    {
-        float sum = 0;
-        for (int i = 0; i < arrayList.size(); i++)
-        {
-            sum += arrayList.get(i);
-        }
-        return normalise_range(sum / arrayList.size(), type, param);
     }
 
     public float convertCartesianToRadians()
