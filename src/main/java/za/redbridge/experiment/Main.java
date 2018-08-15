@@ -198,7 +198,7 @@ public class Main
         private int numGenerations = 20;
 
         @Parameter(names = "-p", description = "Initial population size")
-        private int populationSize = 10;
+        private int populationSize =10;
 
         @Parameter(names = "--trials", description = "Number of simulation runs per iteration (team lifetime)")
         // Jamie calls this 'simulationRuns' (and 'lifetime' in his paper)
@@ -216,7 +216,7 @@ public class Main
 
         @Parameter(names = "--population", description = "To resume a previous experiment, provide"
                 + " the path to a serialized population")
-        private String populationPath = "/home/danielle/IdeaProjects/honours-project/results/MO-HyperNEATM (ConfigSimple)-0814T1430/populations/epoch-10.ser";
+        private String populationPath = null;
 
         @Parameter(names = "--threads", description = "Number of threads to run simulations with."
                 + " By default Runtime#availableProcessors() is used to determine the number of threads to use")

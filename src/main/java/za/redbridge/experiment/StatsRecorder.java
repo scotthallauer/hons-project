@@ -54,6 +54,8 @@ public class StatsRecorder {
     private String folderResume;
 
 
+
+
     public StatsRecorder(EvolutionaryAlgorithm trainer, ScoreCalculator calculator, String type, String config, String folderResume) {
         this.trainer = trainer;
         this.calculator = calculator;
@@ -63,7 +65,6 @@ public class StatsRecorder {
         this.config = config;
         sensorTypes = calculator.names;
         this.folderResume=folderResume;
-
         initFiles();
     }
 
@@ -119,7 +120,7 @@ public class StatsRecorder {
             log.error("Unable to initialize stats file", e);
         }
     }
-    private static void initStatsFileSensor(Path path) {
+    public static void initStatsFileSensor(Path path) {
         try (BufferedWriter writer = Files.newBufferedWriter(path, Charset.defaultCharset())) {
             writer.write(",ColourProximity,,,,,,,,,,,,,,,ProximitySensor,,,,,,,,,,,,,,,LowResCamera,,,,,,,,,,,,,,,UltraSonic,,,,,,,,,,,,,,\n");
             writer.write(",FOV,,,,,Bearing,,,,,Range,,,,,FOV,,,,,Range,,,,,Bearing,,,,,FOV,,,,,Range,,,,,Bearing,,,,,FOV,,,,,Range,,,,,Bearing,,,,\n");
