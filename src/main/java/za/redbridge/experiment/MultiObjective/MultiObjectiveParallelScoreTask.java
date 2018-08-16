@@ -71,8 +71,6 @@ private final Genome genome;
 
             ((MultiObjectiveGenome) genome).setScore(0,score);
             ((MultiObjectiveGenome) genome).setScore(1, score2);
-            //@todo: look into setting score here :D
-
             genome.setScore(score);
             genome.setAdjustedScore(score);
             BasicEA.calculateScoreAdjustment(genome, adjusters);
