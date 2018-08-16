@@ -21,7 +21,6 @@ import java.util.List;
  * Allows the transformation from values to sensor
  * Stores an arrayList for each sensor param
  *
- * @TODO look into location translation to position
  * <p>
  * Created by Danielle and Alexander on 2018/06/20.
  */

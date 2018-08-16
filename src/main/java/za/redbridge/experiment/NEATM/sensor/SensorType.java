@@ -35,7 +35,6 @@ public enum SensorType {
     PROXIMITY(new SensorParameterSpecSet(
             new BearingSpec(random(), plusMinusPi(), wrap()),
             new OrientationSpec(random(), plusMinusHalfPi(), clamp()),
-            // TODO: query environment size for range value
             new RangeSpec(copyExistingOrRandom(), exclusiveRange(0.01f, 10), clamp()),
             new FieldOfViewSpec(copyExistingOrRandom(), new Range(MathUtils.PI/6, (5*MathUtils.PI)/6, true, true),
                     clamp()))),
@@ -43,7 +42,6 @@ public enum SensorType {
     ULTRASONIC(new SensorParameterSpecSet(
             new BearingSpec(random(), plusMinusPi(), wrap()),
             new OrientationSpec(random(), plusMinusHalfPi(), clamp()),
-            // TODO: query environment size for range value
             new RangeSpec(copyExistingOrRandom(), exclusiveRange(0.01f, 25), clamp()),
             new FieldOfViewSpec(copyExistingOrRandom(), new Range(0.1f, MathUtils.PI, true, true),
                     clamp()))),
@@ -51,7 +49,6 @@ public enum SensorType {
     LOW_RES_CAM(new SensorParameterSpecSet(
             new BearingSpec(random(), plusMinusPi(), wrap()),
             new OrientationSpec(random(), plusMinusHalfPi(), clamp()),
-            // TODO: query environment size for range value
             new RangeSpec(copyExistingOrRandom(), exclusiveRange(0.01f, 20), clamp()),
             new FieldOfViewSpec(copyExistingOrRandom(), new Range(MathUtils.PI/9, (8*MathUtils.PI)/9, true, true),
                     clamp()))),
@@ -59,7 +56,6 @@ public enum SensorType {
     COLOUR_PROXIMITY(new SensorParameterSpecSet(
             new BearingSpec(random(), plusMinusPi(), wrap()),
             new OrientationSpec(random(), plusMinusHalfPi(), clamp()),
-            // TODO: query environment size for range value
             new RangeSpec(copyExistingOrRandom(), exclusiveRange(0.01f, 10), clamp()),
             new FieldOfViewSpec(copyExistingOrRandom(), new Range(MathUtils.PI/6, (5*MathUtils.PI)/6, true, true),
                     clamp())));

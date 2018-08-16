@@ -214,15 +214,15 @@ public class Main
         private int numGenerations = 150;
 
         @Parameter(names = "-p", description = "Initial population size")
-        private int populationSize = 15;
+        private int populationSize = 150;
 
         @Parameter(names = "--trials", description = "Number of simulation runs per iteration (team lifetime)")
         // Jamie calls this 'simulationRuns' (and 'lifetime' in his paper)
-        private int trialsPerIndividual = 1;
+        private int trialsPerIndividual = 5;
 
         @Parameter(names = "--conn-density", description = "Adjust the initial connection density"
                 + " for the population")
-        private double connectionDensity = 0.5;
+        private double connectionDensity = 0.9;
 
         @Parameter(names = "--demo", description = "Show a GUI demo of a given genome")
         private String genomePath = null;
@@ -238,9 +238,8 @@ public class Main
                 + " By default Runtime#availableProcessors() is used to determine the number of threads to use")
         private int threads = 0;
 
-        // TODO description
-        @Parameter(names = "--multi-objective", description = "Number of threads to run simulations with."
-                + " By default Runtime#availableProcessors() is used to determine the number of threads to use")
+        @Parameter(names = "--multi-objective", description = "Using Multi-Objective NEAT/HyperNEAT"
+                +" Based on NEAT-MODS")
         private boolean multiObjective = false;
 
         @Override

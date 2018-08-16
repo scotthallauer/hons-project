@@ -71,7 +71,6 @@ public class MorphologyConfig extends Config {
             }
         }
 
-        //TODO: make reading in sensor objects less hacktastic
         for (int i = 1; i <= sensors; i++) {
 
             String id = i + "s";

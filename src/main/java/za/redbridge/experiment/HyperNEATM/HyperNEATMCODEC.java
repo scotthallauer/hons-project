@@ -191,7 +191,7 @@ public class HyperNEATMCODEC implements GeneticCODEC, Serializable {
 
 
         final ActivationFunction[] afs = new ActivationFunction[sensorModelsList.size()+substrate.getOutputNodes().size()+1];
-        //@TODO LOOK INTO THIS ACTIVATION FUNCTION--> ROBOTS ONLY MOVE THIS ONE
+        //Activation Function for the right output
         final ActivationFunction af = new ActivationSteepenedShiftedSigmoid();
         // all activation functions are the same
         for (int i = 0; i < afs.length; i++) {

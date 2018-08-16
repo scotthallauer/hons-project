@@ -11,7 +11,9 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * TODO fill this in
+ * Multi-Objective HyperNEAT Genome
+ * Written by Danielle and ALex
+ *
  */
 
 public class FactorMultiObjectiveHyperNEATGenome extends org.encog.neural.hyperneat.FactorHyperNEATGenome implements Serializable
