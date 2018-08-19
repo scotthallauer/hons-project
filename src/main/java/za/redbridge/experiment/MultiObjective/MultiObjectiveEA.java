@@ -218,7 +218,6 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
     public void firstIteration()
     {
         // init speciation
-
         getSpeciation().init(this);
 
         // Threads - find out how many threads to use

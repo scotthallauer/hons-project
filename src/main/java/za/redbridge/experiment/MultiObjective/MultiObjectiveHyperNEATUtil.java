@@ -28,10 +28,11 @@ public class MultiObjectiveHyperNEATUtil
      * @return The NEAT EA trainer.
      */
     public static MultiObjectiveEA constructNEATTrainer(final NEATPopulation population,
-                                               final CalculateScore calculateScore)
+                                               final CalculateScore calculateScore, int numGenerations)
     {
         final MultiObjectiveEA result = new MultiObjectiveEA(population, calculateScore);
         OriginalNEATSpeciation speciation = new OriginalNEATSpeciation();
+        speciation.setNumGensAllowedNoImprovement(numGenerations);
         speciation.setMaxNumberOfSpecies(population.size());         //todo chat to Geoff about this
         result.setSpeciation(speciation);
 

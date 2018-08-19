@@ -30,10 +30,10 @@ import static za.redbridge.experiment.NEATM.sensor.parameter.spec.ParameterType.
 public class MultiObjectiveNEATMUtil
 {
     public static MultiObjectiveEA constructNEATTrainer(CalculateScore calculateScore, int outputCount,
-                                               int populationSize) {
+                                               int populationSize, int numGenerations) {
         final NEATMPopulation pop = new NEATMPopulation(outputCount, populationSize, true);
         pop.reset();
-        return constructNEATTrainer(pop, calculateScore);
+        return constructNEATTrainer(pop, calculateScore, numGenerations);
     }
 
     /**
@@ -43,9 +43,10 @@ public class MultiObjectiveNEATMUtil
      * @return The NEAT EA trainer.
      */
     public static MultiObjectiveEA constructNEATTrainer(NEATPopulation population,
-                                               CalculateScore calculateScore) {
+                                               CalculateScore calculateScore, int numGenerations) {
         final MultiObjectiveEA result = new MultiObjectiveEA(population, calculateScore);
         NEATMSpeciation speciation = new NEATMSpeciation();
+        speciation.setNumGensAllowedNoImprovement(numGenerations);
         speciation.setMaxNumberOfSpecies(population.size());         //todo chat to Geoff about this
         result.setSpeciation(speciation);
 

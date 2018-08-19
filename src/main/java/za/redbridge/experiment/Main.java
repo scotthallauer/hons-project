@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import za.redbridge.experiment.HyperNEATM.HyperNEATMCODEC;
 import za.redbridge.experiment.HyperNEATM.SubstrateFactory;
 import za.redbridge.experiment.MultiObjective.MultiObjectiveEA;
+import za.redbridge.experiment.MultiObjective.MultiObjectiveGenome;
 import za.redbridge.experiment.MultiObjective.MultiObjectiveHyperNEATUtil;
 import za.redbridge.experiment.MultiObjective.MultiObjectiveNEATMUtil;
 import za.redbridge.experiment.NEAT.NEATPopulation;
@@ -128,7 +129,7 @@ public class Main
             if (options.multiObjective)
             {
                 type = "MO-" + type;
-                train = MultiObjectiveHyperNEATUtil.constructNEATTrainer(population, calculateScore);
+                train = MultiObjectiveHyperNEATUtil.constructNEATTrainer(population, calculateScore, options.numGenerations);
             }
             else
             {
@@ -141,7 +142,7 @@ public class Main
             if (options.multiObjective)
             {
                 type = "MO-" + type;
-                train = MultiObjectiveNEATMUtil.constructNEATTrainer(population, calculateScore);
+                train = MultiObjectiveNEATMUtil.constructNEATTrainer(population, calculateScore, options.numGenerations);
             }
             else
             {
@@ -206,8 +207,8 @@ public class Main
     private static class Args
     {
         @Parameter(names = "-c", description = "Simulation config file to load")
-        private String configFile = "config/ConfigSimple.yml";
-        // private String configFile = "config/ConfigMedium.yml";
+        //private String configFile = "config/ConfigSimple.yml";
+         private String configFile = "config/ConfigMedium.yml";
         // private String configFile = "config/ConfigDifficult.yml";
 
         @Parameter(names = "-g", description = "Number of generations to train for")    // Jamie calls this 'iterations'
@@ -218,21 +219,21 @@ public class Main
 
         @Parameter(names = "--trials", description = "Number of simulation runs per iteration (team lifetime)")
         // Jamie calls this 'simulationRuns' (and 'lifetime' in his paper)
-        private int trialsPerIndividual = 5;
+        private int trialsPerIndividual = 1;
 
         @Parameter(names = "--conn-density", description = "Adjust the initial connection density"
                 + " for the population")
-        private double connectionDensity = 0.9;
+        private double connectionDensity = 0.5;
 
         @Parameter(names = "--demo", description = "Show a GUI demo of a given genome")
         private String genomePath = null;
 
         @Parameter(names = "--HyperNEATM", description = "Using HyperNEATM")
-        private boolean hyperNEATM = true;
+        private boolean hyperNEATM = false;
 
         @Parameter(names = "--population", description = "To resume a previous experiment, provide"
                 + " the path to a serialized population")
-        private String populationPath = null;
+        private String populationPath = "/home/alex/IdeaProjects/honours-project/results/MO-NEATM (ConfigMedium)-0815T1628/populations/epoch-142.ser";
 
         @Parameter(names = "--threads", description = "Number of threads to run simulations with."
                 + " By default Runtime#availableProcessors() is used to determine the number of threads to use")
@@ -240,7 +241,7 @@ public class Main
 
         @Parameter(names = "--multi-objective", description = "Using Multi-Objective NEAT/HyperNEAT"
                 +" Based on NEAT-MODS")
-        private boolean multiObjective = false;
+        private boolean multiObjective = true;
 
         @Override
         public String toString()
