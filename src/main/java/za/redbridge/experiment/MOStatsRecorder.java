@@ -45,13 +45,11 @@ import static za.redbridge.experiment.Utils.saveObjectToFile;
 public class MOStatsRecorder extends StatsRecorder
 {
 
-    private static final Logger log = LoggerFactory.getLogger(StatsRecorder.class);
+    private static final Logger log = LoggerFactory.getLogger(MOStatsRecorder.class);
 
     private final MultiObjectiveEA trainer;
     private final ScoreCalculator calculator;
     private final boolean HyperNEATM;
-
-    private Genome currentBestGenome;
 
     private Path rootDirectory;
     private Path populationDirectory;
