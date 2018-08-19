@@ -1,5 +1,7 @@
 package za.redbridge.experiment.NEATM.training.opp;
 
+import org.encog.mathutil.randomize.RangeRandomizer;
+import org.encog.ml.ea.genome.Genome;
 import org.encog.neural.neat.NEATNeuronType;
 import org.encog.neural.neat.training.NEATGenome;
 import org.encog.neural.neat.training.NEATLinkGene;
@@ -8,6 +10,8 @@ import org.encog.neural.neat.training.opp.NEATMutateRemoveLink;
 
 import za.redbridge.experiment.NEATM.training.NEATMGenome;
 import za.redbridge.experiment.NEATM.training.NEATMNeuronGene;
+
+import java.util.Random;
 
 /**
  * Remove link mutation that can also remove input nodes.
@@ -19,8 +23,42 @@ public class NEATMMutateRemoveLink extends NEATMutateRemoveLink {
     public NEATMMutateRemoveLink() {
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void performOperation(final Random rnd, final Genome[] parents,
+                                 final int parentIndex, final Genome[] offspring,
+                                 final int offspringIndex) {
+
+        final NEATGenome target = obtainGenome(parents, parentIndex, offspring,
+                offspringIndex);
+
+        if (target.getLinksChromosome().size() < NEATMutateRemoveLink.MIN_LINK) {
+            // don't remove from small genomes
+            return;
+        }
+
+        // determine the target and remove
+        final int index = RangeRandomizer.randomInt(0, target
+                .getLinksChromosome().size() - 1);
+        final NEATLinkGene targetGene = target.getLinksChromosome().get(index);
+        target.getLinksChromosome().remove(index);
+
+        // if this orphaned any nodes, then kill them too!
+        if (!isNeuronNeeded(target, targetGene.getFromNeuronID())) {
+            removeNeuron(target, targetGene.getFromNeuronID());
+        }
+
+        if (!isNeuronNeeded(target, targetGene.getToNeuronID())) {
+            removeNeuron(target, targetGene.getToNeuronID());
+        }
+    }
+
+
     @Override
     public boolean isNeuronNeeded(NEATGenome target, long neuronID) {
+        System.out.println("CORRECT BEING USED");
         for (NEATNeuronGene neuron : target.getNeuronsChromosome()) {
             if (neuron.getId() == neuronID) {
                 if (neuron.getNeuronType() == NEATNeuronType.Bias

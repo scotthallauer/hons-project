@@ -167,7 +167,7 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
       * This variable stores pareto front for each generation
      */
 
-    ArrayList<MultiObjectiveGenome> paretoFront;
+    ArrayList<MultiObjectiveGenome> paretoFront = new ArrayList<>();
 
 
     /**
@@ -218,6 +218,7 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
     public void firstIteration()
     {
         // init speciation
+
         getSpeciation().init(this);
 
         // Threads - find out how many threads to use
@@ -322,7 +323,6 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
 
         // run all threads and wait for them to finish
         // each thread creates one bae! the bae is then evaluated
-        //@todo go into EA worker! make sure it is scoring on both fitness functions and based on correct scoring
         try {
             this.taskExecutor.invokeAll(this.threadList);
         } catch (final InterruptedException e) {
@@ -339,9 +339,8 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
         // speciate(combinedPopulation) --> In Encog this is added to the actual population
 
         this.speciation.performSpeciation(this.newPopulation);
-        // purge invalid genomes (FROM BasicEA)
-        // todo what is this?
-        this.population.purgeInvalidGenomes();
+
+        this.population.purgeInvalidGenomes();  // delete genomes with NaN scores
 
 
 
@@ -410,7 +409,6 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
                 }
                 if(n.get(p).equals(0))   // if p dominated by no one
                 {
-
                     p.setRank(0);    // then p belongs to the 1st Pareto front
                     Fronts.get(0).add(p);   // add p to first front
                 }
@@ -418,8 +416,8 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
         }
 
 
-
         // First iteration now finished - everyone scored
+
         paretoFront = new ArrayList<>();
         paretoFront.addAll(Fronts.get(0));
 
@@ -429,7 +427,6 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
         while(!(Fronts.get(i).size()==0))
         {
             Fronts.set(i,crowdingDistance(Fronts.get(i))); //sorts on crowding distance
-
             ArrayList<MultiObjectiveGenome> Q = new ArrayList<>();  // will store individuals in Fronts[i+1]
 
             for(MultiObjectiveGenome p: Fronts.get(i))
@@ -444,7 +441,6 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
                         SelectedSpecies.add(p.getSpecies());
                     }
                 }
-
 
                 for(MultiObjectiveGenome q: S.get(p))   // for each invidiual q that is dominated by p
                 {
@@ -466,11 +462,10 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
             return;
         }
 
-        //[non-domination] sort within each species
+        // Sort each species
         for(int j =0;j<SelectedSpecies.size();j++)
         {
            Collections.sort(SelectedSpecies.get(j).getMembers(), new ScoreComparator<Genome>());
-
         }
 
 
@@ -540,9 +535,6 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
 
     private boolean checkADominatesB(MultiObjectiveGenome a, MultiObjectiveGenome b) // check if a dominates b
     {
-
-
-
         if(a.getScoreVector().get(0) >= b.getScoreVector().get(0) && a.getScoreVector().get(1) >= b.getScoreVector().get(1))
         {
             if(a.getScoreVector().get(0) > b.getScoreVector().get(0) || a.getScoreVector().get(1) > b.getScoreVector().get(1))
@@ -603,6 +595,7 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
                 }
 
                 this.newPopulation.add(genome);
+
 
 
                 if (!Double.isInfinite(genome.getScore())
@@ -704,12 +697,10 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
         }
 
         // now set the scores
-       //
         ( (MultiObjectiveGenome) g).setScore(0,score);
         ( (MultiObjectiveGenome) g).setScore(1,score2);
         g.setScore(score);
         g.setAdjustedScore(score);
-      //  System.out.println("hello");
     }
 
     /**
