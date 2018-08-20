@@ -4,12 +4,16 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.commons.math3.stat.descriptive.SynchronizedDescriptiveStatistics;
 import org.encog.ml.CalculateScore;
 import org.encog.ml.MLMethod;
+import org.encog.neural.neat.NEATLink;
 import org.encog.neural.neat.NEATNetwork;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sim.display.Console;
 import za.redbridge.experiment.NEATM.NEATMNetwork;
 import za.redbridge.experiment.NEATM.sensor.SensorMorphology;
+import za.redbridge.experiment.NEATM.sensor.SensorType;
+import za.redbridge.experiment.NEATM.sensor.parameter.spec.ParameterType;
+import za.redbridge.experiment.NEATM.sensor.parameter.spec.Range;
 import za.redbridge.simulator.Simulation;
 import za.redbridge.simulator.SimulationGUI;
 import za.redbridge.simulator.config.SimConfig;
@@ -123,10 +127,57 @@ public class ScoreCalculator implements CalculateScore
 
     public double calculateScore2(MLMethod method)  // second fitness function score (multi-objective)
     {
-        NEATNetwork network = (NEATNetwork) method;
+        NEATMNetwork network = (NEATMNetwork) method;
+        double score = 100;
+        for(int i =0;i< network.getSensorMorphology().getNumSensors();i++){
+            AgentSensor sensor =network.getSensorMorphology().getSensor(i);
 
-        double score = 100 - (( (double) network.getInputCount() / 10) * 100);
+            SensorType type=convertNameToType(sensor.getClass().getSimpleName());
+            if(type ==SensorType.BOTTOM_PROXIMITY){
+                score =score -10;
+            }
+            else {
+                //look at scores range and remove
+                double removeRangePercentage = calculateFractionWithinRange(type.getDefaultSpecSet().getParameterSpec(ParameterType.RANGE).getRange(), sensor.getRange());
+                score -= (5 * removeRangePercentage);
+
+                //look at scores fov and remove
+                double removeFOVPercentage = calculateFractionWithinRange(type.getDefaultSpecSet().getParameterSpec(ParameterType.FIELD_OF_VIEW).getRange(), sensor.getFieldOfView());
+                score -= (5 * removeRangePercentage);
+            }
+
+
+        }
+//        System.out.println(network.getInputCount());
+//        double oldscore =100-((network.getInputCount()*10));
+//        System.out.println("old"+ oldscore+"new"+score);
         return score;
+
+    }
+    public double calculateFractionWithinRange(Range range,float value){
+        return (value -(range.min))/(range.max -(range.min));
+
+    }
+
+    public SensorType convertNameToType ( String SimpleName){
+
+        if(SimpleName.equals("LowResCameraSensor")){
+            return SensorType.LOW_RES_CAM;
+        }
+        else if(SimpleName.equals("LowResCameraSensor")){
+            return SensorType.LOW_RES_CAM;
+        }
+        else if(SimpleName.equals("ColourProximitySensor")){
+            return SensorType.COLOUR_PROXIMITY;
+        }
+        else if(SimpleName.equals("UltrasonicSensor")){
+            return SensorType.ULTRASONIC;
+        }
+        else{
+            return SensorType.BOTTOM_PROXIMITY;
+        }
+
+
 
     }
 
