@@ -27,6 +27,7 @@ import za.redbridge.experiment.NEATM.sensor.SensorModel;
 import za.redbridge.experiment.NEATM.sensor.SensorMorphology;
 import za.redbridge.experiment.NEATM.sensor.parameter.SensorParameterSet;
 import za.redbridge.experiment.NEATM.sensor.parameter.spec.Range;
+import za.redbridge.experiment.NEATM.training.NEATMGenome;
 import za.redbridge.experiment.NEATM.training.NEATMNeuronGene;
 import za.redbridge.experiment.NEATM.sensor.SensorType;
 
@@ -43,13 +44,17 @@ public class GraphvizEngine {
 
     private static final Logger log = LoggerFactory.getLogger(GraphvizEngine.class);
 
-    public static void saveGenome(NEATGenome genome, Path path) {
+    public synchronized static void saveGenome(NEATGenome genome, Path path) {
         try (BufferedWriter writer = Files.newBufferedWriter(path, Charset.defaultCharset())) {
             writer.write("digraph G {");
             writer.newLine();
 
-            writeNeuronGenes(writer, genome.getNeuronsChromosome());
-            writeLinkGenes(writer, genome.getLinksChromosome());
+            NEATMGenome genomeCopy = new NEATMGenome((NEATMGenome)genome);
+
+            ArrayList<Long> orphanNodes = removeOrphanNodes(genomeCopy);
+
+            writeNeuronGenes(writer, genomeCopy.getNeuronsChromosome(), orphanNodes);
+            writeLinkGenes(writer, genomeCopy.getLinksChromosome());
 
             writer.write("}");
             writer.newLine();
@@ -59,13 +64,42 @@ public class GraphvizEngine {
         }
     }
 
+    private static ArrayList<Long> removeOrphanNodes(NEATGenome genome)
+    {
+        ArrayList<Long> orphanNodes = new ArrayList<>();
+        for(NEATNeuronGene neuron : genome.getNeuronsChromosome())
+        {
+            if (neuron.getNeuronType() == NEATNeuronType.Input && neuron instanceof NEATMNeuronGene)
+            {
+                boolean isOrphanNeuron = true;
+                for (NEATLinkGene link : genome.getLinksChromosome())
+                {
+                    if (link.getFromNeuronID() == neuron.getId() || link.getToNeuronID() == neuron.getId())
+                    {
+                        isOrphanNeuron = false;
+                        break;
+                    }
+                }
+                if (isOrphanNeuron)
+                {
+                    orphanNodes.add(neuron.getId());
+                }
+            }
+        }
 
-    private static void writeNeuronGenes(BufferedWriter writer, List<NEATNeuronGene> neurons)
+        return orphanNodes;
+    }
+
+    private static void writeNeuronGenes(BufferedWriter writer, List<NEATNeuronGene> neurons, ArrayList<Long> orphanNodes)
             throws IOException {
         List<NEATNeuronGene> inputs = new ArrayList<>();
         List<NEATNeuronGene> outputs = new ArrayList<>();
 
         for (NEATNeuronGene neuron : neurons) {
+            if(orphanNodes.contains(neuron.getId()))
+            {
+                continue;
+            }
             writer.write("  ");
             writer.write(String.valueOf(neuron.getId()));
             if (neuron.getNeuronType() == NEATNeuronType.Input
