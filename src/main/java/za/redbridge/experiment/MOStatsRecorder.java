@@ -232,7 +232,7 @@ public class MOStatsRecorder extends StatsRecorder
             GraphvizEngine.saveGenome((NEATGenome) genome, directory.resolve("genome-CPPN-" + genome.getScore() + ".dot"));
             GraphvizEngine.saveNetwork(network, directory.resolve("phenome-ANN" + genome.getScore() + ".dot"));
         }
-        saveObjectToFile(network, directory.resolve("network" + ".ser"));
+        saveObjectToFile(network, directory.resolve("network" +genome.getScore()+ ".ser"));
     }
 
 
