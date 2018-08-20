@@ -164,10 +164,14 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
     private int maxOperationErrors = 500;
 
     /**
-      * This variable stores pareto front for each generation
+      * This variable stores the first pareto front for each generation (used by StatsRecorder)
      */
+    ArrayList<MultiObjectiveGenome> paretoFront0 = new ArrayList<>();
 
-    ArrayList<MultiObjectiveGenome> paretoFront = new ArrayList<>();
+    /**
+     * This variable stores the second pareto front for each generation (used by StatsRecorder)
+     */
+    ArrayList<MultiObjectiveGenome> paretoFront1 = new ArrayList<>();
 
 
     /**
@@ -417,9 +421,6 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
 
         // First iteration now finished - everyone scored
 
-        paretoFront = new ArrayList<>();
-        paretoFront.addAll(Fronts.get(0));
-
 
         int i = 0; // initialise Front counter to 0
 
@@ -455,6 +456,15 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
             Fronts.add(Q); // update the next front to be Q
 
             i++;                                     // increment front counter
+        }
+
+        // update 1st and 2nd pareto front lists used by StatsRecorder
+        paretoFront0 = new ArrayList<>();
+        paretoFront0.addAll(Fronts.get(0));
+        if(Fronts.size() > 1)
+        {
+            paretoFront1 = new ArrayList<>();
+            paretoFront1.addAll(Fronts.get(1));
         }
 
         if(isFirstGen){
@@ -1093,7 +1103,12 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
 
     public ArrayList<MultiObjectiveGenome> getFirstParetoFront()
     {
-        return paretoFront;
+        return paretoFront0;
+    }
+
+    public ArrayList<MultiObjectiveGenome> getSecondParetoFront()
+    {
+        return paretoFront1;
     }
 
 }

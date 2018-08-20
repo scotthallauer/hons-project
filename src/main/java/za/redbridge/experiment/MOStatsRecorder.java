@@ -53,7 +53,8 @@ public class MOStatsRecorder extends StatsRecorder
 
     private Path rootDirectory;
     private Path populationDirectory;
-    private Path paretoDirectory;
+    private Path pareto0Directory;
+    private Path pareto1Directory;
 
     private Path performanceStatsFile;
     private Path scoreStatsFile;
@@ -116,8 +117,11 @@ public class MOStatsRecorder extends StatsRecorder
         populationDirectory = rootDirectory.resolve("populations");
         initDirectory(populationDirectory);
 
-        paretoDirectory = rootDirectory.resolve("pareto-fronts");
-        initDirectory(paretoDirectory);
+        pareto0Directory = rootDirectory.resolve("pareto-fronts-0");
+        initDirectory(pareto0Directory);
+
+        pareto1Directory = rootDirectory.resolve("pareto-fronts-1");
+        initDirectory(pareto1Directory);
     }
 
     private static void initDirectory(Path path)
@@ -159,7 +163,8 @@ public class MOStatsRecorder extends StatsRecorder
 
         savePopulation((NEATPopulation) trainer.getPopulation(), epoch);
 
-        saveParetoFront(epoch);
+        saveParetoFront0(epoch);
+        saveParetoFront1(epoch);
 
     }
 
@@ -170,9 +175,59 @@ public class MOStatsRecorder extends StatsRecorder
         saveObjectToFile(population, path);
     }
 
-    private void saveParetoFront(int epoch)
+    private void saveParetoFront1(int epoch)
     {
-        Path directory = paretoDirectory.resolve("epoch-" + epoch);
+        Path directory = pareto1Directory.resolve("epoch-" + epoch);
+        initDirectory(directory);
+
+        ArrayList<MultiObjectiveGenome> pareto = trainer.getSecondParetoFront();
+
+        final LabeledXYDataset paretoFront = new LabeledXYDataset(pareto.size());
+        ArrayList<String> genomesLOG = new ArrayList<>();
+
+        for (MultiObjectiveGenome genome : pareto)
+        {
+            saveParetoOptimalGenome(genome, directory);
+            ArrayList<Double> scoreVector = genome.getScoreVector();
+            Double score1 = scoreVector.get(0);
+            Double score2 = scoreVector.get(1);
+            paretoFront.add(score1, score2, genome.getScore() + "");
+            genomesLOG.add(genome.getScore() + "," + score1 + "," + score2);
+        }
+
+        Path txtPath = directory.resolve("paretolog.csv");
+        try (BufferedWriter writer = Files.newBufferedWriter(txtPath, Charset.defaultCharset()))
+        {
+            writer.write("rank,performance,sensor\n");
+            for (String s : genomesLOG)
+            {
+                writer.write(s + "\n");
+            }
+
+        } catch (IOException e)
+        {
+            log.error("Error writing pareto optimal network info file", e);
+        }
+
+        JFreeChart paretoChart = createChart(paretoFront);
+
+        int width = 640;   /* Width of the image */
+        int height = 480;  /* Height of the image */
+        File XYChart = new File(directory.toString() + "/ParetoFront.jpeg");
+
+
+        try
+        {
+            ChartUtils.saveChartAsJPEG(XYChart, paretoChart, width, height);
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    private void saveParetoFront0(int epoch)
+    {
+        Path directory = pareto0Directory.resolve("epoch-" + epoch);
         initDirectory(directory);
 
         ArrayList<MultiObjectiveGenome> pareto = trainer.getFirstParetoFront();
@@ -190,7 +245,7 @@ public class MOStatsRecorder extends StatsRecorder
             genomesLOG.add(genome.getScore() + "," + score1 + "," + score2);
         }
 
-        Path txtPath = directory.resolve("P@ret0_L0g.csv");
+        Path txtPath = directory.resolve("paretolog.csv");
         try (BufferedWriter writer = Files.newBufferedWriter(txtPath, Charset.defaultCharset()))
         {
             writer.write("rank,performance,sensor\n");

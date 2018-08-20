@@ -207,8 +207,8 @@ public class Main
     private static class Args
     {
         @Parameter(names = "-c", description = "Simulation config file to load")
-        //private String configFile = "config/ConfigSimple.yml";
-         private String configFile = "config/ConfigMedium.yml";
+        private String configFile = "config/ConfigSimple.yml";
+        //private String configFile = "config/ConfigMedium.yml";
         // private String configFile = "config/ConfigDifficult.yml";
 
         @Parameter(names = "-g", description = "Number of generations to train for")    // Jamie calls this 'iterations'
@@ -219,7 +219,7 @@ public class Main
 
         @Parameter(names = "--trials", description = "Number of simulation runs per iteration (team lifetime)")
         // Jamie calls this 'simulationRuns' (and 'lifetime' in his paper)
-        private int trialsPerIndividual = 1;
+        private int trialsPerIndividual = 5;
 
         @Parameter(names = "--conn-density", description = "Adjust the initial connection density"
                 + " for the population")
