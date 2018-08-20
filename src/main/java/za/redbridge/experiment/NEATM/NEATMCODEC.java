@@ -1,5 +1,6 @@
 package za.redbridge.experiment.NEATM;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.encog.engine.network.activation.ActivationFunction;
 import org.encog.ml.MLMethod;
 import org.encog.ml.ea.codec.GeneticCODEC;
@@ -51,15 +52,39 @@ public class NEATMCODEC implements GeneticCODEC, Serializable {
         }
 
         final Map<Long, Integer> lookup = new HashMap<>();
-        for (int i = 0; i < neuronsChromosome.size(); i++) {
-            final NEATNeuronGene neuronGene = neuronsChromosome.get(i);
-            lookup.put(neuronGene.getId(), i);
-        }
-
-        // loop over connections
+        //check if sensorExit
+        final Map<Long, Boolean> sensorExist = new HashMap<>();
         for (int i = 0; i < linksChromosome.size(); i++) {
             final NEATLinkGene linkGene = linksChromosome.get(i);
             if (linkGene.isEnabled()) {
+                sensorExist.put(linkGene.getFromNeuronID(),true);
+            }
+
+        }
+
+        int keepTrackLookup=0;
+        int inputCount =0;
+        for (int i = 0; i < neuronsChromosome.size(); i++) {
+            final NEATNeuronGene neuronGene = neuronsChromosome.get(i);
+            //only make a new gene if is valid sensor
+            if(sensorExist.get(neuronGene.getId())!=null||neuronGene.getNeuronType()!=NEATNeuronType.Input) {
+                lookup.put(neuronGene.getId(), keepTrackLookup);
+                keepTrackLookup++;
+                if(neuronGene.getNeuronType()==NEATNeuronType.Input){
+                    inputCount++;
+                }
+            }
+        }
+
+        // loop over connections
+
+        for (int i = 0; i < linksChromosome.size(); i++) {
+            final NEATLinkGene linkGene = linksChromosome.get(i);
+            if (linkGene.isEnabled()) {
+                if(lookup.get(linkGene.getFromNeuronID())==null|| lookup.get(linkGene.getToNeuronID())==null){
+                    throw new NeuralNetworkError(
+                            "ERROR DECODING PHENOME ");
+                }
                 links.add(new NEATLink(lookup.get(linkGene.getFromNeuronID()),
                         lookup.get(linkGene.getToNeuronID()), linkGene
                         .getWeight()));
@@ -70,12 +95,17 @@ public class NEATMCODEC implements GeneticCODEC, Serializable {
         Collections.sort(links);
 
         // Create the sensor morphology
-        final int inputCount = neatGenome.getInputCount();
+
         final List<NEATMNeuronGene> inputNeurons = neatGenome.getInputNeuronsChromosome();
         SensorModel[] sensorModels = new SensorModel[inputCount];
-        for (int i = 0; i < inputCount; i++) {
+        int countSensor =0;
+        for (int i = 0; i < inputNeurons.size(); i++) {
             NEATMNeuronGene inputNeuron = inputNeurons.get(i);
-            sensorModels[i] = inputNeuron.getSensorConfiguration().toSensorModel();
+            if(sensorExist.get(inputNeuron.getId())!=null) {
+
+                sensorModels[countSensor] = inputNeuron.getSensorConfiguration().toSensorModel();
+                countSensor++;
+            }
         }
 
         SensorMorphology morphology = new SensorMorphology(sensorModels);
