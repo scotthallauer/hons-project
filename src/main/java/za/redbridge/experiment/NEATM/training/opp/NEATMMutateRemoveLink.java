@@ -23,13 +23,13 @@ public class NEATMMutateRemoveLink extends NEATMutateRemoveLink {
     public NEATMMutateRemoveLink() {
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /*
     @Override
     public void performOperation(final Random rnd, final Genome[] parents,
                                  final int parentIndex, final Genome[] offspring,
                                  final int offspringIndex) {
+
+        System.out.println("performOperation");
 
         final NEATGenome target = obtainGenome(parents, parentIndex, offspring,
                 offspringIndex);
@@ -47,18 +47,24 @@ public class NEATMMutateRemoveLink extends NEATMutateRemoveLink {
 
         // if this orphaned any nodes, then kill them too!
         if (!isNeuronNeeded(target, targetGene.getFromNeuronID())) {
+            System.out.println("ann size: " + target.getInputCount());
             removeNeuron(target, targetGene.getFromNeuronID());
+            System.out.println("deleting neuron...");
+            System.out.println("ann size: " + target.getInputCount());
         }
 
         if (!isNeuronNeeded(target, targetGene.getToNeuronID())) {
+            System.out.println("ann size: " + target.getInputCount());
             removeNeuron(target, targetGene.getToNeuronID());
+            System.out.println("deleting neuron...");
+            System.out.println("ann size: " + target.getInputCount());
         }
     }
+    */
 
 
     @Override
     public boolean isNeuronNeeded(NEATGenome target, long neuronID) {
-        System.out.println("CORRECT BEING USED");
         for (NEATNeuronGene neuron : target.getNeuronsChromosome()) {
             if (neuron.getId() == neuronID) {
                 if (neuron.getNeuronType() == NEATNeuronType.Bias
