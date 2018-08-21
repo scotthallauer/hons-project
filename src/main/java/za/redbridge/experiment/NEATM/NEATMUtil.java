@@ -4,7 +4,6 @@ import org.encog.ml.CalculateScore;
 import org.encog.ml.ea.opp.CompoundOperator;
 import org.encog.ml.ea.opp.OperationList;
 import org.encog.ml.ea.opp.selection.TruncationSelection;
-import org.encog.ml.ea.train.basic.TrainEA;
 import org.encog.neural.neat.NEATPopulation;
 import org.encog.neural.neat.training.opp.NEATMutateAddLink;
 import org.encog.neural.neat.training.opp.NEATMutateWeights;
@@ -12,32 +11,23 @@ import org.encog.neural.neat.training.opp.links.MutatePerturbLinkWeight;
 import org.encog.neural.neat.training.opp.links.MutateResetLinkWeight;
 import org.encog.neural.neat.training.opp.links.SelectFixed;
 import org.encog.neural.neat.training.opp.links.SelectProportion;
-
 import za.redbridge.experiment.NEATM.sensor.SensorType;
-import za.redbridge.experiment.NEATM.training.opp.NEATMCrossover;
-import za.redbridge.experiment.NEATM.training.opp.NEATMMutateAddNode;
-import za.redbridge.experiment.NEATM.training.opp.NEATMMutateAddSensor;
-import za.redbridge.experiment.NEATM.training.opp.NEATMMutateIndividualSensor;
-import za.redbridge.experiment.NEATM.training.opp.NEATMMutateRemoveLink;
-import za.redbridge.experiment.NEATM.training.opp.NEATMMutateSensorGroup;
+import za.redbridge.experiment.NEATM.training.opp.*;
 import za.redbridge.experiment.NEATM.training.opp.sensors.MutatePerturbSensorParameter;
 import za.redbridge.experiment.NEATM.training.opp.sensors.SelectSensorsFixed;
 import za.redbridge.experiment.NEATM.training.opp.sensors.SelectSensorsType;
 import za.redbridge.experiment.NEATM.training.species.NEATMSpeciation;
-
+import za.redbridge.experiment.SingleObjective.SingleObjectiveEA;
 
 import static za.redbridge.experiment.NEATM.sensor.SensorType.*;
-import static za.redbridge.experiment.NEATM.sensor.parameter.spec.ParameterType.BEARING;
-import static za.redbridge.experiment.NEATM.sensor.parameter.spec.ParameterType.FIELD_OF_VIEW;
-import static za.redbridge.experiment.NEATM.sensor.parameter.spec.ParameterType.ORIENTATION;
-import static za.redbridge.experiment.NEATM.sensor.parameter.spec.ParameterType.RANGE;
+import static za.redbridge.experiment.NEATM.sensor.parameter.spec.ParameterType.*;
 
 /**
  * Created by jamie on 2014/09/08.
  */
 public final class NEATMUtil {
 
-    public static TrainEA constructNEATTrainer(CalculateScore calculateScore, int outputCount,
+    public static SingleObjectiveEA constructNEATTrainer(CalculateScore calculateScore, int outputCount,
             int populationSize) {
         final NEATMPopulation pop = new NEATMPopulation(outputCount, populationSize, false);
         pop.reset();
@@ -50,9 +40,9 @@ public final class NEATMUtil {
      * @param calculateScore The score function.
      * @return The NEAT EA trainer.
      */
-    public static TrainEA constructNEATTrainer(NEATPopulation population,
-            CalculateScore calculateScore) {
-        final TrainEA result = new TrainEA(population, calculateScore);
+    public static SingleObjectiveEA constructNEATTrainer(NEATPopulation population,
+                                                         CalculateScore calculateScore) {
+        final SingleObjectiveEA result = new SingleObjectiveEA(population, calculateScore);
 
         // Speciation
         result.setSpeciation(new NEATMSpeciation());

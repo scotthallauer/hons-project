@@ -1,6 +1,6 @@
 ---
 simulation:
-  timesteps: 7500
+  timesteps: 5000
 resources:
   small:
     quantity: 10
@@ -30,7 +30,7 @@ robots:
   mass: 0.7
   radius: 0.15
   colour: 0, 0, 0
-  minDistBetweenSensors: 0.6
+  minDistBetweenSensors: 0.65
 environment:
   width: 40
   height: 40

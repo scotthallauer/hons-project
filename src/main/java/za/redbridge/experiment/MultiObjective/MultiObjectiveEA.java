@@ -1,6 +1,5 @@
 package za.redbridge.experiment.MultiObjective;
 
-import com.sun.org.apache.bcel.internal.generic.POP;
 import org.encog.Encog;
 import org.encog.EncogError;
 import org.encog.EncogShutdownTask;
@@ -20,9 +19,10 @@ import org.encog.ml.ea.rules.BasicRuleHolder;
 import org.encog.ml.ea.rules.RuleHolder;
 import org.encog.ml.ea.score.AdjustScore;
 import org.encog.ml.ea.sort.*;
-import org.encog.ml.ea.species.*;
+import org.encog.ml.ea.species.SingleSpeciation;
+import org.encog.ml.ea.species.Speciation;
+import org.encog.ml.ea.species.Species;
 import org.encog.ml.ea.train.EvolutionaryAlgorithm;
-import org.encog.ml.ea.train.basic.EAWorker;
 import org.encog.ml.genetic.GeneticError;
 import org.encog.util.concurrency.MultiThreadable;
 import org.encog.util.logging.EncogLogging;
@@ -31,9 +31,7 @@ import za.redbridge.experiment.MultiObjective.Comparator.MaximisingObjectiveComp
 import za.redbridge.experiment.MultiObjective.Comparator.ScoreComparator;
 import za.redbridge.experiment.ScoreCalculator;
 
-import javax.xml.bind.SchemaOutputResolver;
 import java.io.Serializable;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -219,8 +217,81 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
     /**
      * The first iteration of Multi-Objective NEAT. Also determines number of threads to use.
      */
+
+
+    public void firstIterationResume(){
+
+
+
+        getSpeciation().init(this);
+
+        // Threads - find out how many threads to use
+        if (this.getThreadCount() == 0) this.actualThreadCount = Runtime.getRuntime().availableProcessors();
+        else this.actualThreadCount = this.getThreadCount();
+
+
+        // start up the thread pool
+        if (this.actualThreadCount == 1)
+        {
+            this.taskExecutor = Executors.newSingleThreadScheduledExecutor();
+        }
+        else
+        {
+            this.taskExecutor = Executors.newFixedThreadPool(this.actualThreadCount);
+        }
+
+        // register for shutdown
+        Encog.getInstance().addShutdownTask(this);
+
+        // just pick the first genome with a valid score as best, it will be
+        // updated later.
+        // also most populations are sorted this way after training finishes
+        // (for reload)
+        // if there is an empty population, the constructor would have blow
+        final List<Genome> list = getPopulation().flatten();
+
+        int idx = 0;
+        do
+        {
+            this.bestGenome = list.get(idx++);
+        } while (idx < list.size()
+                && (Double.isInfinite(this.bestGenome.getScore()) || Double
+                .isNaN(this.bestGenome.getScore())));
+
+        getPopulation().setBestGenome(this.bestGenome);
+
+
+        //we dont wanna respeciate but rather redefine the final shares for the next iteration
+
+        double totalSpeciesScore = 0;
+        for (final Species species : population.getSpecies()) {
+            totalSpeciesScore += species.calculateShare(getScoreFunction().shouldMinimize(), population.getPopulationSize()*2);
+        }
+
+        if (population.getSpecies().size() == 0) {
+            throw new EncogError("Can't speciate, there are no species.2");
+        }
+        if (totalSpeciesScore < Encog.DEFAULT_DOUBLE_EQUAL) {
+            // This should not happen much, or if it does, only in the
+            // beginning.
+            // All species scored zero. So they are all equally bad. Just divide
+            // up the right to produce offspring evenly.
+            divideEven(population.getSpecies());
+        } else {
+            // Divide up the number of offspring produced to the most fit
+            // species.
+            divideByFittestSpecies(population.getSpecies(), totalSpeciesScore);
+        }
+
+        levelOff();
+
+
+
+    }
+
     public void firstIteration()
     {
+        System.out.println("first iteration");
         // init speciation
         getSpeciation().init(this);
 
@@ -369,6 +440,11 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
             // parentPopulation = the N selected individuals
 
         setNonDominationAndCrowdDists(false);
+
+        for(Species s: population.getSpecies()){
+            System.out.println(s);
+            System.out.println(s.getLeader());
+        }
 
 
     }
@@ -1064,6 +1140,24 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
     }
 
     /**
+     * Taken from ThresholdSpeciation because private
+     * If no species has a good score then divide the potential offspring amount
+     * all species evenly.
+     *
+     * @param speciesCollection
+     *            The current set of species.
+     */
+    private void divideEven(final List<Species> speciesCollection) {
+        final double ratio = 1.0 / speciesCollection.size();
+        for (final Species species : speciesCollection) {
+            final int share = (int) Math.round(ratio
+                    *getPopulation().getPopulationSize());
+            species.setOffspringCount(share);
+        }
+    }
+
+    /**
+     * Taken from ThresholdSpeciation because private
      * Divide up the potential offspring by the most fit species. To do this we
      * look at the total species score, vs each individual species percent
      * contribution to that score.
@@ -1100,7 +1194,55 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
             }
         }
     }
+    /**
+     * Level off all of the species shares so that they add up to the desired
+     * population size. If they do not add up to the desired species size, this
+     * was a result of rounding the floating point share amounts to integers.
+     */
+    private void levelOff() {
+        int total = 0;
+        final List<Species> list = this.population.getSpecies();
 
+        if (list.size() == 0) {
+            throw new EncogError(
+                    "Can't speciate, next generation contains no species.");
+        }
+
+        Collections.sort(list, new SpeciesComparator(this));
+
+        // best species gets at least one offspring
+        if (list.get(0).getOffspringCount() == 0) {
+            list.get(0).setOffspringCount(1);
+        }
+
+        // total up offspring
+        for (final Species species : list) {
+            total += species.getOffspringCount();
+        }
+
+        // how does the total offspring count match the target
+        int diff = this.population.getPopulationSize() - total;
+
+        if (diff < 0) {
+            // need less offspring
+            int index = list.size() - 1;
+            while ((diff != 0) && (index > 0)) {
+                final Species species = list.get(index);
+                final int t = Math.min(species.getOffspringCount(),
+                        Math.abs(diff));
+                species.setOffspringCount(species.getOffspringCount() - t);
+                if (species.getOffspringCount() == 0) {
+                    list.remove(index);
+                }
+                diff += t;
+                index--;
+            }
+        } else {
+            // need more offspring
+            list.get(0).setOffspringCount(
+                    list.get(0).getOffspringCount() + diff);
+        }
+    }
     public ArrayList<MultiObjectiveGenome> getFirstParetoFront()
     {
         return paretoFront0;

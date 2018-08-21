@@ -4,7 +4,6 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.commons.math3.stat.descriptive.SynchronizedDescriptiveStatistics;
 import org.encog.ml.CalculateScore;
 import org.encog.ml.MLMethod;
-import org.encog.neural.neat.NEATLink;
 import org.encog.neural.neat.NEATNetwork;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +22,6 @@ import za.redbridge.simulator.phenotype.Phenotype;
 import za.redbridge.simulator.sensor.AgentSensor;
 
 import java.util.HashMap;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Test runner for the simulation.
@@ -148,9 +146,6 @@ public class ScoreCalculator implements CalculateScore
 
 
         }
-//        System.out.println(network.getInputCount());
-//        double oldscore =100-((network.getInputCount()*10));
-//        System.out.println("old"+ oldscore+"new"+score);
         return score;
 
     }

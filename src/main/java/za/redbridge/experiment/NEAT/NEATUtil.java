@@ -3,19 +3,14 @@ package za.redbridge.experiment.NEAT;
 import org.encog.ml.CalculateScore;
 import org.encog.ml.ea.opp.CompoundOperator;
 import org.encog.ml.ea.opp.selection.TruncationSelection;
-import org.encog.ml.ea.train.basic.TrainEA;
 import org.encog.neural.neat.NEATCODEC;
-import org.encog.neural.neat.training.opp.NEATCrossover;
-import org.encog.neural.neat.training.opp.NEATMutateAddLink;
-import org.encog.neural.neat.training.opp.NEATMutateAddNode;
-import org.encog.neural.neat.training.opp.NEATMutateRemoveLink;
-import org.encog.neural.neat.training.opp.NEATMutateWeights;
+import org.encog.neural.neat.training.opp.*;
 import org.encog.neural.neat.training.opp.links.MutatePerturbLinkWeight;
 import org.encog.neural.neat.training.opp.links.MutateResetLinkWeight;
 import org.encog.neural.neat.training.opp.links.SelectFixed;
 import org.encog.neural.neat.training.opp.links.SelectProportion;
-
 import za.redbridge.experiment.NEAT.training.species.NEATSpeciation;
+import za.redbridge.experiment.SingleObjective.SingleObjectiveEA;
 
 /**
  * NEATUtil for regular NEAT network (no HyperNEAT) with link weight range of -1.0 to 1.0.
@@ -27,8 +22,8 @@ public final class NEATUtil {
     private NEATUtil() {
     }
 
-    public static TrainEA constructNEATTrainer(CalculateScore calculateScore, int inputCount,
-            int outputCount, int populationSize) {
+    public static SingleObjectiveEA constructNEATTrainer(CalculateScore calculateScore, int inputCount,
+                                                         int outputCount, int populationSize) {
         NEATPopulation pop = new NEATPopulation(inputCount, outputCount, populationSize);
         pop.reset();
         return constructNEATTrainer(pop, calculateScore);
@@ -40,9 +35,9 @@ public final class NEATUtil {
      * @param calculateScore The score function.
      * @return The NEAT EA trainer.
      */
-    public static TrainEA constructNEATTrainer(NEATPopulation population,
+    public static SingleObjectiveEA constructNEATTrainer(NEATPopulation population,
             CalculateScore calculateScore) {
-        TrainEA result = new TrainEA(population, calculateScore);
+        SingleObjectiveEA result = new SingleObjectiveEA(population, calculateScore);
         result.setSpeciation(new NEATSpeciation());
 
         result.setSelection(new TruncationSelection(result, 0.3));

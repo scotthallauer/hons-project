@@ -4,20 +4,20 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import org.encog.Encog;
 import org.encog.ml.ea.train.EvolutionaryAlgorithm;
-import org.encog.ml.ea.train.basic.TrainEA;
 import org.encog.neural.hyperneat.substrate.Substrate;
 import org.encog.neural.neat.NEATNetwork;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import za.redbridge.experiment.HyperNEATM.HyperNEATMCODEC;
+import za.redbridge.experiment.HyperNEATM.HyperNEATMUtil;
 import za.redbridge.experiment.HyperNEATM.SubstrateFactory;
 import za.redbridge.experiment.MultiObjective.MultiObjectiveEA;
-import za.redbridge.experiment.MultiObjective.MultiObjectiveGenome;
 import za.redbridge.experiment.MultiObjective.MultiObjectiveHyperNEATUtil;
 import za.redbridge.experiment.MultiObjective.MultiObjectiveNEATMUtil;
 import za.redbridge.experiment.NEAT.NEATPopulation;
 import za.redbridge.experiment.NEATM.NEATMPopulation;
 import za.redbridge.experiment.NEATM.NEATMUtil;
+import za.redbridge.experiment.SingleObjective.SingleObjectiveEA;
 import za.redbridge.simulator.config.SimConfig;
 
 import java.io.File;
@@ -133,8 +133,8 @@ public class Main
             }
             else
             {
-                train = org.encog.neural.neat.NEATUtil.constructNEATTrainer(population, calculateScore);
-                ((TrainEA) train).setCODEC(new HyperNEATMCODEC());
+                train = HyperNEATMUtil.constructNEATTrainer(population, calculateScore);
+                ((SingleObjectiveEA) train).setCODEC(new HyperNEATMCODEC());
             }
         }
         else    // if NEATM
@@ -152,14 +152,14 @@ public class Main
         //prevent elitist selection --> in future should use this for param tuning
         if (!options.multiObjective)
         {
-            ((TrainEA) train).setEliteRate(0);
+            ((SingleObjectiveEA) train).setEliteRate(0);
         }
         log.info("Available processors detected: " + Runtime.getRuntime().availableProcessors());
         if (options.threads > 0)
         {
             if (!options.multiObjective)
             {
-                ((TrainEA) train).setThreadCount(options.threads);
+                ((SingleObjectiveEA) train).setThreadCount(options.threads);
             }
             else
             {
@@ -179,6 +179,16 @@ public class Main
             statsRecorder = new StatsRecorder(train, calculateScore, type, options.configFile,popDirectory);
         }
 
+
+        if(options.populationPath!=null){
+            if(options.multiObjective){
+                ((MultiObjectiveEA)train).firstIterationResume();
+            }
+            else{
+                ((SingleObjectiveEA)train).firstIterationResume();
+            }
+
+        }
         for (int i = train.getIteration(); i < options.numGenerations; i++)
         {
             train.iteration();
@@ -200,14 +210,15 @@ public class Main
         Files.move(Paths.get("results/logback-"+date+".log"), Paths.get(getLoggingDirectory(type, options.configFile)+"/logback.log"));   // move logback to correct results folder
 
         // #alex - save best network and run demo on it
-        NEATNetwork bestPerformingNetwork = (NEATNetwork) train.getCODEC().decode(train.getBestGenome());   //extract best performing NN from the population
-        calculateScore.demo(bestPerformingNetwork);
+       // NEATNetwork bestPerformingNetwork = (NEATNetwork) train.getCODEC().decode(train.getBestGenome());   //extract best performing NN from the population
+        //calculateScore.demo(bestPerformingNetwork);
     }
 
     private static class Args
     {
         @Parameter(names = "-c", description = "Simulation config file to load")
-        private String configFile = "config/ConfigSimple.yml";
+
+       private String configFile = "config/ConfigSimple.yml";
         //private String configFile = "config/ConfigMedium.yml";
         // private String configFile = "config/ConfigDifficult.yml";
 
@@ -215,7 +226,7 @@ public class Main
         private int numGenerations = 150;
 
         @Parameter(names = "-p", description = "Initial population size")
-        private int populationSize = 150;
+        private int populationSize = 150 ;
 
         @Parameter(names = "--trials", description = "Number of simulation runs per iteration (team lifetime)")
         // Jamie calls this 'simulationRuns' (and 'lifetime' in his paper)
@@ -229,7 +240,7 @@ public class Main
         private String genomePath = null;
 
         @Parameter(names = "--HyperNEATM", description = "Using HyperNEATM")
-        private boolean hyperNEATM = false;
+        private boolean hyperNEATM = true;
 
         @Parameter(names = "--population", description = "To resume a previous experiment, provide"
                 + " the path to a serialized population")
@@ -241,7 +252,7 @@ public class Main
 
         @Parameter(names = "--multi-objective", description = "Using Multi-Objective NEAT/HyperNEAT"
                 +" Based on NEAT-MODS")
-        private boolean multiObjective = true;
+        private boolean multiObjective = false;
 
         @Override
         public String toString()
