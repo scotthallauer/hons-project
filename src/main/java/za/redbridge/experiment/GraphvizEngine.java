@@ -1,5 +1,7 @@
 package za.redbridge.experiment;
 
+import org.encog.ml.ea.genome.Genome;
+import org.encog.neural.hyperneat.HyperNEATGenome;
 import org.encog.neural.neat.NEATLink;
 import org.encog.neural.neat.NEATNetwork;
 import org.encog.neural.neat.NEATNeuronType;
@@ -44,17 +46,25 @@ public class GraphvizEngine {
 
     private static final Logger log = LoggerFactory.getLogger(GraphvizEngine.class);
 
-    public synchronized static void saveGenome(NEATGenome genome, Path path) {
+    public synchronized static void saveGenome(Genome genome, Path path, boolean hyperNEAT) {
         try (BufferedWriter writer = Files.newBufferedWriter(path, Charset.defaultCharset())) {
             writer.write("digraph G {");
             writer.newLine();
 
-            NEATMGenome genomeCopy = new NEATMGenome((NEATMGenome)genome);
-
-            ArrayList<Long> orphanNodes = removeOrphanNodes(genomeCopy);
-
-            writeNeuronGenes(writer, genomeCopy.getNeuronsChromosome(), orphanNodes);
-            writeLinkGenes(writer, genomeCopy.getLinksChromosome());
+            if(!hyperNEAT)
+            {
+                NEATMGenome genomeCopy = new NEATMGenome((NEATMGenome)genome);
+                ArrayList<Long> orphanNodes = removeOrphanNodes(genomeCopy);
+                writeNeuronGenes(writer, genomeCopy.getNeuronsChromosome(), orphanNodes);
+                writeLinkGenes(writer, genomeCopy.getLinksChromosome());
+            }
+            else
+            {
+                HyperNEATGenome genomeCopy = new HyperNEATGenome((HyperNEATGenome)genome);
+                ArrayList<Long> orphanNodes = removeOrphanNodes(genomeCopy);
+                writeNeuronGenes(writer, genomeCopy.getNeuronsChromosome(), orphanNodes);
+                writeLinkGenes(writer, genomeCopy.getLinksChromosome());
+            }
 
             writer.write("}");
             writer.newLine();

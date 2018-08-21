@@ -281,10 +281,10 @@ public class MOStatsRecorder extends StatsRecorder
         NEATNetwork network = decodeGenome(genome);
         if (!HyperNEATM)
         {
-            GraphvizEngine.saveGenome((NEATGenome) genome, directory.resolve("phenome-ANN-" + genome.getScore() + ".dot"));
+            GraphvizEngine.saveGenome((NEATGenome) genome, directory.resolve("phenome-ANN-" + genome.getScore() + ".dot"), false);
         } else
         {
-            GraphvizEngine.saveGenome((NEATGenome) genome, directory.resolve("genome-CPPN-" + genome.getScore() + ".dot"));
+            GraphvizEngine.saveGenome((NEATGenome) genome, directory.resolve("genome-CPPN-" + genome.getScore() + ".dot"), true);
             GraphvizEngine.saveNetwork(network, directory.resolve("phenome-ANN" + genome.getScore() + ".dot"));
         }
         saveObjectToFile(network, directory.resolve("network" +genome.getScore()+ ".ser"));

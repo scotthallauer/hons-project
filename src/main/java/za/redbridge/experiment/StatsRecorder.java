@@ -201,10 +201,10 @@ public class StatsRecorder {
         NEATNetwork network = decodeGenome(genome);
         saveObjectToFile(network, directory.resolve("network.ser"));
         if(!HyperNEATM){
-            GraphvizEngine.saveGenome(genome, directory.resolve("phenome-ANN.dot"));
+            GraphvizEngine.saveGenome(genome, directory.resolve("phenome-ANN.dot"), false);
         }
         else{
-            GraphvizEngine.saveGenome(genome, directory.resolve("genome-CPPN.dot"));
+            GraphvizEngine.saveGenome(genome, directory.resolve("genome-CPPN.dot"), true);
             GraphvizEngine.saveNetwork(network, directory.resolve("phenome-ANN.dot"));
         }
 
