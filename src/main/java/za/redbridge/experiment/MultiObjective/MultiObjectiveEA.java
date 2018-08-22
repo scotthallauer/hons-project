@@ -291,7 +291,6 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
 
     public void firstIteration()
     {
-        System.out.println("first iteration");
         // init speciation
         getSpeciation().init(this);
 
