@@ -186,14 +186,14 @@ public class Main
         // private String configFile = "config/ConfigDifficult.yml";
 
         @Parameter(names = "-g", description = "Number of generations to train for")    // Jamie calls this 'iterations'
-        private int numGenerations = 5;
+        private int numGenerations = 250;
 
         @Parameter(names = "-p", description = "Initial population size")
-        private int populationSize = 3;
+        private int populationSize = 150;
 
         @Parameter(names = "--trials", description = "Number of simulation runs per iteration (team lifetime)")
         // Jamie calls this 'simulationRuns' (and 'lifetime' in his paper)
-        private int trialsPerIndividual = 1;
+        private int trialsPerIndividual = 5;
 
         @Parameter(names = "--conn-density", description = "Adjust the initial connection density"
                 + " for the population")
