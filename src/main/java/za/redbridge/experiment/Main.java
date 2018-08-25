@@ -4,32 +4,28 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import org.encog.Encog;
 import org.encog.ml.ea.train.EvolutionaryAlgorithm;
-import org.encog.ml.ea.train.basic.TrainEA;
 import org.encog.neural.hyperneat.substrate.Substrate;
 import org.encog.neural.neat.NEATNetwork;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import za.redbridge.experiment.HyperNEATM.HyperNEATMCODEC;
+import za.redbridge.experiment.HyperNEATM.HyperNEATMUtil;
 import za.redbridge.experiment.HyperNEATM.SubstrateFactory;
 import za.redbridge.experiment.MultiObjective.MultiObjectiveEA;
-import za.redbridge.experiment.MultiObjective.MultiObjectiveGenome;
 import za.redbridge.experiment.MultiObjective.MultiObjectiveHyperNEATUtil;
 import za.redbridge.experiment.MultiObjective.MultiObjectiveNEATMUtil;
 import za.redbridge.experiment.NEAT.NEATPopulation;
 import za.redbridge.experiment.NEATM.NEATMPopulation;
 import za.redbridge.experiment.NEATM.NEATMUtil;
+import za.redbridge.experiment.SingleObjective.SingleObjectiveEA;
 import za.redbridge.simulator.config.SimConfig;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 
-import static za.redbridge.experiment.Utils.*;
+import static za.redbridge.experiment.Utils.isBlank;
+import static za.redbridge.experiment.Utils.readObjectFromFile;
 
 /**
  * Entry point for the experiment platform.
@@ -109,8 +105,8 @@ public class Main
             }
             else
             {
-                train = org.encog.neural.neat.NEATUtil.constructNEATTrainer(population, calculateScore);
-                ((TrainEA) train).setCODEC(new HyperNEATMCODEC());
+                train = HyperNEATMUtil.constructNEATTrainer(population, calculateScore);
+                ((SingleObjectiveEA) train).setCODEC(new HyperNEATMCODEC());
             }
         }
         else    // if NEATM
@@ -128,14 +124,14 @@ public class Main
         //prevent elitist selection --> in future should use this for param tuning
         if (!options.multiObjective)
         {
-            ((TrainEA) train).setEliteRate(0);
+            ((SingleObjectiveEA) train).setEliteRate(0);
         }
         log.info("Available processors detected: " + Runtime.getRuntime().availableProcessors());
         if (options.threads > 0)
         {
             if (!options.multiObjective)
             {
-                ((TrainEA) train).setThreadCount(options.threads);
+                ((SingleObjectiveEA) train).setThreadCount(options.threads);
             }
             else
             {
@@ -153,6 +149,15 @@ public class Main
         else
         {
             statsRecorder = new StatsRecorder(train, calculateScore, type, options.configFile,popDirectory);
+        }
+
+        if(options.populationPath!=null){
+            if(options.multiObjective){
+                ((MultiObjectiveEA)train).firstIterationResume();
+            }
+            else{
+                ((SingleObjectiveEA)train).firstIterationResume();
+            }
         }
 
         for (int i = train.getIteration(); i < options.numGenerations; i++)
@@ -197,7 +202,10 @@ public class Main
 
         @Parameter(names = "--conn-density", description = "Adjust the initial connection density"
                 + " for the population")
+        //NEAT
         private double connectionDensity = 0.5;
+        //HyperNEAT
+        //private double connectionDensity = 0.9;
 
         @Parameter(names = "--demo", description = "Show a GUI demo of a given genome")
         private String genomePath = null;
@@ -209,13 +217,17 @@ public class Main
                 + " the path to a serialized population")
         private String populationPath =null;
 
+        //private String populationPath = "/mnt/lustre/users/dnagar/experiment-...";
+
+        //private String populationPath = "/mnt/lustre/users/afurman/experiment-...";
+
         @Parameter(names = "--threads", description = "Number of threads to run simulations with."
                 + " By default Runtime#availableProcessors() is used to determine the number of threads to use")
         private int threads = 0;
 
         @Parameter(names = "--multi-objective", description = "Using Multi-Objective NEAT/HyperNEAT"
                 +" Based on NEAT-MODS")
-        private boolean multiObjective = false;
+        private boolean multiObjective = true;
 
         @Override
         public String toString()
