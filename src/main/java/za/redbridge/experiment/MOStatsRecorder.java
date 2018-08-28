@@ -81,7 +81,12 @@ public class MOStatsRecorder extends StatsRecorder
     private void initFiles()
     {
         initDirectories();
-        initStatsFiles();
+        if(!folderResume.equals("")){
+            initStatsFilesResume();
+        }
+        else{
+            initStatsFiles();
+        }
     }
 
     private void initStatsFiles()
@@ -98,6 +103,19 @@ public class MOStatsRecorder extends StatsRecorder
         initStatsFile(sensorStatsFile);
         sensorParamStatsFile = rootDirectory.resolve("sensorsParams.csv");
         super.initStatsFileSensor(sensorParamStatsFile);
+
+
+    }
+
+    private void initStatsFilesResume()
+    {
+
+        performanceStatsFile = rootDirectory.resolve("timeTaken.csv");
+
+        scoreStatsFile = rootDirectory.resolve("scores.csv");
+
+        sensorStatsFile = rootDirectory.resolve("sensors.csv");
+        sensorParamStatsFile = rootDirectory.resolve("sensorsParams.csv");
 
 
     }

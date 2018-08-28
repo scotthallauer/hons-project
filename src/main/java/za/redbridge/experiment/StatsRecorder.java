@@ -7,6 +7,8 @@ import org.encog.neural.neat.NEATNetwork;
 import org.encog.neural.neat.training.NEATGenome;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import za.redbridge.experiment.NEAT.NEATPopulation;
+import za.redbridge.experiment.NEATM.NEATMNetwork;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -14,10 +16,6 @@ import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.nio.file.*;
 import java.util.HashMap;
-
-import za.redbridge.experiment.NEAT.NEATPopulation;
-import za.redbridge.experiment.NEATM.NEATMNetwork;
-
 
 import static za.redbridge.experiment.Utils.getLoggingDirectory;
 import static za.redbridge.experiment.Utils.saveObjectToFile;
@@ -70,7 +68,13 @@ public class StatsRecorder {
 
     private void initFiles() {
         initDirectories();
-        initStatsFiles();
+        if(!folderResume.equals("")){
+           initStatsFilesResume();
+        }
+        else{
+            initStatsFiles();
+        }
+
     }
 
     private void initDirectories() {
@@ -109,6 +113,16 @@ public class StatsRecorder {
             initStatsFile(sensorStatsFile);
             sensorParamStatsFile = rootDirectory.resolve("sensorsParams.csv");
             initStatsFileSensor(sensorParamStatsFile);
+        }
+
+    }
+
+    private void initStatsFilesResume() {
+        performanceStatsFile = rootDirectory.resolve("timeTaken.csv");
+        scoreStatsFile = rootDirectory.resolve("scores.csv");
+        if (evolvingMorphology) {
+            sensorStatsFile = rootDirectory.resolve("sensors.csv");
+            sensorParamStatsFile = rootDirectory.resolve("sensorsParams.csv");
         }
 
     }
