@@ -183,39 +183,40 @@ public class Main
         //calculateScore.demo(bestPerformingNetwork);
     }
 
-    private static class Args
+    public static class Args
     {
         @Parameter(names = "-c", description = "Simulation config file to load")
-        private String configFile = "config/ConfigSimple.yml";
+        public static String configFile = "config/bossConfig.yml";
+        //public static String configFile = "config/ConfigSimple.yml";
         //private String configFile = "config/ConfigMedium.yml";
         // private String configFile = "config/ConfigDifficult.yml";
 
         @Parameter(names = "-g", description = "Number of generations to train for")    // Jamie calls this 'iterations'
-        private int numGenerations = 250;
+        public static int numGenerations = 5;
 
         @Parameter(names = "-p", description = "Initial population size")
-        private int populationSize = 150;
+        public static int populationSize = 10;
 
         @Parameter(names = "--trials", description = "Number of simulation runs per iteration (team lifetime)")
         // Jamie calls this 'simulationRuns' (and 'lifetime' in his paper)
-        private int trialsPerIndividual = 5;
+        public static int trialsPerIndividual = 1;
 
         @Parameter(names = "--conn-density", description = "Adjust the initial connection density"
                 + " for the population")
         //NEAT
-        private double connectionDensity = 0.5;
+        public static double connectionDensity = 0.5;
         //HyperNEAT
         //private double connectionDensity = 0.9;
 
         @Parameter(names = "--demo", description = "Show a GUI demo of a given genome")
-        private String genomePath = null;
+        public static String genomePath = null;
 
         @Parameter(names = "--HyperNEATM", description = "Using HyperNEATM")
-        private boolean hyperNEATM = false;
+        public static boolean hyperNEATM = false;
 
         @Parameter(names = "--population", description = "To resume a previous experiment, provide"
                 + " the path to a serialized population")
-        private String populationPath =null;
+        public static String populationPath =null;
 
         //private String populationPath = "/mnt/lustre/users/dnagar/experiment-...";
 
@@ -223,11 +224,11 @@ public class Main
 
         @Parameter(names = "--threads", description = "Number of threads to run simulations with."
                 + " By default Runtime#availableProcessors() is used to determine the number of threads to use")
-        private int threads = 0;
+        public static int threads = 0;
 
         @Parameter(names = "--multi-objective", description = "Using Multi-Objective NEAT/HyperNEAT"
                 +" Based on NEAT-MODS")
-        private boolean multiObjective = true;
+        public static boolean multiObjective = true;
 
         @Override
         public String toString()
