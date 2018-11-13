@@ -52,14 +52,18 @@ public class MOStatsRecorder extends StatsRecorder
     private final boolean HyperNEATM;
 
     private Path rootDirectory;
+    private Path finalDataDirectory;
+    private Path intermedDataDirectory;
+
+
     private Path populationDirectory;
-    private Path pareto0Directory;
-    private Path pareto1Directory;
 
     private Path performanceStatsFile;
     private Path scoreStatsFile;
     private Path sensorStatsFile;
     private Path sensorParamStatsFile;
+
+
     private String type;
     private String config;
     private String folderResume;
@@ -125,7 +129,8 @@ public class MOStatsRecorder extends StatsRecorder
         if (!folderResume.equals(""))
         {
             rootDirectory = Paths.get("results", folderResume);
-        } else
+        }
+        else
         {
             rootDirectory = getLoggingDirectory(type, config);
         }
@@ -135,11 +140,12 @@ public class MOStatsRecorder extends StatsRecorder
         populationDirectory = rootDirectory.resolve("populations");
         initDirectory(populationDirectory);
 
-        pareto0Directory = rootDirectory.resolve("pareto-fronts-0");
-        initDirectory(pareto0Directory);
+        finalDataDirectory = rootDirectory.resolve("FinalData");
+        initDirectory(finalDataDirectory);
 
-        pareto1Directory = rootDirectory.resolve("pareto-fronts-1");
-        initDirectory(pareto1Directory);
+        intermedDataDirectory = rootDirectory.resolve("IntermediateData");
+        initDirectory(intermedDataDirectory);
+
     }
 
     private static void initDirectory(Path path)
@@ -152,7 +158,6 @@ public class MOStatsRecorder extends StatsRecorder
             log.error("Unable to create directories", e);
         }
     }
-
 
     private static void initStatsFile(Path path)
     {
@@ -181,8 +186,7 @@ public class MOStatsRecorder extends StatsRecorder
 
         savePopulation((NEATPopulation) trainer.getPopulation(), epoch);
 
-        saveParetoFront0(epoch);
-        saveParetoFront1(epoch);
+        saveParetoFront(epoch);
 
     }
 
@@ -193,80 +197,87 @@ public class MOStatsRecorder extends StatsRecorder
         saveObjectToFile(population, path);
     }
 
-    private void saveParetoFront1(int epoch)
-    {
-        Path directory = pareto1Directory.resolve("epoch-" + epoch);
-        initDirectory(directory);
-
-        ArrayList<MultiObjectiveGenome> pareto = trainer.getSecondParetoFront();
-
-        final LabeledXYDataset paretoFront = new LabeledXYDataset(pareto.size());
-        ArrayList<String> genomesLOG = new ArrayList<>();
-
-        for (MultiObjectiveGenome genome : pareto)
-        {
-            saveParetoOptimalGenome(genome, directory);
-            ArrayList<Double> scoreVector = genome.getScoreVector();
-            Double score1 = scoreVector.get(0);
-            Double score2 = scoreVector.get(1);
-            paretoFront.add(score1, score2, genome.getScore() + "");
-            genomesLOG.add(genome.getScore() + "," + score1 + "," + score2);
-        }
-
-        Path txtPath = directory.resolve("paretolog.csv");
-        try (BufferedWriter writer = Files.newBufferedWriter(txtPath, Charset.defaultCharset()))
-        {
-            writer.write("rank,performance,sensor\n");
-            for (String s : genomesLOG)
-            {
-                writer.write(s + "\n");
-            }
-
-        } catch (IOException e)
-        {
-            log.error("Error writing pareto optimal network info file", e);
-        }
-
-        JFreeChart paretoChart = createChart(paretoFront);
-
-        int width = 640;   /* Width of the image */
-        int height = 480;  /* Height of the image */
-        File XYChart = new File(directory.toString() + "/ParetoFront.jpeg");
-
-
-        try
-        {
-            ChartUtils.saveChartAsJPEG(XYChart, paretoChart, width, height);
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-        }
+    private Double normaliseComplexityScore(Double Score){
+        return Score/100;
+    }
+    private Double normaliseTaskScore(Double Score){
+        return Score/110;
     }
 
-    private void saveParetoFront0(int epoch)
+
+
+
+
+    private void saveParetoFront(int epoch)
     {
-        Path directory = pareto0Directory.resolve("epoch-" + epoch);
-        initDirectory(directory);
+
+        Path directory = (epoch != Main.Args.numGenerations ) ? intermedDataDirectory : finalDataDirectory;
 
         ArrayList<MultiObjectiveGenome> pareto = trainer.getFirstParetoFront();
 
-        final LabeledXYDataset paretoFront = new LabeledXYDataset(pareto.size());
+        MultiObjectiveGenome kneePoint=null;
+        MultiObjectiveGenome maxTaskPerformance=null;
+        MultiObjectiveGenome epsilon=null;
+        Double sumTaskScore=0.0;
+        Double sumMorphComplexity =0.0;
+        Double sumNeuralComplexity =0.0;
+        Double minDistanceUtopia = Double.MAX_VALUE;
+        Double maxParetoTaskPerformance = Double.MIN_VALUE;
+        Double maxParetoEpsilonComplexity = Double.MIN_VALUE;
+
+       // final LabeledXYDataset paretoFront = new LabeledXYDataset(pareto.size());
         ArrayList<String> genomesLOG = new ArrayList<>();
 
-        for (MultiObjectiveGenome genome : pareto)
+        for (MultiObjectiveGenome genome : pareto)  // individual scores and complexities on front
         {
-            saveParetoOptimalGenome(genome, directory);
+            if(directory.toString().equals(finalDataDirectory.toString()))
+            {
+                saveParetoOptimalGenome(genome, directory);
+            }
             ArrayList<Double> scoreVector = genome.getScoreVector();
-            Double score1 = scoreVector.get(0);
-            Double score2 = scoreVector.get(1);
-            paretoFront.add(score1, score2, genome.getScore() + "");
-            genomesLOG.add(genome.getScore() + "," + score1 + "," + score2);
+            Double score1 = normaliseTaskScore(scoreVector.get(0));
+            Double score2 = normaliseComplexityScore(scoreVector.get(1));
+            sumTaskScore+=score1;
+            sumMorphComplexity+=score2;
+            Double distanceToUtopiaPoint = Math.sqrt(Math.pow(1-score1,2)+Math.pow(1-score2,2));
+            if(distanceToUtopiaPoint<minDistanceUtopia){
+                kneePoint=genome;
+                minDistanceUtopia =distanceToUtopiaPoint;
+            }
+
+            if(score1>maxParetoTaskPerformance){
+                maxTaskPerformance = genome;
+                maxParetoTaskPerformance = score1;
+            }
+            //paretoFront.add(score1, score2, genome.getScore() + "");
+            genomesLOG.add(Main.Args.configFile+",individual,"+genome.getScore() + "," + score1 + "," + score2);
         }
 
-        Path txtPath = directory.resolve("paretolog.csv");
+
+        //loop to find epsilon
+        for(MultiObjectiveGenome genome: pareto){
+            ArrayList<Double> scoreVector = genome.getScoreVector();
+            Double score1 = normaliseTaskScore(scoreVector.get(0));
+            Double score2 = normaliseComplexityScore(scoreVector.get(1));
+            if(score1>maxParetoTaskPerformance-0.1){//viable candidate within epsilon
+                if(score2>maxParetoEpsilonComplexity){
+                    maxParetoEpsilonComplexity =score2;
+                    epsilon = genome;
+                }
+            }
+
+        }
+
+        genomesLOG.add(Main.Args.configFile+",average,,"  + sumTaskScore/pareto.size() + "," + sumMorphComplexity/pareto.size());
+        genomesLOG.add(Main.Args.configFile+",KP," +kneePoint.getScore()+"," + normaliseTaskScore(kneePoint.getScoreVector().get(0) )+ "," + normaliseComplexityScore(kneePoint.getScoreVector().get(1)));
+        genomesLOG.add(Main.Args.configFile+",Max," +maxTaskPerformance.getScore()+"," + normaliseTaskScore(maxTaskPerformance.getScoreVector().get(0) )+ "," + normaliseComplexityScore(maxTaskPerformance.getScoreVector().get(1)));
+        genomesLOG.add(Main.Args.configFile+",Epsilon," +maxTaskPerformance.getScore()+"," + normaliseTaskScore(epsilon.getScoreVector().get(0) )+ "," + normaliseComplexityScore(epsilon.getScoreVector().get(1)));
+
+
+        Path txtPath = directory.resolve("paretolog"+ epoch +".csv");
         try (BufferedWriter writer = Files.newBufferedWriter(txtPath, Charset.defaultCharset()))
         {
-            writer.write("rank,performance,sensor\n");
+            writer.write("config,point,rank,task performance,sensor complexity,neural complexity\n");
             for (String s : genomesLOG)
             {
                 writer.write(s + "\n");
@@ -277,10 +288,12 @@ public class MOStatsRecorder extends StatsRecorder
             log.error("Error writing pareto optimal network info file", e);
         }
 
+        /*
+        //  <-- UNCOMMENT TO SAVE IMAGE OF PARETO FRONT -->
         JFreeChart paretoChart = createChart(paretoFront);
 
-        int width = 640;   /* Width of the image */
-        int height = 480;  /* Height of the image */
+        int width = 640;   // Width of the image
+        int height = 480;  // Height of the image
         File XYChart = new File(directory.toString() + "/ParetoFront.jpeg");
 
 
@@ -291,6 +304,7 @@ public class MOStatsRecorder extends StatsRecorder
         {
             e.printStackTrace();
         }
+        */
     }
 
 
