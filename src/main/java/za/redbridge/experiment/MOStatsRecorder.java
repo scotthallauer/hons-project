@@ -24,9 +24,7 @@ import za.redbridge.experiment.MultiObjective.MultiObjectiveGenome;
 import za.redbridge.experiment.NEAT.NEATPopulation;
 
 import java.awt.*;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -57,6 +55,8 @@ public class MOStatsRecorder extends StatsRecorder
 
 
     private Path populationDirectory;
+
+    private Path generationalStatsFile;
 
     private Path performanceStatsFile;
     private Path scoreStatsFile;
@@ -102,6 +102,9 @@ public class MOStatsRecorder extends StatsRecorder
         scoreStatsFile = rootDirectory.resolve("scores.csv");
         initStatsFile(scoreStatsFile);
 
+        generationalStatsFile = rootDirectory.resolve("generationalStats.csv");
+        initGenerationalStatsFile(generationalStatsFile);
+
 
         sensorStatsFile = rootDirectory.resolve("sensors.csv");
         initStatsFile(sensorStatsFile);
@@ -118,10 +121,11 @@ public class MOStatsRecorder extends StatsRecorder
 
         scoreStatsFile = rootDirectory.resolve("scores.csv");
 
+        generationalStatsFile = rootDirectory.resolve("generationalStats.csv");
+
         sensorStatsFile = rootDirectory.resolve("sensors.csv");
+
         sensorParamStatsFile = rootDirectory.resolve("sensorsParams.csv");
-
-
     }
 
     private void initDirectories()
@@ -170,6 +174,17 @@ public class MOStatsRecorder extends StatsRecorder
         }
     }
 
+    private static void initGenerationalStatsFile(Path path)
+    {
+        try (BufferedWriter writer = Files.newBufferedWriter(path, Charset.defaultCharset()))
+        {
+            writer.write("Generation,KP Task,KP Morph,KP Neural,AVG Task,AVG Morph,AVG Neural,Max Task,Max Morph,Max Neural,Epsilon Task,Epsilon Morph,Epsilon Neural\n");
+        } catch (IOException e)
+        {
+            log.error("Unable to initialize stats file", e);
+        }
+    }
+
     public void recordIterationStats()
     {
         int epoch = trainer.getIteration();
@@ -203,8 +218,6 @@ public class MOStatsRecorder extends StatsRecorder
     private Double normaliseTaskScore(Double Score){
         return Score/110;
     }
-
-
 
 
 
@@ -268,11 +281,20 @@ public class MOStatsRecorder extends StatsRecorder
 
         }
 
+
         genomesLOG.add(Main.Args.configFile+",average,,"  + sumTaskScore/pareto.size() + "," + sumMorphComplexity/pareto.size());
         genomesLOG.add(Main.Args.configFile+",KP," +kneePoint.getScore()+"," + normaliseTaskScore(kneePoint.getScoreVector().get(0) )+ "," + normaliseComplexityScore(kneePoint.getScoreVector().get(1)));
         genomesLOG.add(Main.Args.configFile+",Max," +maxTaskPerformance.getScore()+"," + normaliseTaskScore(maxTaskPerformance.getScoreVector().get(0) )+ "," + normaliseComplexityScore(maxTaskPerformance.getScoreVector().get(1)));
         genomesLOG.add(Main.Args.configFile+",Epsilon," +maxTaskPerformance.getScore()+"," + normaliseTaskScore(epsilon.getScoreVector().get(0) )+ "," + normaliseComplexityScore(epsilon.getScoreVector().get(1)));
 
+
+
+        //Generation	                                       Knee Point Task	                                              Knee Point Morph	                     Knee Point Neural	       AVG Task	                      AVG Morph	              AVG Neural	                   Max Task	                                                        Max Morph	                                      Max Neural	                Epsilon Task	                                    Epsilon Morph	                        Epsilon Neural
+        String generationalDataLine = epoch+",";
+        generationalDataLine+=normaliseTaskScore(kneePoint.getScoreVector().get(0))+","+normaliseComplexityScore(kneePoint.getScoreVector().get(1))+","+"-999"+",";
+        generationalDataLine+=sumTaskScore/pareto.size()+","+sumMorphComplexity/pareto.size()+","+sumNeuralComplexity/pareto.size()+","+"-999"+",";
+        generationalDataLine+=normaliseTaskScore(maxTaskPerformance.getScoreVector().get(0))+","+normaliseComplexityScore(maxTaskPerformance.getScoreVector().get(1))+","+"-999"+",";
+        generationalDataLine+=normaliseTaskScore(epsilon.getScoreVector().get(0))+","+normaliseComplexityScore(epsilon.getScoreVector().get(1))+","+"-999";
 
         Path txtPath = directory.resolve("paretolog"+ epoch +".csv");
         try (BufferedWriter writer = Files.newBufferedWriter(txtPath, Charset.defaultCharset()))
@@ -287,6 +309,14 @@ public class MOStatsRecorder extends StatsRecorder
         {
             log.error("Error writing pareto optimal network info file", e);
         }
+
+
+        try (PrintWriter writer = new PrintWriter(new FileWriter(generationalStatsFile.toFile(), true))) {
+            writer.println(generationalDataLine);
+        } catch (IOException e) {
+            log.error("Failed to append to log file", e);
+        }
+
 
         /*
         //  <-- UNCOMMENT TO SAVE IMAGE OF PARETO FRONT -->
