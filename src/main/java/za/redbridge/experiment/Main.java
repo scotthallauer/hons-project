@@ -192,10 +192,10 @@ public class Main
         // private String configFile = "config/ConfigDifficult.yml";
 
         @Parameter(names = "-g", description = "Number of generations to train for")    // Jamie calls this 'iterations'
-        public static int numGenerations = 5;
+        public static int numGenerations = 10;
 
         @Parameter(names = "-p", description = "Initial population size")
-        public static int populationSize = 10;
+        public static int populationSize = 15;
 
         @Parameter(names = "--trials", description = "Number of simulation runs per iteration (team lifetime)")
         // Jamie calls this 'simulationRuns' (and 'lifetime' in his paper)
@@ -228,7 +228,7 @@ public class Main
 
         @Parameter(names = "--multi-objective", description = "Using Multi-Objective NEAT/HyperNEAT"
                 +" Based on NEAT-MODS")
-        public static boolean multiObjective = true;
+        public static boolean multiObjective = false;
 
         @Override
         public String toString()

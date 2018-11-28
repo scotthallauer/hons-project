@@ -21,6 +21,8 @@ import za.redbridge.simulator.factories.RobotFactory;
 import za.redbridge.simulator.phenotype.Phenotype;
 import za.redbridge.simulator.sensor.AgentSensor;
 
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.HashMap;
 
 /**
@@ -40,6 +42,8 @@ public class ScoreCalculator implements CalculateScore
     private final DescriptiveStatistics TimeTakenStats = new SynchronizedDescriptiveStatistics();
     private final DescriptiveStatistics scoreStats = new SynchronizedDescriptiveStatistics();
     private final DescriptiveStatistics sensorStats;
+    private final DescriptiveStatistics neuralStats = new SynchronizedDescriptiveStatistics();
+
     private boolean hyperNEATM;
 
     private final HashMap<String, DescriptiveStatistics[]> sensorParam= new HashMap<>();
@@ -96,12 +100,15 @@ public class ScoreCalculator implements CalculateScore
         double score = fitness / trialsPerIndividual;
         scoreStats.addValue(score);
 
-        double score2 =calculateScore2(method);
+        double score2 = calculateScore2(method);
 
         if (isEvolvingMorphology() || hyperNEATM)
         {
             sensorStats.addValue(score2);
         }
+
+        double score3 = calculateScore3(method);
+        neuralStats.addValue(score3);
 
 
 
@@ -118,12 +125,16 @@ public class ScoreCalculator implements CalculateScore
 
         }
 
-        log.debug("task performance: " + score+"\tsensor complexity: "+score2);
+        DecimalFormat df = new DecimalFormat("0.000");
+        df.setRoundingMode(RoundingMode.CEILING);
+
+
+        log.debug("task performance: "+df.format(score)+"\tsensor complexity: "+df.format(score2)+"\tneural complexity: "+df.format(score3));
 
         return score;
     }
 
-    public double calculateScore2(MLMethod method)  // second fitness function score (multi-objective)
+    public double calculateScore2(MLMethod method)  // second fitness function score (multi-objective) --> morphological complexity
     {
         NEATMNetwork network = (NEATMNetwork) method;
         double score = 100;
@@ -149,6 +160,17 @@ public class ScoreCalculator implements CalculateScore
         return score;
 
     }
+
+    public double calculateScore3(MLMethod method)  // neural complexity
+    {
+
+
+
+        return 10;
+    }
+
+
+
     public double calculateFractionWithinRange(Range range,float value){
         return (value -(range.min))/(range.max -(range.min));
 
@@ -231,9 +253,12 @@ public class ScoreCalculator implements CalculateScore
         return sensorStats;
     }
 
+    public DescriptiveStatistics getNeuralStatistics() { return neuralStats; }
+
     public HashMap<String,DescriptiveStatistics[]> getParamSensor(){
         return sensorParam;
     }
+
 
     @Override
     public boolean shouldMinimize()

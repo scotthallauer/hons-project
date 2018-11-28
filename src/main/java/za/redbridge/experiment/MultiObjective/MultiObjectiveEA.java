@@ -754,6 +754,7 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
         final MLMethod phenotype = getCODEC().decode(g);
         double score;
         double score2;
+        double score3;
 
         // deal with invalid decode
         if (phenotype == null)
@@ -762,11 +763,13 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
             {
                 score = Double.POSITIVE_INFINITY;
                 score2 = Double.POSITIVE_INFINITY;
+                score3 = Double.POSITIVE_INFINITY;
             }
             else
             {
                 score = Double.NEGATIVE_INFINITY;
                 score2 = Double.NEGATIVE_INFINITY;
+                score3 = Double.NEGATIVE_INFINITY;
             }
         }
         else
@@ -775,14 +778,16 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
             {
                 ((MLContext) phenotype).clearContext();
             }
-            score = getScoreFunction().calculateScore(phenotype);
-            score2 = ((ScoreCalculator) getScoreFunction()).calculateScore2(phenotype);
-
+            score = getScoreFunction().calculateScore(phenotype);   // score
+            score2 = ((ScoreCalculator) getScoreFunction()).calculateScore2(phenotype); // morphology simplicity
+            score3 = ((ScoreCalculator) getScoreFunction()).calculateScore3(phenotype); // neural complexity
         }
 
         // now set the scores
         ( (MultiObjectiveGenome) g).setScore(0,score);
         ( (MultiObjectiveGenome) g).setScore(1,score2);
+        ( (MultiObjectiveGenome) g).setScore(2,score3);
+
         g.setScore(score);
         g.setAdjustedScore(score);
     }

@@ -57,20 +57,23 @@ private final Genome genome;
         {
             double score;
             double score2;
+            double score3;
             try
             {
                 score = this.scoreFunction.calculateScore(phenotype);
                 score2 = this.scoreFunction.calculateScore2(phenotype);
-
+                score3 = this.scoreFunction.calculateScore3(phenotype);
             }
             catch (EARuntimeError e)
             {
                 score = Double.NaN;
                 score2 = Double.NaN;
+                score3 = Double.NaN;
             }
 
             ((MultiObjectiveGenome) genome).setScore(0,score);
             ((MultiObjectiveGenome) genome).setScore(1, score2);
+            ((MultiObjectiveGenome) genome).setScore(2, score3);
             genome.setScore(score);
             genome.setAdjustedScore(score);
             BasicEA.calculateScoreAdjustment(genome, adjusters);

@@ -42,6 +42,7 @@ public class StatsRecorder {
 
     private Path performanceStatsFile;
     private Path scoreStatsFile;
+    private Path neuralStatsFile;
     private Path sensorStatsFile;
     private Path sensorParamStatsFile;
     private String txt;
@@ -108,6 +109,9 @@ public class StatsRecorder {
         scoreStatsFile = rootDirectory.resolve("scores.csv");
         initStatsFile(scoreStatsFile);
 
+        neuralStatsFile = rootDirectory.resolve("neural.csv");
+        initStatsFile(neuralStatsFile);
+
         if (evolvingMorphology) {
             sensorStatsFile = rootDirectory.resolve("sensors.csv");
             initStatsFile(sensorStatsFile);
@@ -155,6 +159,7 @@ public class StatsRecorder {
         if (evolvingMorphology) {
             recordStats("Sensor", calculator.getSensorStatistics(), epoch, sensorStatsFile);
             recordStats("SensorParams", calculator.getParamSensor(), epoch, sensorParamStatsFile);
+            recordStats("Neural", calculator.getNeuralStatistics(), epoch, neuralStatsFile);
         }
 
 
@@ -176,33 +181,20 @@ public class StatsRecorder {
     }
 
     private void saveGenome(NEATGenome genome, int epoch) {
-
-
-
         Path directory = bestNetworkDirectory.resolve("epoch-" + epoch);
         initDirectory(directory);
-
 
         NEATPopulation pop = (NEATPopulation) genome.getPopulation();
         NEATMNetwork nw = (NEATMNetwork) pop.getCODEC().decode(genome);
         double score2= calculator.calculateScore2(nw);
+        double score3= calculator.calculateScore3(nw);
         if (evolvingMorphology) {
-            if(HyperNEATM){
-
-                log.info("New best genome! Epoch: " + epoch + ", task performance:: " + genome.getScore()
-                        + ", sensor complexity: " + score2);
-                txt = String.format("epoch: %d, fitness: %f, sensors: %f", epoch, genome.getScore(),
-                        score2);
-            }
-            else{
-                log.info("New best genome! Epoch: " + epoch + ", task performance: " + genome.getScore()
-                        + ", sensor complexity: " + score2);
-                txt = String.format("epoch: %d, fitness: %f, sensors: %f", epoch, genome.getScore()+0,
-                        score2);
-            }
+            log.info("New best genome! Epoch: " + epoch + ", task performance:: " + genome.getScore()
+                    + ", sensor complexity: " + score2);
+            txt = String.format("epoch: %d, fitness: %f, sensors: %f, neural: %f", epoch, genome.getScore(), score2, score3);
 
         } else {
-            log.info("New best genome! Epoch: " + epoch + ", task performance: "  + genome.getScore()+",score complexity:"+score2);
+            log.info("New best genome! Epoch: " + epoch + ", task performance: "  + genome.getScore()+",morph complexity:"+score2+",neural complexity:"+score3);
             txt = String.format("epoch: %d, fitness: %f", epoch, genome.getScore());
         }
         Path txtPath = directory.resolve("info.txt");
@@ -222,9 +214,8 @@ public class StatsRecorder {
             GraphvizEngine.saveNetwork(network, directory.resolve("phenome-ANN.dot"));
         }
 
-
-
     }
+
 
     public void recordStats(String type, DescriptiveStatistics stats, int epoch, Path filepath) {
         double max = stats.getMax();

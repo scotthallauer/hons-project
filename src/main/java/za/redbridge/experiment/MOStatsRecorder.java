@@ -59,6 +59,7 @@ public class MOStatsRecorder extends StatsRecorder
     private Path generationalStatsFile;
 
     private Path performanceStatsFile;
+    private Path neuralStatsFile;
     private Path scoreStatsFile;
     private Path sensorStatsFile;
     private Path sensorParamStatsFile;
@@ -102,6 +103,9 @@ public class MOStatsRecorder extends StatsRecorder
         scoreStatsFile = rootDirectory.resolve("scores.csv");
         initStatsFile(scoreStatsFile);
 
+        neuralStatsFile = rootDirectory.resolve("neural.csv");
+        initStatsFile(neuralStatsFile);
+
         generationalStatsFile = rootDirectory.resolve("generationalStats.csv");
         initGenerationalStatsFile(generationalStatsFile);
 
@@ -118,6 +122,8 @@ public class MOStatsRecorder extends StatsRecorder
     {
 
         performanceStatsFile = rootDirectory.resolve("timeTaken.csv");
+
+        neuralStatsFile = rootDirectory.resolve("neural.csv");
 
         scoreStatsFile = rootDirectory.resolve("scores.csv");
 
@@ -199,6 +205,8 @@ public class MOStatsRecorder extends StatsRecorder
 
         recordStats("SensorParams", calculator.getParamSensor(), epoch, sensorParamStatsFile);
 
+        recordStats("Neural", calculator.getNeuralStatistics(), epoch, neuralStatsFile);
+
         savePopulation((NEATPopulation) trainer.getPopulation(), epoch);
 
         saveParetoFront(epoch);
@@ -250,8 +258,10 @@ public class MOStatsRecorder extends StatsRecorder
             ArrayList<Double> scoreVector = genome.getScoreVector();
             Double score1 = normaliseTaskScore(scoreVector.get(0));
             Double score2 = normaliseComplexityScore(scoreVector.get(1));
+            Double score3 = normaliseComplexityScore(scoreVector.get(2));
             sumTaskScore+=score1;
             sumMorphComplexity+=score2;
+            sumNeuralComplexity+=score3;
             Double distanceToUtopiaPoint = Math.sqrt(Math.pow(1-score1,2)+Math.pow(1-score2,2));
             if(distanceToUtopiaPoint<minDistanceUtopia){
                 kneePoint=genome;
@@ -263,7 +273,7 @@ public class MOStatsRecorder extends StatsRecorder
                 maxParetoTaskPerformance = score1;
             }
             //paretoFront.add(score1, score2, genome.getScore() + "");
-            genomesLOG.add(Main.Args.configFile+",individual,"+genome.getScore() + "," + score1 + "," + score2);
+            genomesLOG.add(Main.Args.configFile+",individual,"+genome.getScore() + "," + score1 + "," + score2+","+score3);
         }
 
 
@@ -282,19 +292,19 @@ public class MOStatsRecorder extends StatsRecorder
         }
 
 
-        genomesLOG.add(Main.Args.configFile+",average,,"  + sumTaskScore/pareto.size() + "," + sumMorphComplexity/pareto.size());
-        genomesLOG.add(Main.Args.configFile+",KP," +kneePoint.getScore()+"," + normaliseTaskScore(kneePoint.getScoreVector().get(0) )+ "," + normaliseComplexityScore(kneePoint.getScoreVector().get(1)));
-        genomesLOG.add(Main.Args.configFile+",Max," +maxTaskPerformance.getScore()+"," + normaliseTaskScore(maxTaskPerformance.getScoreVector().get(0) )+ "," + normaliseComplexityScore(maxTaskPerformance.getScoreVector().get(1)));
-        genomesLOG.add(Main.Args.configFile+",Epsilon," +maxTaskPerformance.getScore()+"," + normaliseTaskScore(epsilon.getScoreVector().get(0) )+ "," + normaliseComplexityScore(epsilon.getScoreVector().get(1)));
+        genomesLOG.add(Main.Args.configFile+",average,,"  + sumTaskScore/pareto.size() + "," + sumMorphComplexity/pareto.size()+","+sumNeuralComplexity/pareto.size());
+        genomesLOG.add(Main.Args.configFile+",KP," +kneePoint.getScore()+"," + normaliseTaskScore(kneePoint.getScoreVector().get(0) )+ "," + normaliseComplexityScore(kneePoint.getScoreVector().get(1))+ "," + normaliseComplexityScore(kneePoint.getScoreVector().get(2)));
+        genomesLOG.add(Main.Args.configFile+",Max," +maxTaskPerformance.getScore()+"," + normaliseTaskScore(maxTaskPerformance.getScoreVector().get(0) )+ "," + normaliseComplexityScore(maxTaskPerformance.getScoreVector().get(1))+ "," + normaliseComplexityScore(maxTaskPerformance.getScoreVector().get(2)));
+        genomesLOG.add(Main.Args.configFile+",Epsilon," +maxTaskPerformance.getScore()+"," + normaliseTaskScore(epsilon.getScoreVector().get(0) )+ "," + normaliseComplexityScore(epsilon.getScoreVector().get(1))+"," + normaliseComplexityScore(epsilon.getScoreVector().get(2)));
 
 
 
         //Generation	                                       Knee Point Task	                                              Knee Point Morph	                     Knee Point Neural	       AVG Task	                      AVG Morph	              AVG Neural	                   Max Task	                                                        Max Morph	                                      Max Neural	                Epsilon Task	                                    Epsilon Morph	                        Epsilon Neural
         String generationalDataLine = epoch+",";
-        generationalDataLine+=normaliseTaskScore(kneePoint.getScoreVector().get(0))+","+normaliseComplexityScore(kneePoint.getScoreVector().get(1))+","+"-999"+",";
-        generationalDataLine+=sumTaskScore/pareto.size()+","+sumMorphComplexity/pareto.size()+","+sumNeuralComplexity/pareto.size()+","+"-999"+",";
-        generationalDataLine+=normaliseTaskScore(maxTaskPerformance.getScoreVector().get(0))+","+normaliseComplexityScore(maxTaskPerformance.getScoreVector().get(1))+","+"-999"+",";
-        generationalDataLine+=normaliseTaskScore(epsilon.getScoreVector().get(0))+","+normaliseComplexityScore(epsilon.getScoreVector().get(1))+","+"-999";
+        generationalDataLine+=normaliseTaskScore(kneePoint.getScoreVector().get(0))+","+normaliseComplexityScore(kneePoint.getScoreVector().get(1))+","+normaliseComplexityScore(kneePoint.getScoreVector().get(2))+",";
+        generationalDataLine+=sumTaskScore/pareto.size()+","+sumMorphComplexity/pareto.size()+","+sumNeuralComplexity/pareto.size()+",";
+        generationalDataLine+=normaliseTaskScore(maxTaskPerformance.getScoreVector().get(0))+","+normaliseComplexityScore(maxTaskPerformance.getScoreVector().get(1))+","+normaliseComplexityScore(maxTaskPerformance.getScoreVector().get(2))+",";
+        generationalDataLine+=normaliseTaskScore(epsilon.getScoreVector().get(0))+","+normaliseComplexityScore(epsilon.getScoreVector().get(1))+","+normaliseComplexityScore(epsilon.getScoreVector().get(2));
 
         Path txtPath = directory.resolve("paretolog"+ epoch +".csv");
         try (BufferedWriter writer = Files.newBufferedWriter(txtPath, Charset.defaultCharset()))
