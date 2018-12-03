@@ -124,7 +124,7 @@ public class Main
         //prevent elitist selection --> in future should use this for param tuning
         if (!options.multiObjective)
         {
-            ((SingleObjectiveEA) train).setEliteRate(0);
+            ((SingleObjectiveEA) train).setEliteRate(0.2);
         }
         log.info("Available processors detected: " + Runtime.getRuntime().availableProcessors());
         if (options.threads > 0)
@@ -165,6 +165,8 @@ public class Main
             train.iteration();
             statsRecorder.recordIterationStats();
 
+            /*
+            // set covergence for single objective
             if(!options.multiObjective)
             {
                 if (train.getBestGenome().getScore() >= CONVERGENCE_SCORE)
@@ -173,6 +175,7 @@ public class Main
                     break;
                 }
             }
+            */
         }
 
         log.debug("Training complete");
