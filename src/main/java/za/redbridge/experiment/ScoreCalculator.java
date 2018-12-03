@@ -91,8 +91,8 @@ public class ScoreCalculator implements CalculateScore
         {
             simulation.run();
             fitness += simulation.getFitness().getTeamFitness();
-            fitness += 20 * (1.0 - simulation.getProgressFraction()); // Time bonus --> progress fraction is ratio of timesteps that were needed to gather all resources with respect to// total possible timesteps for each individual's trial. So if an individual doesn't gather all resources, progress fraction
-                                                                      // will just land up being 1, and thus the time bonus will be 20*(1-1) = 0.
+            fitness += 10 * (1.0 - simulation.getProgressFraction()); // Time bonus --> progress fraction is ratio of timesteps that were needed to gather all resources with respect to// total possible timesteps for each individual's trial. So if an individual doesn't gather all resources, progress fraction
+                                                                      // will just land up being 1, and thus the time bonus will be 10*(1-1) = 0.
             peformance +=simulation.getProgressFraction();
         }
 
