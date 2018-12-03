@@ -1,6 +1,6 @@
 ---
 simulation:
-  timesteps: 5000
+  timesteps: 1000
 resources:
   small:
     quantity: 10

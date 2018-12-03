@@ -380,6 +380,7 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
 
         // execute species in parallel
         this.threadList.clear();
+
         for (final Species species : getPopulation().getSpecies()) {
             int numToSpawn = species.getOffspringCount();
             for(Genome g: species.getMembers()){
@@ -393,6 +394,7 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
                 this.threadList.add(worker);
             }
         }
+        
 
         // run all threads and wait for them to finish
         // each thread creates one bae! the bae is then evaluated
@@ -414,8 +416,6 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
         this.speciation.performSpeciation(this.newPopulation);
 
         this.population.purgeInvalidGenomes();  // delete genomes with NaN scores
-
-
 
         //call method on combined population (nonDomCrowd Sort
 
@@ -439,12 +439,6 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
             // parentPopulation = the N selected individuals
 
         setNonDominationAndCrowdDists(false);
-
-        for(Species s: population.getSpecies()){
-            System.out.println(s);
-            System.out.println(s.getLeader());
-        }
-
 
     }
 
@@ -666,12 +660,17 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
      *            The child.
      * @return True, if the child was added successfully.
      */
-    public boolean addChild(final Genome genome) {
-        synchronized (this.newPopulation) {
-            if (this.newPopulation.size() < getPopulation().getPopulationSize()*2) {
+    public boolean addChild(final Genome genome)
+    {
+        synchronized (this.newPopulation)
+        {
+            if (this.newPopulation.size() < getPopulation().getPopulationSize()*2)
+            {
 
-                if (isValidationMode()) {
-                    if (this.newPopulation.contains(genome)) {
+                if (isValidationMode())
+                {
+                    if (this.newPopulation.contains(genome))
+                    {
                         throw new EncogError(
                                 "Genome already added to population: "
                                         + genome.toString());
@@ -680,17 +679,18 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
 
                 this.newPopulation.add(genome);
 
-
-
                 if (!Double.isInfinite(genome.getScore())
                         && !Double.isNaN(genome.getScore())
                         && getBestComparator().isBetterThan(genome,
-                        this.bestGenome)) {
+                        this.bestGenome))
+                {
                     this.bestGenome = genome;
                     getPopulation().setBestGenome(this.bestGenome);
                 }
                 return true;
-            } else {
+            }
+            else
+            {
                 System.out.println("tooo big");
                 return false;
             }
@@ -1188,14 +1188,19 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
                 share = 1;
             }
 
+            /*
             // if the share is zero, then remove the species
-            if ((species.getMembers().size() == 0) || (share == 0)) {
-                speciesCollection.remove(species);
+            if ((species.getMembers().size() == 0) || (share == 0))
+            {
+                speciesCollection.remove(species);    // todo: was this
             }
-            else {
+            else
+            {
                 // otherwise assign a share and sort the members.
                 species.setOffspringCount(share);
             }
+            */
+            species.setOffspringCount(share); // remove this if uncommenting above lines
         }
     }
     /**
@@ -1235,9 +1240,12 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
                 final int t = Math.min(species.getOffspringCount(),
                         Math.abs(diff));
                 species.setOffspringCount(species.getOffspringCount() - t);
-                if (species.getOffspringCount() == 0) {
-                    list.remove(index);
+                /*
+                if (species.getOffspringCount() == 0)
+                {
+                    list.remove(index);                 // todo: related to
                 }
+                */
                 diff += t;
                 index--;
             }

@@ -124,6 +124,7 @@ public class StatsRecorder {
     private void initStatsFilesResume() {
         performanceStatsFile = rootDirectory.resolve("timeTaken.csv");
         scoreStatsFile = rootDirectory.resolve("scores.csv");
+        neuralStatsFile = rootDirectory.resolve("neural.csv");
         if (evolvingMorphology) {
             sensorStatsFile = rootDirectory.resolve("sensors.csv");
             sensorParamStatsFile = rootDirectory.resolve("sensorsParams.csv");
