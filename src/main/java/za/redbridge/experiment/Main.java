@@ -190,9 +190,9 @@ public class Main
     {
         @Parameter(names = "-c", description = "Simulation config file to load")
         //public static String configFile = "config/bossConfig.yml";
-        public static String configFile = "config/ConfigSimple.yml";
-        //public String configFile = "config/ConfigMedium.yml";
-        // public String configFile = "config/ConfigDifficult.yml";
+      // public static String configFile = "config/ConfigSimple.yml";
+        public static String configFile = "config/ConfigMedium.yml";
+        // public static String configFile = "config/ConfigDifficult.yml";
 
         @Parameter(names = "-g", description = "Number of generations to train for")    // Jamie calls this 'iterations'
         public static int numGenerations = 250;
