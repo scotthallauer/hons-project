@@ -592,8 +592,10 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
         {
             i.setDistance(0.0);
         }
+
         MaximisingObjectiveComparator<MultiObjectiveGenome> comparator = new MaximisingObjectiveComparator<>();
-        for(int i =0;i<2;i++){
+       // for(int i =0;i<2;i++){ //change for MO!!!!
+        for(int i =0;i<3;i=i+2){
             comparator.setObjectiveIndex(i);
             Collections.sort(front,comparator);
             front.get(0).setDistance(Double.POSITIVE_INFINITY);
@@ -610,12 +612,13 @@ public class MultiObjectiveEA implements EvolutionaryAlgorithm, MultiThreadable,
 
 
     }
-
+    //
     private boolean checkADominatesB(MultiObjectiveGenome a, MultiObjectiveGenome b) // check if a dominates b
     {
-        if(a.getScoreVector().get(0) >= b.getScoreVector().get(0) && a.getScoreVector().get(1) >= b.getScoreVector().get(1))
+        int secondScore =2; //for Morph - change to 1
+        if(a.getScoreVector().get(0) >= b.getScoreVector().get(0) && a.getScoreVector().get(secondScore) >= b.getScoreVector().get(secondScore))
         {
-            if(a.getScoreVector().get(0) > b.getScoreVector().get(0) || a.getScoreVector().get(1) > b.getScoreVector().get(1))
+            if(a.getScoreVector().get(0) > b.getScoreVector().get(0) || a.getScoreVector().get(secondScore) > b.getScoreVector().get(secondScore))
             {
                 return true; // a dominates b
             }
