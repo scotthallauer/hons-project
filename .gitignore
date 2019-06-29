@@ -2,3 +2,4 @@ out/*
 .idea/*
 results/*
 *.class
+.DS_Store
