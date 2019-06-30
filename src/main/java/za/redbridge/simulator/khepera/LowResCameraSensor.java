@@ -25,6 +25,7 @@ public class LowResCameraSensor extends AgentSensor
 {
     private static final float LOWRES_SENSOR_RANGE = 3.0f;
     private static final float LOWRES_SENSOR_FOV = 1.5f; // This is a guess
+    private static final float LOWRES_SENSOR_ENERGY_COST = 10.0f; // Most expensive sensor
 
     public static final Color SensorColor = new Color(0, 255, 255, 50);
 
@@ -35,7 +36,7 @@ public class LowResCameraSensor extends AgentSensor
 
     public LowResCameraSensor(float bearing, float orientation, float range, float fieldOfView)
     {
-        super(SensorColor, bearing, orientation, range, fieldOfView);
+        super(SensorColor, bearing, orientation, range, fieldOfView, LOWRES_SENSOR_ENERGY_COST);
 
     }
 
@@ -46,7 +47,8 @@ public class LowResCameraSensor extends AgentSensor
                 "\nbearing=" + bearing +
                 "\norientation=" + orientation +
                 "\nrange=" + range +
-                "\nfieldOfView=" + fieldOfView;
+                "\nfieldOfView=" + fieldOfView +
+                "\nenergyCost=" + energyCost;
     }
 
     @Override

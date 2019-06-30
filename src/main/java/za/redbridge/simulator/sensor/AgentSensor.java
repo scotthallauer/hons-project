@@ -42,6 +42,7 @@ public abstract class AgentSensor extends Sensor<List<Double>> {
     protected final float orientation;
     protected final float range;
     protected final float fieldOfView;
+    protected final float energyCost;
 
     private final float fovGradient;
 
@@ -57,6 +58,7 @@ public abstract class AgentSensor extends Sensor<List<Double>> {
         orientation = 0.0f;
         range = 10.0f;
         fieldOfView = 1.5f;
+        energyCost = 10.0f;
         fovGradient = (float) Math.tan(fieldOfView / 2);
     }
 
@@ -66,10 +68,12 @@ public abstract class AgentSensor extends Sensor<List<Double>> {
         orientation = 0.0f;
         range = 10.0f;
         fieldOfView = 1.5f;
+        energyCost = 10.0f;
         fovGradient = (float) Math.tan(fieldOfView / 2);
     }
 
-    public AgentSensor(Color colorSensor, float bearing, float orientation, float range, float fieldOfView) {
+    public AgentSensor(Color colorSensor, float bearing, float orientation, float range, float fieldOfView,
+                       float energyCost) {
         super(colorSensor);
         if (fieldOfView <= 0 || fieldOfView > MathUtils.PI) {
             throw new IllegalArgumentException("Invalid field of view value: " + fieldOfView);
@@ -83,11 +87,12 @@ public abstract class AgentSensor extends Sensor<List<Double>> {
         this.orientation = orientation;
         this.range = range;
         this.fieldOfView = fieldOfView;
+        this.energyCost = energyCost;
 
         fovGradient = (float) Math.tan(fieldOfView / 2);
     }
 
-    public AgentSensor(float bearing, float orientation, float range, float fieldOfView) {
+    public AgentSensor(float bearing, float orientation, float range, float fieldOfView, float energyCost) {
         if (fieldOfView <= 0 || fieldOfView > MathUtils.PI) {
             throw new IllegalArgumentException("Invalid field of view value: " + fieldOfView);
         }
@@ -100,6 +105,7 @@ public abstract class AgentSensor extends Sensor<List<Double>> {
         this.orientation = orientation;
         this.range = range;
         this.fieldOfView = fieldOfView;
+        this.energyCost = energyCost;
 
         fovGradient = (float) Math.tan(fieldOfView / 2);
     }
@@ -449,5 +455,9 @@ public abstract class AgentSensor extends Sensor<List<Double>> {
 
     public float getFieldOfView() {
         return fieldOfView;
+    }
+
+    public float getEnergyCost() {
+        return energyCost;
     }
 }

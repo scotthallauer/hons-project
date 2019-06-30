@@ -14,6 +14,7 @@ import za.redbridge.simulator.sensor.sensedobjects.SensedObject;
 public class ColourProximityAgentSensor extends AgentSensor {
 
     private static final int readingSize = 1;
+    private static final float ENERGY_COST = 2.0f;
 
     public ColourProximityAgentSensor(float bearing) {
         this(bearing, 0.0f, 30.0f, 0.1f);
@@ -21,7 +22,7 @@ public class ColourProximityAgentSensor extends AgentSensor {
 
     public ColourProximityAgentSensor(float bearing, float orientation, float range,
             float fieldOfView) {
-        super(bearing, orientation, range, fieldOfView);
+        super(bearing, orientation, range, fieldOfView, ENERGY_COST);
     }
 
     @Override

@@ -21,6 +21,7 @@ public class ProximitySensor extends AgentSensor {
 
     public static final float RANGE = 0.2f;
     public static final float FIELD_OF_VIEW = 0.2f; // This is a guess
+    public static final float ENERGY_COST = 1.0f; // Least expensive sensor
 
     public static final Color SensorColour = new Color(255, 0, 0, 50);
 
@@ -35,10 +36,10 @@ public class ProximitySensor extends AgentSensor {
     }
 
     public ProximitySensor(float bearing, float orientation, float range, float fieldOfView) {
-        super(SensorColour, bearing, orientation, range, fieldOfView);
+        super(SensorColour, bearing, orientation, range, fieldOfView, ENERGY_COST);
     }
     public ProximitySensor(Color SensorCol, float bearing, float orientation, float range, float fieldOfView) {
-        super(SensorCol, bearing, orientation, range, fieldOfView);
+        super(SensorCol, bearing, orientation, range, fieldOfView, ENERGY_COST);
     }
 
     @Override
@@ -67,7 +68,8 @@ public class ProximitySensor extends AgentSensor {
                 "\nbearing=" + bearing +
                 "\norientation=" + orientation +
                 "\nrange=" + range +
-                "\nfieldOfView=" + fieldOfView;
+                "\nfieldOfView=" + fieldOfView +
+                "\nenergyCost=" + energyCost;
     }
 
     @Override

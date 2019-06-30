@@ -21,6 +21,7 @@ public class UltrasonicSensor extends AgentSensor {
     public static final float RANGE = 4.0f; // 4 meters
     public static final float RANGE_NO_DISTANCE = 0.2f; // 20 centimeters
     public static final float FIELD_OF_VIEW = 1.22f; // 35 degrees
+    public static final float ENERGY_COST = 5.0f;
 
     public static final Color SensorColor = new Color(0, 255, 0, 50);
 
@@ -29,7 +30,7 @@ public class UltrasonicSensor extends AgentSensor {
     }
 
     public UltrasonicSensor(float bearing, float orientation, float range, float fieldOfView) {
-        super(SensorColor, bearing, orientation, range, fieldOfView);
+        super(SensorColor, bearing, orientation, range, fieldOfView, ENERGY_COST);
     }
 
     @Override
@@ -49,7 +50,8 @@ public class UltrasonicSensor extends AgentSensor {
                 "\nbearing=" + bearing +
                 "\norientation=" + orientation +
                 "\nrange=" + range +
-                "\nfieldOfView=" + fieldOfView;
+                "\nfieldOfView=" + fieldOfView +
+                "\nenergyCost=" + energyCost;
     }
 
     private double readingCurve(float distance) {
