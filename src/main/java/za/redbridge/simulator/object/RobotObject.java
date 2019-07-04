@@ -88,7 +88,12 @@ public class RobotObject extends PhysicalObject {
         samplePoints = new ArrayList<>();
         samplePolygonAreas = new ArrayList<>();
     }
-
+    public int getBatLife(){
+        return currentBatLife;
+    }
+    private void drainBat(int cost){
+        currentBatLife-=cost;
+    }
     private void initSensors() {
         for (AgentSensor sensor : phenotype.getSensors()) {
             sensor.attach(this);
@@ -148,8 +153,9 @@ public class RobotObject extends PhysicalObject {
     @Override
     public void step(SimState sim) {
         super.step(sim);
-        if (currentBatLife<=0)
+        if (getBatLife()<=0) {
             return;
+        }
         int stepCost=0;
 
         List<AgentSensor> sensors = phenotype.getSensors();
@@ -160,7 +166,7 @@ public class RobotObject extends PhysicalObject {
         }
 
         //Drain battery
-        currentBatLife-=stepCost;
+        drainBat(stepCost);
 
         Double2D wheelDrives = heuristicPhenotype.step(readings);
 
