@@ -48,6 +48,9 @@ public class RobotObject extends PhysicalObject {
     private static final float VELOCITY_RAMPDOWN_START = 0.2f;
     private static final float VELOCITY_RAMPDOWN_END = 0.5f;
 
+    private static final int BATTERY_CAPACITY = 1000;
+    private int currentBatLife;
+
     private final Phenotype phenotype;
     private final HeuristicPhenotype heuristicPhenotype;
 
@@ -90,6 +93,8 @@ public class RobotObject extends PhysicalObject {
         for (AgentSensor sensor : phenotype.getSensors()) {
             sensor.attach(this);
         }
+
+        currentBatLife=BATTERY_CAPACITY;
 
         getPortrayal().setChildDrawable(new Drawable() {
             @Override
@@ -143,12 +148,19 @@ public class RobotObject extends PhysicalObject {
     @Override
     public void step(SimState sim) {
         super.step(sim);
+        if (currentBatLife<=0)
+            return;
+        int stepCost=0;
 
         List<AgentSensor> sensors = phenotype.getSensors();
         List<List<Double>> readings = new ArrayList<>(sensors.size());
         for (AgentSensor sensor : sensors) {
             readings.add(sensor.sense());
+            stepCost+=sensor.getEnergyCost();
         }
+
+        //Drain battery
+        currentBatLife-=stepCost;
 
         Double2D wheelDrives = heuristicPhenotype.step(readings);
 
