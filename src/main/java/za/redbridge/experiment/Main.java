@@ -20,7 +20,6 @@ import za.redbridge.experiment.NEATM.NEATMUtil;
 import za.redbridge.experiment.SingleObjective.SingleObjectiveEA;
 import za.redbridge.simulator.config.SimConfig;
 
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -34,34 +33,37 @@ import static za.redbridge.experiment.Utils.readObjectFromFile;
  */
 public class Main
 {
-    private static final double CONVERGENCE_SCORE = 110;
+    // private static final double CONVERGENCE_SCORE = 110;
 
-    public static void main(String[] args) throws IOException
+    public static void main(String[] args)
     {
+        // Set date for logging and results output
         String date = new SimpleDateFormat("MMdd'T'HHmm").format(new Date());
         System.setProperty("log.name", "logback-"+date+".log");
         Utils.date = date;
 
+        // Create logger to output experiment simulation progress
         Logger log = LoggerFactory.getLogger(Main.class);
 
+        // Set up the experiment parameters (overriding default values with any provided via command line args)
         Args options = new Args();
         new JCommander(options, args);
-
         log.info(options.toString());
-        //Loading in the config
+
+        // Load the simulation configuration (from file if provided, otherwise use defaults)
         SimConfig simConfig;
-        if (!isBlank(options.configFile))                   // if using config file
-        {
+        if (!isBlank(options.configFile))
             simConfig = new SimConfig(options.configFile);
-        } else
-        {
+        else
             simConfig = new SimConfig();
-        }
+
+        // Enable/disable sensor energy costs in the simulation config according to experiment parameters
+        simConfig.setRobotSensorEnergyCosts(options.sensorEnergyCosts);
 
         ScoreCalculator calculateScore =
                 new ScoreCalculator(simConfig, options.trialsPerIndividual, null, options.hyperNEATM);
 
-        String type = "";
+        // If a genome is provided, run a GUI demo of simulation
         if (!isBlank(options.genomePath))
         {
             NEATNetwork network = (NEATNetwork) readObjectFromFile(options.genomePath);
@@ -69,13 +71,17 @@ public class Main
             return;
         }
 
+        // If a population is provided, load the population from the file
         final NEATPopulation population;
         String popDirectory ="";
+        String type = "";
         if (!isBlank(options.populationPath))
         {
             population = (NEATPopulation) readObjectFromFile(options.populationPath);
             popDirectory = options.populationPath.split("results/")[1].split("/populations")[0];
         }
+
+        // If no population is provided, initialise a new population
         else
         {
             if (options.hyperNEATM)
@@ -190,9 +196,9 @@ public class Main
     {
         @Parameter(names = "-c", description = "Simulation config file to load")
         //public static String configFile = "config/bossConfig.yml";
-      // public static String configFile = "config/ConfigSimple.yml";
+        //public static String configFile = "config/ConfigSimple.yml";
         public static String configFile = "config/ConfigMedium.yml";
-        // public static String configFile = "config/ConfigDifficult.yml";
+        //public static String configFile = "config/ConfigDifficult.yml";
 
         @Parameter(names = "-g", description = "Number of generations to train for")    // Jamie calls this 'iterations'
         public static int numGenerations = 250;
@@ -217,12 +223,14 @@ public class Main
         @Parameter(names = "--HyperNEATM", description = "Using HyperNEATM")
         public static boolean hyperNEATM = false;
 
+        @Parameter(names = "--energy-costs", description = "Enable/disable sensor energy costs in the simulation " +
+                "(if enabled, then robots' batteries will drain at a rate determined by their sensor configuration)")
+        public static boolean sensorEnergyCosts = true;
+
         @Parameter(names = "--population", description = "To resume a previous experiment, provide"
                 + " the path to a serialized population")
-        public static String populationPath =null;
-
+        public static String populationPath = null;
         //private String populationPath = "/mnt/lustre/users/dnagar/experiment-...";
-
         //private String populationPath = "/mnt/lustre/users/afurman/experiment-...";
 
         @Parameter(names = "--threads", description = "Number of threads to run simulations with."
@@ -244,6 +252,7 @@ public class Main
                     + "\tInitial connection density: " + connectionDensity + "\n"
                     + "\tDemo network config path: " + genomePath + "\n"
                     + "\tHyperNEATM: " + hyperNEATM + "\n"
+                    + "\tSensor energy costs: " + sensorEnergyCosts + "\n"
                     + "\tPopulation path: " + populationPath + "\n"
                     + "\tNumber of threads: " + threads + "\n"
                     + "\tMulti-objective: " + multiObjective;

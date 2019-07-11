@@ -52,7 +52,7 @@ public class ScoreCalculator implements CalculateScore
 
 
     public ScoreCalculator(SimConfig simConfig, int trialsPerIndividual,
-                           SensorMorphology sensorMorphology, boolean hyperNEATM )
+                           SensorMorphology sensorMorphology, boolean hyperNEATM)
     {
         this.simConfig = simConfig;
         this.trialsPerIndividual = trialsPerIndividual;
@@ -80,7 +80,7 @@ public class ScoreCalculator implements CalculateScore
         NEATNetwork network = (NEATNetwork) method;
         RobotFactory robotFactory = new HomogeneousRobotFactory(getPhenotypeForNetwork(network),
                 simConfig.getRobotMass(), simConfig.getRobotRadius(), simConfig.getRobotColour(),
-                simConfig.getObjectsRobots());
+                simConfig.getObjectsRobots(), simConfig.getRobotSensorEnergyCosts());
 
         // Create the simulation and run it
         Simulation simulation = new Simulation(simConfig, robotFactory);
@@ -91,7 +91,8 @@ public class ScoreCalculator implements CalculateScore
         {
             simulation.run();
             fitness += simulation.getFitness().getTeamFitness();
-            fitness += 10 * (1.0 - simulation.getProgressFraction()); // Time bonus --> progress fraction is ratio of timesteps that were needed to gather all resources with respect to// total possible timesteps for each individual's trial. So if an individual doesn't gather all resources, progress fraction
+            fitness += 10 * (1.0 - simulation.getProgressFraction()); // Time bonus --> progress fraction is ratio of timesteps that were needed to gather all resources with respect to
+                                                                      // total possible timesteps for each individual's trial. So if an individual doesn't gather all resources, progress fraction
                                                                       // will just land up being 1, and thus the time bonus will be 10*(1-1) = 0.
             peformance +=simulation.getProgressFraction();
         }
@@ -204,7 +205,7 @@ public class ScoreCalculator implements CalculateScore
         NEATNetwork network = (NEATNetwork) method;
         RobotFactory robotFactory = new HomogeneousRobotFactory(getPhenotypeForNetwork(network),
                 simConfig.getRobotMass(), simConfig.getRobotRadius(), simConfig.getRobotColour(),
-                simConfig.getObjectsRobots());
+                simConfig.getObjectsRobots(), simConfig.getRobotSensorEnergyCosts());
 
         // Create the simulation and run it
         Simulation simulation = new Simulation(simConfig, robotFactory);

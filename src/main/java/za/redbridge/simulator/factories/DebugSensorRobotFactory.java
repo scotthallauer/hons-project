@@ -17,14 +17,16 @@ public class DebugSensorRobotFactory implements RobotFactory {
     protected Phenotype phenotype;
     protected HeuristicPhenotype heuristicPhenotype;
     protected int numRobots;
+    protected boolean sensorEnergyCosts;
 
     public DebugSensorRobotFactory(Phenotype phenotype, float mass, float radius, Color color,
-            int numRobots) {
+            int numRobots, boolean sensorEnergyCosts) {
         this.phenotype = phenotype;
         this.mass = mass;
         this.radius = radius;
         this.color = color;
         this.numRobots = numRobots;
+        this.sensorEnergyCosts = sensorEnergyCosts;
     }
 
     @Override
@@ -32,12 +34,12 @@ public class DebugSensorRobotFactory implements RobotFactory {
             Vec2 targetAreaPosition) {
         PlacementArea.Space space = placementArea.getCircularSpace(radius, new Vec2(50, 50), 0f);
         RobotObject r1 = new RobotObject(world, space.getPosition(), space.getAngle(), radius, mass,
-                color, phenotype.clone(), targetAreaPosition);
+                color, phenotype.clone(), sensorEnergyCosts, targetAreaPosition);
         placementArea.placeObject(space, r1);
 
         space = placementArea.getCircularSpace(radius, new Vec2(70, 50), 0f);
         RobotObject r2 = new RobotObject(world, space.getPosition(), space.getAngle(), radius, mass,
-                color, phenotype.clone(), targetAreaPosition);
+                color, phenotype.clone(), sensorEnergyCosts, targetAreaPosition);
         placementArea.placeObject(space, r2);
     }
 

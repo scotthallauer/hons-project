@@ -48,8 +48,9 @@ public class RobotObject extends PhysicalObject {
     private static final float VELOCITY_RAMPDOWN_START = 0.2f;
     private static final float VELOCITY_RAMPDOWN_END = 0.5f;
 
-    private static final int BATTERY_CAPACITY = 1000;
-    private int currentBatLife;
+    private static final int BATTERY_CAPACITY = 10000;
+    private int currentBatteryLife;
+    private boolean hasSensorEnergyCosts; // if true, then sensors drain battery
 
     private final Phenotype phenotype;
     private final HeuristicPhenotype heuristicPhenotype;
@@ -71,11 +72,12 @@ public class RobotObject extends PhysicalObject {
     private final Portrayal directionPortrayal = new DirectionPortrayal();
 
     public RobotObject(World world, Vec2 position, float angle, double radius, double mass,
-            Color color, Phenotype phenotype, Vec2 targetAreaPosition) {
+            Color color, Phenotype phenotype, boolean hasSensorEnergyCosts, Vec2 targetAreaPosition) {
         super(createPortrayal(radius, color), createBody(world, position, angle, radius, mass));
 
         this.phenotype = phenotype;
         this.defaultColor = color;
+        this.hasSensorEnergyCosts = hasSensorEnergyCosts;
         directionPortrayal.setPaint(invertColor(color));
 
         heuristicPhenotype = new HeuristicPhenotype(phenotype, this, targetAreaPosition);
@@ -88,18 +90,22 @@ public class RobotObject extends PhysicalObject {
         samplePoints = new ArrayList<>();
         samplePolygonAreas = new ArrayList<>();
     }
-    public int getBatLife(){
-        return currentBatLife;
+
+    public int getBatteryLife(){
+        return currentBatteryLife;
     }
-    private void drainBat(int cost){
-        currentBatLife-=cost;
+
+    private void drainBattery(int cost){
+        if(this.hasSensorEnergyCosts)
+            currentBatteryLife -= cost;
     }
+
     private void initSensors() {
         for (AgentSensor sensor : phenotype.getSensors()) {
             sensor.attach(this);
         }
 
-        currentBatLife=BATTERY_CAPACITY;
+        currentBatteryLife = BATTERY_CAPACITY;
 
         getPortrayal().setChildDrawable(new Drawable() {
             @Override
@@ -153,20 +159,20 @@ public class RobotObject extends PhysicalObject {
     @Override
     public void step(SimState sim) {
         super.step(sim);
-        if (getBatLife()<=0) {
+
+        if (getBatteryLife() <= 0)
             return;
-        }
-        int stepCost=0;
+
+        int totalSensorCost = 0;
 
         List<AgentSensor> sensors = phenotype.getSensors();
         List<List<Double>> readings = new ArrayList<>(sensors.size());
         for (AgentSensor sensor : sensors) {
             readings.add(sensor.sense());
-            stepCost+=sensor.getEnergyCost();
+            totalSensorCost += sensor.getEnergyCost();
         }
 
-        //Drain battery
-        drainBat(stepCost);
+        drainBattery(totalSensorCost);
 
         Double2D wheelDrives = heuristicPhenotype.step(readings);
 

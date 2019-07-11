@@ -29,6 +29,7 @@ public class SimConfig extends Config
     private static final float DEFAULT_ROBOT_MASS = 0.7f;
     private static final float DEFAULT_ROBOT_RADIUS = 0.15f;
     private static final Color DEFAULT_ROBOT_COLOUR = new Color(0, 0, 0);
+    private static final boolean DEFAULT_ROBOT_SENSOR_ENERGY_COSTS = false; // robot batteries not drained by default
     private static final double DEFAULT_MIN_DIST_BETWEEN_SENSORS = 0.1;
 
 
@@ -51,6 +52,7 @@ public class SimConfig extends Config
     private final float robotMass;
     private final float robotRadius;
     private final Color robotColour;
+    private boolean robotSensorEnergyCosts;
     private final double minDistBetweenSensors;
 
     private final Direction targetAreaPlacement;
@@ -66,14 +68,15 @@ public class SimConfig extends Config
         this(DEFAULT_SIMULATION_SEED, DEFAULT_SIMULATION_TIMESTEPS, DEFAULT_ENVIRONMENT_WIDTH,
                 DEFAULT_ENVIRONMENT_HEIGHT, DEFAULT_TARGET_AREA_PLACEMENT,
                 DEFAULT_TARGET_AREA_THICKNESS, DEFAULT_TARGET_AREA_SPAN, DEFAULT_OBJECTS_ROBOTS,
-                DEFAULT_ROBOT_MASS, DEFAULT_ROBOT_RADIUS, DEFAULT_ROBOT_COLOUR, DEFAULT_MIN_DIST_BETWEEN_SENSORS,
-                DEFAULT_RESOURCE_FACTORY, DEFAULT_ROBOT_FACTORY);
+                DEFAULT_ROBOT_MASS, DEFAULT_ROBOT_RADIUS, DEFAULT_ROBOT_COLOUR, DEFAULT_ROBOT_SENSOR_ENERGY_COSTS,
+                DEFAULT_MIN_DIST_BETWEEN_SENSORS, DEFAULT_RESOURCE_FACTORY, DEFAULT_ROBOT_FACTORY);
     }
 
     public SimConfig(long simulationSeed, int simulationIterations, int environmentWidth,
                      int environmentHeight, Direction targetAreaPlacement, int targetAreaThickness,
                      float targetAreaSpan, int objectsRobots, float robotMass, float robotRadius,
-                     Color robotColour, double minDistBetweenSensors, ResourceFactory resourceFactory, String robotFactoryName)
+                     Color robotColour, boolean robotSensorEnergyCosts, double minDistBetweenSensors,
+                     ResourceFactory resourceFactory, String robotFactoryName)
     {
 
         this.simulationSeed = simulationSeed;
@@ -90,6 +93,7 @@ public class SimConfig extends Config
         this.robotMass = robotMass;
         this.robotRadius = robotRadius;
         this.robotColour = robotColour;
+        this.robotSensorEnergyCosts = robotSensorEnergyCosts;
         this.minDistBetweenSensors = minDistBetweenSensors;
 
         this.resourceFactory = resourceFactory;
@@ -123,6 +127,7 @@ public class SimConfig extends Config
         float rMass = DEFAULT_ROBOT_MASS;
         float rRadius = DEFAULT_ROBOT_RADIUS;
         Color robotColour = DEFAULT_ROBOT_COLOUR;
+        boolean robotSensorEnergyCosts = DEFAULT_ROBOT_SENSOR_ENERGY_COSTS;
         double minDistBtwnSensors = DEFAULT_MIN_DIST_BETWEEN_SENSORS;
 
         ResourceFactory resFactory = DEFAULT_RESOURCE_FACTORY;
@@ -200,6 +205,11 @@ public class SimConfig extends Config
             {
                 rMass = botMass.floatValue();
             }
+            Boolean botSensorEnergyCosts = (Boolean) bots.get("sensorEnergyCosts");
+            if (checkFieldPresent(botSensorEnergyCosts, "robots:sensorEnergyCosts"))
+            {
+                robotSensorEnergyCosts = botSensorEnergyCosts.booleanValue();
+            }
 
             String rgbvalues = (String) bots.get("colour");
             if (checkFieldPresent(rgbvalues, "robots:colour"))
@@ -273,6 +283,7 @@ public class SimConfig extends Config
         this.robotMass = rMass;
         this.robotRadius = rRadius;
         this.robotColour = robotColour;
+        this.robotSensorEnergyCosts = robotSensorEnergyCosts;
         this.minDistBetweenSensors = minDistBtwnSensors;
         this.resourceFactory = resFactory;
         this.robotFactoryName = robotFactory;
@@ -328,6 +339,14 @@ public class SimConfig extends Config
     public Color getRobotColour()
     {
         return robotColour;
+    }
+
+    public boolean getRobotSensorEnergyCosts() {
+        return robotSensorEnergyCosts;
+    }
+
+    public void setRobotSensorEnergyCosts(boolean robotSensorEnergyCosts) {
+        this.robotSensorEnergyCosts = robotSensorEnergyCosts;
     }
 
     public double getMinDistBetweenSensors() { return minDistBetweenSensors; }
