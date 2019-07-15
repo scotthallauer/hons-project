@@ -224,7 +224,7 @@ public class Main
         public static boolean hyperNEATM = false;
 
         @Parameter(names = "--energy-costs", description = "Enable/disable sensor energy costs in the simulation " +
-                "(if enabled, then robots' batteries will drain at a rate determined by their sensor configuration)")
+                "(if enabled, then robot batteries will drain at a rate determined by their sensor configuration)")
         public static boolean sensorEnergyCosts = true;
 
         @Parameter(names = "--population", description = "To resume a previous experiment, provide"

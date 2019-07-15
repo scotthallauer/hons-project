@@ -13,7 +13,7 @@ public class FilteredProximityAgentSensor extends AgentSensor {
 
     private Set<Class> whitelist = new HashSet<>();
     private static final int readingSize = 1;
-    private static final float ENERGY_COST = 6.0f;
+    private static final float ENERGY_COST = 3.0f;
 
     public FilteredProximityAgentSensor() {
         super();

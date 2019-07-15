@@ -12,7 +12,7 @@ import za.redbridge.simulator.sensor.sensedobjects.SensedObject;
 public class ProximityAgentSensor extends AgentSensor {
 
     private static final int readingSize = 1;
-    private static final float ENERGY_COST = 2.0f;
+    private static final float ENERGY_COST = 1.0f;
 
     public ProximityAgentSensor(float bearing) {
         this(bearing, 0.0f, 0.4f, 0.1f);
