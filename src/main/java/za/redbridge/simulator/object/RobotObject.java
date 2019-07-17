@@ -48,7 +48,7 @@ public class RobotObject extends PhysicalObject {
     private static final float VELOCITY_RAMPDOWN_START = 0.2f;
     private static final float VELOCITY_RAMPDOWN_END = 0.5f;
 
-    private static final int BATTERY_CAPACITY = 10000;
+    private static final int BATTERY_CAPACITY = 100000;
     private int currentBatteryLife;
     private boolean hasSensorEnergyCosts; // if true, then sensors drain battery
     private boolean hasNeuralEnergyCosts; // if true, then neural network configuration drains battery
