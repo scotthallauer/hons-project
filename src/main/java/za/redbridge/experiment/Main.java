@@ -60,6 +60,9 @@ public class Main
         // Enable/disable sensor energy costs in the simulation config according to experiment parameters
         simConfig.setRobotSensorEnergyCosts(options.sensorEnergyCosts);
 
+        // Enable/disable neural energy costs in the simulation config according to experiment parameters
+        simConfig.setRobotNeuralEnergyCosts(options.neuralEnergyCosts);
+
         ScoreCalculator calculateScore =
                 new ScoreCalculator(simConfig, options.trialsPerIndividual, null, options.hyperNEATM);
 
@@ -223,9 +226,13 @@ public class Main
         @Parameter(names = "--HyperNEATM", description = "Using HyperNEATM")
         public static boolean hyperNEATM = false;
 
-        @Parameter(names = "--energy-costs", description = "Enable/disable sensor energy costs in the simulation " +
+        @Parameter(names = "--sensor-energy-costs", description = "Enable/disable sensor energy costs in the simulation " +
                 "(if enabled, then robot batteries will drain at a rate determined by their sensor configuration)")
         public static boolean sensorEnergyCosts = true;
+
+        @Parameter(names = "--neural-energy-costs", description = "Enable/disable neural energy costs in the simulation " +
+                "(if enabled, then robot batteries will drain at a rate determined by their neural network configuration)")
+        public static boolean neuralEnergyCosts = false;
 
         @Parameter(names = "--population", description = "To resume a previous experiment, provide"
                 + " the path to a serialized population")
@@ -253,6 +260,7 @@ public class Main
                     + "\tDemo network config path: " + genomePath + "\n"
                     + "\tHyperNEATM: " + hyperNEATM + "\n"
                     + "\tSensor energy costs: " + sensorEnergyCosts + "\n"
+                    + "\tNeural energy costs: " + neuralEnergyCosts + "\n"
                     + "\tPopulation path: " + populationPath + "\n"
                     + "\tNumber of threads: " + threads + "\n"
                     + "\tMulti-objective: " + multiObjective;

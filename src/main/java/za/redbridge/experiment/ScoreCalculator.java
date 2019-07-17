@@ -80,7 +80,8 @@ public class ScoreCalculator implements CalculateScore
         NEATNetwork network = (NEATNetwork) method;
         RobotFactory robotFactory = new HomogeneousRobotFactory(getPhenotypeForNetwork(network),
                 simConfig.getRobotMass(), simConfig.getRobotRadius(), simConfig.getRobotColour(),
-                simConfig.getObjectsRobots(), simConfig.getRobotSensorEnergyCosts());
+                simConfig.getObjectsRobots(), simConfig.getRobotSensorEnergyCosts(),
+                simConfig.getRobotNeuralEnergyCosts());
 
         // Create the simulation and run it
         Simulation simulation = new Simulation(simConfig, robotFactory);
@@ -205,7 +206,8 @@ public class ScoreCalculator implements CalculateScore
         NEATNetwork network = (NEATNetwork) method;
         RobotFactory robotFactory = new HomogeneousRobotFactory(getPhenotypeForNetwork(network),
                 simConfig.getRobotMass(), simConfig.getRobotRadius(), simConfig.getRobotColour(),
-                simConfig.getObjectsRobots(), simConfig.getRobotSensorEnergyCosts());
+                simConfig.getObjectsRobots(), simConfig.getRobotSensorEnergyCosts(),
+                simConfig.getRobotNeuralEnergyCosts());
 
         // Create the simulation and run it
         Simulation simulation = new Simulation(simConfig, robotFactory);

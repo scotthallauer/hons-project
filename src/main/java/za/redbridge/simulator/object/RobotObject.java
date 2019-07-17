@@ -51,6 +51,7 @@ public class RobotObject extends PhysicalObject {
     private static final int BATTERY_CAPACITY = 10000;
     private int currentBatteryLife;
     private boolean hasSensorEnergyCosts; // if true, then sensors drain battery
+    private boolean hasNeuralEnergyCosts; // if true, then neural network configuration drains battery
 
     private final Phenotype phenotype;
     private final HeuristicPhenotype heuristicPhenotype;
@@ -72,12 +73,14 @@ public class RobotObject extends PhysicalObject {
     private final Portrayal directionPortrayal = new DirectionPortrayal();
 
     public RobotObject(World world, Vec2 position, float angle, double radius, double mass,
-            Color color, Phenotype phenotype, boolean hasSensorEnergyCosts, Vec2 targetAreaPosition) {
+            Color color, Phenotype phenotype, boolean hasSensorEnergyCosts, boolean hasNeuralEnergyCosts,
+            Vec2 targetAreaPosition) {
         super(createPortrayal(radius, color), createBody(world, position, angle, radius, mass));
 
         this.phenotype = phenotype;
         this.defaultColor = color;
         this.hasSensorEnergyCosts = hasSensorEnergyCosts;
+        this.hasNeuralEnergyCosts = hasNeuralEnergyCosts;
         directionPortrayal.setPaint(invertColor(color));
 
         heuristicPhenotype = new HeuristicPhenotype(phenotype, this, targetAreaPosition);
@@ -96,8 +99,7 @@ public class RobotObject extends PhysicalObject {
     }
 
     private void drainBattery(int cost){
-        if(this.hasSensorEnergyCosts)
-            currentBatteryLife -= cost;
+        currentBatteryLife -= cost;
     }
 
     private void initSensors() {
@@ -160,19 +162,28 @@ public class RobotObject extends PhysicalObject {
     public void step(SimState sim) {
         super.step(sim);
 
+        // if the battery is drained, then robot does nothing
         if (getBatteryLife() <= 0)
             return;
-
-        int totalSensorCost = 0;
 
         List<AgentSensor> sensors = phenotype.getSensors();
         List<List<Double>> readings = new ArrayList<>(sensors.size());
         for (AgentSensor sensor : sensors) {
             readings.add(sensor.sense());
-            totalSensorCost += sensor.getEnergyCost();
         }
 
-        drainBattery(totalSensorCost);
+        int totalEnergyCost = 0;
+
+        if (this.hasSensorEnergyCosts) {
+            for (AgentSensor sensor : sensors) {
+                totalEnergyCost += sensor.getEnergyCost();
+            }
+        }
+        if (this.hasNeuralEnergyCosts) {
+            // TODO: add code to set energy cost to neural network cost
+        }
+
+        drainBattery(totalEnergyCost);
 
         Double2D wheelDrives = heuristicPhenotype.step(readings);
 
