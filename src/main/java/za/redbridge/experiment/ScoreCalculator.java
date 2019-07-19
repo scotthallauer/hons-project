@@ -74,10 +74,14 @@ public class ScoreCalculator implements CalculateScore
         }
     }
 
+    /*
+    * Caclulates the total number of nodes and links for a given Network
+    */
+
     public int getNeuralEnergyCost(MLMethod method) {
 
         NEATNetwork network = (NEATNetwork) method;
-        ArrayList<Integer> networkLinks = new ArrayList<Integer>();
+        ArrayList<Integer> networkNodes = new ArrayList<Integer>();
 
         int totalCost = 0;
         int numberOfLinks = network.getLinks().length;
@@ -90,16 +94,16 @@ public class ScoreCalculator implements CalculateScore
             from = network.getLinks()[i].getFromNeuron();
             to = network.getLinks()[i].getToNeuron();
 
-            if(!networkLinks.contains(from))
+            if(!networkNodes.contains(from))
             {
                 numberOfNodes++;
-                networkLinks.add(from);
+                networkNodes.add(from);
             }
 
-            if(!networkLinks.contains(to))
+            if(!networkNodes.contains(to))
             {
                 numberOfNodes++;
-                networkLinks.add(to);
+                networkNodes.add(to);
             }
         }
 
