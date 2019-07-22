@@ -52,6 +52,8 @@ public class RobotObject extends PhysicalObject {
     private int currentBatteryLife;
     private boolean hasSensorEnergyCosts; // if true, then sensors drain battery
     private boolean hasNeuralEnergyCosts; // if true, then neural network configuration drains battery
+    private int sensorEnergyCost;
+    private int neuralEnergyCost;
 
     private final Phenotype phenotype;
     private final HeuristicPhenotype heuristicPhenotype;
@@ -85,6 +87,15 @@ public class RobotObject extends PhysicalObject {
 
         heuristicPhenotype = new HeuristicPhenotype(phenotype, this, targetAreaPosition);
         initSensors();
+
+        List<AgentSensor> sensors = phenotype.getSensors();
+        this.sensorEnergyCost = 0;
+        for (AgentSensor sensor : sensors) {
+            this.sensorEnergyCost += sensor.getEnergyCost();
+        }
+
+        System.out.println("Sensor energy cost = " + this.sensorEnergyCost);
+        System.out.println("Neural energy cost = " + this.neuralEnergyCost);
 
         float wheelDistance = (float) (radius * WHEEL_DISTANCE);
         leftWheelPosition = new Vec2(0f, wheelDistance);
@@ -175,9 +186,7 @@ public class RobotObject extends PhysicalObject {
         int totalEnergyCost = 0;
 
         if (this.hasSensorEnergyCosts) {
-            for (AgentSensor sensor : sensors) {
-                totalEnergyCost += sensor.getEnergyCost();
-            }
+            totalEnergyCost += this.sensorEnergyCost;
         }
         if (this.hasNeuralEnergyCosts) {
             // TODO: add code to set energy cost to neural network cost
@@ -401,5 +410,12 @@ public class RobotObject extends PhysicalObject {
         return totalArea/2;
     }
 
+    public int getSensorEnergyCost() {
+        return this.sensorEnergyCost;
+    }
+
+    public int getNeuralEnergyCost() {
+        return this.neuralEnergyCost;
+    }
 
 }
