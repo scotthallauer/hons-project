@@ -204,10 +204,10 @@ public class Main
         //public static String configFile = "config/ConfigDifficult.yml";
 
         @Parameter(names = "-g", description = "Number of generations to train for")    // Jamie calls this 'iterations'
-        public static int numGenerations = 1;
+        public static int numGenerations = 25;
 
         @Parameter(names = "-p", description = "Initial population size")
-        public static int populationSize = 15;
+        public static int populationSize = 150;
 
         @Parameter(names = "--trials", description = "Number of simulation runs per iteration (team lifetime)")
         // Jamie calls this 'simulationRuns' (and 'lifetime' in his paper)
@@ -232,7 +232,7 @@ public class Main
 
         @Parameter(names = "--neural-energy-costs", description = "Enable/disable neural energy costs in the simulation " +
                 "(if enabled, then robot batteries will drain at a rate determined by their neural network configuration)")
-        public static boolean neuralEnergyCosts = false;
+        public static boolean neuralEnergyCosts = true;
 
         @Parameter(names = "--population", description = "To resume a previous experiment, provide"
                 + " the path to a serialized population")
