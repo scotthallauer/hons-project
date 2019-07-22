@@ -95,9 +95,6 @@ public class RobotObject extends PhysicalObject {
             this.sensorEnergyCost += sensor.getEnergyCost();
         }
 
-        System.out.println("Sensor energy cost = " + this.sensorEnergyCost);
-        System.out.println("Neural energy cost = " + this.neuralEnergyCost);
-
         float wheelDistance = (float) (radius * WHEEL_DISTANCE);
         leftWheelPosition = new Vec2(0f, wheelDistance);
         rightWheelPosition = new Vec2(0f, -wheelDistance);
