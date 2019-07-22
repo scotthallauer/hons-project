@@ -24,6 +24,7 @@ import za.redbridge.simulator.sensor.AgentSensor;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.HashMap;
+import java.util.ArrayList;
 
 /**
  * Test runner for the simulation.
@@ -73,15 +74,52 @@ public class ScoreCalculator implements CalculateScore
         }
     }
 
+    /*
+    * Caclulates the total number of nodes and links for a given Network
+    */
+
+    public int getNeuralEnergyCost(MLMethod method) {
+
+        NEATNetwork network = (NEATNetwork) method;
+        ArrayList<Integer> networkNodes = new ArrayList<Integer>();
+
+        int totalCost = 0;
+        int numberOfLinks = network.getLinks().length;
+        int numberOfNodes = 0;
+        int from;
+        int to;
+
+        for(int i = 0; i < numberOfLinks; i++)
+        {
+            from = network.getLinks()[i].getFromNeuron();
+            to = network.getLinks()[i].getToNeuron();
+
+            if(!networkNodes.contains(from))
+            {
+                numberOfNodes++;
+                networkNodes.add(from);
+            }
+
+            if(!networkNodes.contains(to))
+            {
+                numberOfNodes++;
+                networkNodes.add(to);
+            }
+        }
+
+        totalCost = numberOfLinks + numberOfNodes;
+
+        return totalCost;
+    }
+
     @Override
     public double calculateScore(MLMethod method)
     {
-
         NEATNetwork network = (NEATNetwork) method;
         RobotFactory robotFactory = new HomogeneousRobotFactory(getPhenotypeForNetwork(network),
                 simConfig.getRobotMass(), simConfig.getRobotRadius(), simConfig.getRobotColour(),
                 simConfig.getObjectsRobots(), simConfig.getRobotSensorEnergyCosts(),
-                simConfig.getRobotNeuralEnergyCosts());
+                simConfig.getRobotNeuralEnergyCosts(), getNeuralEnergyCost(method));
 
         // Create the simulation and run it
         Simulation simulation = new Simulation(simConfig, robotFactory);
@@ -207,7 +245,7 @@ public class ScoreCalculator implements CalculateScore
         RobotFactory robotFactory = new HomogeneousRobotFactory(getPhenotypeForNetwork(network),
                 simConfig.getRobotMass(), simConfig.getRobotRadius(), simConfig.getRobotColour(),
                 simConfig.getObjectsRobots(), simConfig.getRobotSensorEnergyCosts(),
-                simConfig.getRobotNeuralEnergyCosts());
+                simConfig.getRobotNeuralEnergyCosts(), getNeuralEnergyCost(method));
 
         // Create the simulation and run it
         Simulation simulation = new Simulation(simConfig, robotFactory);

@@ -3,3 +3,4 @@ out/*
 results/*
 *.class
 .DS_Store
+/build/

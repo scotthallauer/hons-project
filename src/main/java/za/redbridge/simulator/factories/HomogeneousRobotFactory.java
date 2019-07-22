@@ -17,9 +17,10 @@ public class HomogeneousRobotFactory implements RobotFactory {
     protected int numRobots;
     protected boolean sensorEnergyCosts;
     protected boolean neuralEnergyCosts;
+    protected int neuralEnergyCost;
 
     public HomogeneousRobotFactory(Phenotype phenotype, float mass, float radius, Color color,
-            int numRobots, boolean sensorEnergyCosts, boolean neuralEnergyCosts) {
+            int numRobots, boolean sensorEnergyCosts, boolean neuralEnergyCosts, int neuralEnergyCost) {
         this.phenotype = phenotype;
         this.mass = mass;
         this.radius = radius;
@@ -27,6 +28,7 @@ public class HomogeneousRobotFactory implements RobotFactory {
         this.numRobots = numRobots;
         this.sensorEnergyCosts = sensorEnergyCosts;
         this.neuralEnergyCosts = neuralEnergyCosts;
+        this.neuralEnergyCost = neuralEnergyCost;
     }
 
     @Override
@@ -38,7 +40,7 @@ public class HomogeneousRobotFactory implements RobotFactory {
             Phenotype phenotype = this.phenotype.clone();
 
             RobotObject robot = new RobotObject(world, space.getPosition(), space.getAngle(),
-                    radius, mass, color, phenotype, sensorEnergyCosts, neuralEnergyCosts, targetAreaPosition);
+                    radius, mass, color, phenotype, sensorEnergyCosts, neuralEnergyCosts, neuralEnergyCost, targetAreaPosition);
 
             placementArea.placeObject(space, robot);
         }

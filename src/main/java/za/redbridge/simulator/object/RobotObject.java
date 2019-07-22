@@ -75,7 +75,7 @@ public class RobotObject extends PhysicalObject {
     private final Portrayal directionPortrayal = new DirectionPortrayal();
 
     public RobotObject(World world, Vec2 position, float angle, double radius, double mass,
-            Color color, Phenotype phenotype, boolean hasSensorEnergyCosts, boolean hasNeuralEnergyCosts,
+            Color color, Phenotype phenotype, boolean hasSensorEnergyCosts, boolean hasNeuralEnergyCosts, int neuralEnergyCost,
             Vec2 targetAreaPosition) {
         super(createPortrayal(radius, color), createBody(world, position, angle, radius, mass));
 
@@ -83,6 +83,7 @@ public class RobotObject extends PhysicalObject {
         this.defaultColor = color;
         this.hasSensorEnergyCosts = hasSensorEnergyCosts;
         this.hasNeuralEnergyCosts = hasNeuralEnergyCosts;
+        this.neuralEnergyCost = neuralEnergyCost;
         directionPortrayal.setPaint(invertColor(color));
 
         heuristicPhenotype = new HeuristicPhenotype(phenotype, this, targetAreaPosition);
@@ -189,7 +190,7 @@ public class RobotObject extends PhysicalObject {
             totalEnergyCost += this.sensorEnergyCost;
         }
         if (this.hasNeuralEnergyCosts) {
-            // TODO: add code to set energy cost to neural network cost
+            totalEnergyCost += this.neuralEnergyCost;
         }
 
         drainBattery(totalEnergyCost);

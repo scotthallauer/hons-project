@@ -19,9 +19,10 @@ public class DebugSensorRobotFactory implements RobotFactory {
     protected int numRobots;
     protected boolean sensorEnergyCosts;
     protected boolean neuralEnergyCosts;
+    protected int neuralEnergyCost;
 
     public DebugSensorRobotFactory(Phenotype phenotype, float mass, float radius, Color color,
-            int numRobots, boolean sensorEnergyCosts, boolean neuralEnergyCosts) {
+            int numRobots, boolean sensorEnergyCosts, boolean neuralEnergyCosts, int neuralEnergyCost) {
         this.phenotype = phenotype;
         this.mass = mass;
         this.radius = radius;
@@ -36,12 +37,12 @@ public class DebugSensorRobotFactory implements RobotFactory {
             Vec2 targetAreaPosition) {
         PlacementArea.Space space = placementArea.getCircularSpace(radius, new Vec2(50, 50), 0f);
         RobotObject r1 = new RobotObject(world, space.getPosition(), space.getAngle(), radius, mass,
-                color, phenotype.clone(), sensorEnergyCosts, neuralEnergyCosts, targetAreaPosition);
+                color, phenotype.clone(), sensorEnergyCosts, neuralEnergyCosts, neuralEnergyCost, targetAreaPosition);
         placementArea.placeObject(space, r1);
 
         space = placementArea.getCircularSpace(radius, new Vec2(70, 50), 0f);
         RobotObject r2 = new RobotObject(world, space.getPosition(), space.getAngle(), radius, mass,
-                color, phenotype.clone(), sensorEnergyCosts, neuralEnergyCosts, targetAreaPosition);
+                color, phenotype.clone(), sensorEnergyCosts, neuralEnergyCosts, neuralEnergyCost, targetAreaPosition);
         placementArea.placeObject(space, r2);
     }
 
