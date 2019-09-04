@@ -204,7 +204,7 @@ public class ScoreCalculator implements CalculateScore
     public double calculateScore3(MLMethod method)  // neural complexity
     {
         NEATMNetwork network = (NEATMNetwork) method;
-        System.out.println(network.getLinks().length);
+        //System.out.println(network.getLinks().length);
        // System.out.println((network.getLinks().length/100.0));
         return 100-(network.getLinks().length/40.0)*100;
     }
